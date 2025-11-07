@@ -1,0 +1,47 @@
+{
+  "required": true,
+  "package": "com.soarclient.mixin.mixins",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "minecraft.client.MixinKeyboard",
+    "minecraft.client.MixinMinecraftClient",
+    "minecraft.client.MixinMouse",
+    "minecraft.client.gui.MixinBossBarHud",
+    "minecraft.client.gui.MixinChatHud",
+    "minecraft.client.gui.MixinChatScreen",
+    "minecraft.client.gui.MixinLanguageScreen",
+    "minecraft.client.gui.MixinMultiplayerScreen",
+    "minecraft.client.gui.MixinPackScreen",
+    "minecraft.client.gui.MixinSplashScreen",
+    "minecraft.client.gui.MixinTitleScreen",
+    "minecraft.client.input.MixinKeyboardInput",
+    "minecraft.client.option.MixinKeyBinding",
+    "minecraft.client.render.BufferRendererAccessor",
+    "minecraft.client.render.MixinCamera",
+    "minecraft.client.render.MixinEntityRenderer",
+    "minecraft.client.render.MixinGameRenderer",
+    "minecraft.client.render.MixinHeldItemRenderer",
+    "minecraft.client.render.MixinInGameHud",
+    "minecraft.client.render.MixinInGameOverlayRenderer",
+    "minecraft.client.render.MixinLightmapTextureManager",
+    "minecraft.client.sound.MixinSoundSystem",
+    "minecraft.client.util.MixinWindow",
+    "minecraft.entity.MixinClientPlayerEntity",
+    "minecraft.entity.MixinEntity",
+    "minecraft.entity.MixinLivingEntity",
+    "minecraft.entity.MixinPlayerEntity",
+    "minecraft.network.MixinClientConnection",
+    "minecraft.network.packet.PlayerInteractEntityC2SPacketAccessor",
+    "minecraft.world.MixinBiome",
+    "minecraft.world.MixinClientWorldProperties",
+    "minecraft.world.MixinWorld",
+    "viafabricplus.MixinMinecraftClient"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": [
+    "minecraft.network.MixinClientPlayerInteractionManager",
+    "minecraft.world.MixinItem"
+  ]
+}

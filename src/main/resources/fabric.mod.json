@@ -1,0 +1,29 @@
+{
+	"schemaVersion": 1,
+	"id": "pupper",
+	"version": "${version}",
+	"accessWidener": "pupper.accesswidener",
+	"name": "PupperClient",
+	"description": "Better, Faster Minecraft Client",
+	"authors": [
+		"EldoDebug",
+		"oneachina"
+	],
+	"contact": {
+		"homepage": ""
+	},
+	"environment": "*",
+	"mixins": [
+		"pupper.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.16.10",
+		"fabric": "*",
+		"minecraft": "1.21.4",
+		"viafabricplus": "*",
+		"ias": "*"
+	},
+	"custom": {
+		"soar:icon": "assets/pupper/logo.png"
+	}
+}
