@@ -105,9 +105,8 @@ processResources {
         def resourcePath = sourceSets.main.resources.srcDirs[0]
         def iconFile = new File(resourcePath, "assets/pupper/logo.png")
         if (!iconFile.exists()) {
-            throw new GradleException("Soar icon not found: ${iconFile.absolutePath}")
+            throw new GradleException("Pupper icon not found: ${iconFile.absolutePath}")
         }
-        println "Found Soar icon at: ${iconFile.absolutePath}"
     }
 }
 

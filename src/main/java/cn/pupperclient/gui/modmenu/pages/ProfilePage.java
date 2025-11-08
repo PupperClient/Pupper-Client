@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.lwjgl.glfw.GLFW;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.animation.SimpleAnimation;
 import cn.pupperclient.gui.api.SoarGui;
 import cn.pupperclient.gui.api.page.Page;
@@ -40,7 +40,7 @@ public class ProfilePage extends Page {
 		
 		items.clear();
 		
-		for (Profile p : Soar.getInstance().getProfileManager().getProfiles()) {
+		for (Profile p : PupperClient.getInstance().getProfileManager().getProfiles()) {
 			items.add(new Item(p));
 		}
 
@@ -64,7 +64,7 @@ public class ProfilePage extends Page {
 	public void draw(double mouseX, double mouseY) {
 		super.draw(mouseX, mouseY);
 
-		ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+		ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
 		addButton.draw(mouseX, mouseY);
 
@@ -141,7 +141,7 @@ public class ProfilePage extends Page {
 			float itemY = i.yAnimation.getValue();
 			
 			if(MouseUtils.isInside(mouseX, mouseY, itemX, itemY, 245, 88) && button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-				Soar.getInstance().getProfileManager().load(i.profile);
+				PupperClient.getInstance().getProfileManager().load(i.profile);
 			}
 		}
 	}

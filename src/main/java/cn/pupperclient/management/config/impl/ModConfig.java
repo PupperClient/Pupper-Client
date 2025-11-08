@@ -3,8 +3,8 @@ package cn.pupperclient.management.config.impl;
 import java.io.File;
 import java.util.List;
 
+import cn.pupperclient.PupperClient;
 import com.google.gson.JsonObject;
-import cn.pupperclient.Soar;
 import cn.pupperclient.libraries.material3.hct.Hct;
 import cn.pupperclient.management.config.Config;
 import cn.pupperclient.management.config.ConfigType;
@@ -29,7 +29,7 @@ public class ModConfig extends Config {
 
     @Override
     public void onLoad() {
-        ModManager modManager = Soar.getInstance().getModManager();
+        ModManager modManager = PupperClient.getInstance().getModManager();
         JsonObject modsJson = JsonUtils.getObjectProperty(jsonObject, "mods");
 
         if (modsJson == null) {
@@ -42,7 +42,7 @@ public class ModConfig extends Config {
 
     @Override
     public void onSave() {
-        ModManager modManager = Soar.getInstance().getModManager();
+        ModManager modManager = PupperClient.getInstance().getModManager();
         JsonObject modsJson = new JsonObject();
 
         saveModsConfiguration(modManager, modsJson);

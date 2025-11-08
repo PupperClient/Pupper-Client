@@ -5,9 +5,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.pupperclient.PupperClient;
 import org.lwjgl.glfw.GLFW;
 
-import cn.pupperclient.Soar;
 import cn.pupperclient.animation.SimpleAnimation;
 import cn.pupperclient.gui.api.SoarGui;
 import cn.pupperclient.gui.api.page.Page;
@@ -48,7 +48,7 @@ public class MusicPage extends Page {
 		
 		items.clear();
 		
-		for (Music m : Soar.getInstance().getMusicManager().getMusics()) {
+		for (Music m : PupperClient.getInstance().getMusicManager().getMusics()) {
 			items.add(new Item(m));
 		}
 
@@ -65,8 +65,8 @@ public class MusicPage extends Page {
 
 		super.draw(mouseX, mouseY);
 
-		MusicManager musicManager = Soar.getInstance().getMusicManager();
-		ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+		MusicManager musicManager = PupperClient.getInstance().getMusicManager();
+		ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
 		int index = 0;
 		float offsetX = 28;
@@ -161,7 +161,7 @@ public class MusicPage extends Page {
 	public void mouseReleased(double mouseX, double mouseY, int button) {
 		super.mouseReleased(mouseX, mouseY, button);
 
-		MusicManager musicManager = Soar.getInstance().getMusicManager();
+		MusicManager musicManager = PupperClient.getInstance().getMusicManager();
 
 		controlBar.mouseReleased(mouseX, mouseY, button);
 

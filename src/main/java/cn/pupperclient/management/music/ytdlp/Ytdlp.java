@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.pupperclient.SoarLogger;
+import cn.pupperclient.PupperLogger;
 import cn.pupperclient.utils.file.FileLocation;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,7 +42,7 @@ public class Ytdlp {
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
-                SoarLogger.info("YTDLP", line);
+                PupperLogger.info("YTDLP", line);
             }
 
             int exitCode = process.waitFor();

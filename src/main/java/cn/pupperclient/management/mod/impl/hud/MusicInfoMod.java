@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.client.ClientTickEvent;
 import cn.pupperclient.event.client.RenderSkiaEvent;
@@ -134,12 +134,12 @@ public class MusicInfoMod extends SimpleHUDMod {
             return;
         }
 
-        Music m = Soar.getInstance().getMusicManager().getCurrentMusic();
+        Music m = PupperClient.getInstance().getMusicManager().getCurrentMusic();
 
         if (lyricsDisplaySetting.isEnabled()) {
             String newLyric = "";
             if (m != null) {
-                newLyric = lyricsManager.getCurrentLyric(m, Soar.getInstance().getMusicManager().getCurrentTime());
+                newLyric = lyricsManager.getCurrentLyric(m, PupperClient.getInstance().getMusicManager().getCurrentTime());
             }
             if (newLyric == null) {
                 newLyric = "";
@@ -205,7 +205,7 @@ public class MusicInfoMod extends SimpleHUDMod {
     };
 
     private float calculateAdaptiveWidth() {
-        MusicManager musicManager = Soar.getInstance().getMusicManager();
+        MusicManager musicManager = PupperClient.getInstance().getMusicManager();
         Music m = musicManager.getCurrentMusic();
 
         boolean isDummyMode = HUDCore.isEditing && m == null;
@@ -297,7 +297,7 @@ public class MusicInfoMod extends SimpleHUDMod {
 
     private void drawInfo(float width, float height) {
         String type = typeSetting.getOption();
-        MusicManager musicManager = Soar.getInstance().getMusicManager();
+        MusicManager musicManager = PupperClient.getInstance().getMusicManager();
         Music m = musicManager.getCurrentMusic();
 
         float padding = 4.5F;
@@ -558,7 +558,7 @@ public class MusicInfoMod extends SimpleHUDMod {
 
     @Override
     public String getText() {
-        MusicManager musicManager = Soar.getInstance().getMusicManager();
+        MusicManager musicManager = PupperClient.getInstance().getMusicManager();
         if (musicManager.getCurrentMusic() != null && musicManager.isPlaying()) {
             return "Playing: " + musicManager.getCurrentMusic().getTitle();
         } else {

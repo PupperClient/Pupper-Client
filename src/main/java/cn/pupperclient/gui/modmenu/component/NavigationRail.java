@@ -4,9 +4,9 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.pupperclient.PupperClient;
 import org.lwjgl.glfw.GLFW;
 
-import cn.pupperclient.Soar;
 import cn.pupperclient.animation.Animation;
 import cn.pupperclient.animation.Duration;
 import cn.pupperclient.animation.SimpleAnimation;
@@ -70,7 +70,7 @@ public class NavigationRail extends Component {
 	@Override
 	public void draw(double mouseX, double mouseY) {
 
-		ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+		ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
 		Skia.drawRoundedRectVarying(x, y, width, height, 35, 0, 0, 35, palette.getSurface());
 

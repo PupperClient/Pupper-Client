@@ -1,6 +1,6 @@
 package cn.pupperclient.management.mod;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.event.EventBus;
 
 import cn.pupperclient.management.keybind.KeybindManager;
@@ -43,7 +43,7 @@ public class Mod implements IMinecraft {
         int previousKey = this.key;
         this.key = newKey;
 
-        Soar.LOGGER.debug("Keybind updated for mod {}: {} -> {}", name, previousKey, newKey);
+        PupperClient.LOGGER.debug("Keybind updated for mod {}: {} -> {}", name, previousKey, newKey);
     }
 
     public int getKey() {
@@ -76,17 +76,17 @@ public class Mod implements IMinecraft {
 
     private void notifyStateChange() {
         EventBus.getInstance().post(new ModStateChangeEvent(this, enabled));
-        Soar.getInstance().getModManager().onModStateChanged(this, enabled);
+        PupperClient.getInstance().getModManager().onModStateChanged(this, enabled);
     }
 
     public void onEnable() {
         EventBus.getInstance().register(this);
-        //Soar.LOGGER.info("Mod {} enabled", I18n.get("name"));
+        //PupperClient.LOGGER.info("Mod {} enabled", I18n.get("name"));
     }
 
     public void onDisable() {
         EventBus.getInstance().unregister(this);
-        //Soar.LOGGER.info("Mod {} disabled", getName());
+        //PupperClient.LOGGER.info("Mod {} disabled", getName());
     }
 
     public void cleanup() {

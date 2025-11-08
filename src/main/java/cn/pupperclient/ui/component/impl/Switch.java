@@ -4,7 +4,7 @@ import java.awt.Color;
 
 import org.lwjgl.glfw.GLFW;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.animation.SimpleAnimation;
 import cn.pupperclient.management.color.api.ColorPalette;
 import cn.pupperclient.skia.Skia;
@@ -32,7 +32,7 @@ public class Switch extends Component {
 	@Override
 	public void draw(double mouseX, double mouseY) {
 
-		ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+		ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 		boolean focus = MouseUtils.isInside(mouseX, mouseY, x, y, width, height);
 
 		Skia.drawRoundedRect(x, y, width, height, 16, palette.getSurfaceContainerHighest());

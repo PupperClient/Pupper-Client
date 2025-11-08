@@ -4,9 +4,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import cn.pupperclient.PupperClient;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import cn.pupperclient.Soar;
 import cn.pupperclient.management.websocket.packet.impl.SC_SoarUserPacket;
 import cn.pupperclient.utils.TimerUtils;
 import cn.pupperclient.utils.server.ServerUtils;
@@ -28,7 +28,7 @@ public class UserManager {
 			if (timer.delay(100)) {
 				if (iterator.hasNext()) {
 					String request = iterator.next();
-					Soar.getInstance().getWebSocketManager().send(new SC_SoarUserPacket(request));
+					PupperClient.getInstance().getWebSocketManager().send(new SC_SoarUserPacket(request));
 					requests.remove(request);
 				}
 

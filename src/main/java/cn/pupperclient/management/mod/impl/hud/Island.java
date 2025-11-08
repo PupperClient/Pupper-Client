@@ -1,6 +1,6 @@
 package cn.pupperclient.management.mod.impl.hud;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.EventListener;
 import cn.pupperclient.event.client.RenderSkiaEvent;
@@ -22,7 +22,7 @@ import java.util.Objects;
 import java.util.Queue;
 
 public class Island extends HUDMod {
-    private final StringSetting name = new StringSetting("mod.Island.customname", "mod.Island.customname.description", Icon.FLIGHT_LAND, this, "Soar CN");
+    private final StringSetting name = new StringSetting("mod.Island.customname", "mod.Island.customname.description", Icon.FLIGHT_LAND, this, "PupperClient CN");
 
     private static final long DISPLAY_DURATION = 2000;
     private static final long TRANSITION_DURATION = 400;
@@ -56,13 +56,13 @@ public class Island extends HUDMod {
     @Override
     public void onEnable() {
         super.onEnable();
-        Soar.getInstance().getModManager().addStateListener(this::handleModStateChange);
+        PupperClient.getInstance().getModManager().addStateListener(this::handleModStateChange);
     }
 
     @Override
     public void onDisable() {
         super.onDisable();
-        Soar.getInstance().getModManager().removeStateListener(this::handleModStateChange);
+        PupperClient.getInstance().getModManager().removeStateListener(this::handleModStateChange);
     }
 
     // 静态方法：在配置加载前调用
@@ -206,7 +206,7 @@ public class Island extends HUDMod {
     private float calculateNormalTextWidth(float fontSize, float iconSize) {
         float totalWidth = 0;
 
-        // Soar-CN图标和文本
+        // PupperClient-CN图标和文本
         totalWidth += iconSize + 2;
         totalWidth += Skia.getTextBounds(name.getValue() + " · ", Fonts.getRegular(fontSize)).getWidth() + 5;
 

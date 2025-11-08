@@ -4,9 +4,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.pupperclient.PupperClient;
 import org.lwjgl.glfw.GLFW;
 
-import cn.pupperclient.Soar;
 import cn.pupperclient.gui.api.SoarGui;
 import cn.pupperclient.gui.api.page.Page;
 import cn.pupperclient.gui.api.page.SimplePage;
@@ -63,9 +63,9 @@ public class ProfileAddPage extends SimplePage {
 			@Override
 			public void onAction() {
 				if (!nameField.getText().isEmpty()) {
-					Soar.getInstance().getProfileManager().save(nameField.getText(), client.getGameProfile().getName(),
+					PupperClient.getInstance().getProfileManager().save(nameField.getText(), client.getGameProfile().getName(),
 							addressField.getText(), currentIcon, ConfigType.MOD);
-					Soar.getInstance().getProfileManager().readProfiles();
+					PupperClient.getInstance().getProfileManager().readProfiles();
 					parent.setClosable(true);
 					parent.setCurrentPage(prevPage);
 				}
@@ -81,7 +81,7 @@ public class ProfileAddPage extends SimplePage {
 	public void draw(double mouseX, double mouseY) {
 		super.draw(mouseX, mouseY);
 
-		ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+		ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 		float offset = 26;
 		float itemX = x + offset;
 		float itemY = y + offset;

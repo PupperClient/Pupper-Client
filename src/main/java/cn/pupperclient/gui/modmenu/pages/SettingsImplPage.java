@@ -1,6 +1,6 @@
 package cn.pupperclient.gui.modmenu.pages;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.gui.api.SoarGui;
 import cn.pupperclient.gui.api.page.Page;
 import cn.pupperclient.gui.api.page.impl.RightTransition;
@@ -41,7 +41,7 @@ public class SettingsImplPage extends Page {
         bars.clear();
         lastVisibleSettings.clear();
 
-        for (Setting s : Soar.getInstance().getModManager().getSettingsByMod(mod)) {
+        for (Setting s : PupperClient.getInstance().getModManager().getSettingsByMod(mod)) {
             if (s.isVisible()) {
                 SettingBar bar = new SettingBar(s, x + 32, y + 32, width - 64);
                 bars.add(bar);
@@ -52,7 +52,7 @@ public class SettingsImplPage extends Page {
 
     private boolean hasVisibilityChanged() {
         List<Setting> currentVisibleSettings = new ArrayList<>();
-        for (Setting s : Soar.getInstance().getModManager().getSettingsByMod(mod)) {
+        for (Setting s : PupperClient.getInstance().getModManager().getSettingsByMod(mod)) {
             if (s.isVisible()) {
                 currentVisibleSettings.add(s);
             }

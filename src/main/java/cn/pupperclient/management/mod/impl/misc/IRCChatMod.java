@@ -1,6 +1,6 @@
 package cn.pupperclient.management.mod.impl.misc;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.client.ClientTickEvent;
 import cn.pupperclient.management.irc.client.IRCTransport;
@@ -79,7 +79,7 @@ public class IRCChatMod extends Mod implements IMinecraft, IRCHandler {
     public void onDisconnected(String message) {
         isConnected = false;
         lastError = message;
-        Soar.LOGGER.warn("IRC disconnected: {}", message);
+        PupperClient.LOGGER.warn("IRC disconnected: {}", message);
 
         if (mc.player != null) {
             mc.player.sendMessage(Text.of("§cIRC disconnected: " + message), false);
@@ -95,7 +95,7 @@ public class IRCChatMod extends Mod implements IMinecraft, IRCHandler {
     public void onConnected() {
         isConnected = true;
         lastError = "";
-        Soar.LOGGER.info("IRC connected successfully");
+        PupperClient.LOGGER.info("IRC connected successfully");
 
         if (mc.player != null) {
             mc.player.sendMessage(Text.of("§aConnected to IRC server!"), false);
@@ -117,7 +117,7 @@ public class IRCChatMod extends Mod implements IMinecraft, IRCHandler {
         if (autoConnectSetting.isEnabled() && !isConnected && transport == null) {
             long currentTime = System.currentTimeMillis();
             if (currentTime - lastReconnectAttempt > RECONNECT_DELAY) {
-                Soar.LOGGER.info("Attempting to reconnect to IRC...");
+                PupperClient.LOGGER.info("Attempting to reconnect to IRC...");
                 connectToIRC();
                 lastReconnectAttempt = currentTime;
             }
@@ -138,7 +138,7 @@ public class IRCChatMod extends Mod implements IMinecraft, IRCHandler {
 
         new Thread(() -> {
             try {
-                Soar.LOGGER.info("Connecting to IRC server {}:{}", serverSetting.getValue(), portSetting.getValue());
+                PupperClient.LOGGER.info("Connecting to IRC server {}:{}", serverSetting.getValue(), portSetting.getValue());
 
                 transport = new IRCTransport(
                     serverSetting.getValue(),
@@ -151,7 +151,7 @@ public class IRCChatMod extends Mod implements IMinecraft, IRCHandler {
 
             } catch (IOException e) {
                 lastError = e.getMessage();
-                Soar.LOGGER.error("Failed to create IRC transport", e);
+                PupperClient.LOGGER.error("Failed to create IRC transport", e);
 
                 if (mc.player != null) {
                     mc.player.sendMessage(Text.of("§cFailed to connect to IRC: " + e.getMessage()), false);
@@ -168,7 +168,7 @@ public class IRCChatMod extends Mod implements IMinecraft, IRCHandler {
             try {
                 transport.disconnect();
             } catch (Exception e) {
-                Soar.LOGGER.error("Error disconnecting from IRC", e);
+                PupperClient.LOGGER.error("Error disconnecting from IRC", e);
             }
             transport = null;
         }
@@ -186,7 +186,7 @@ public class IRCChatMod extends Mod implements IMinecraft, IRCHandler {
             transport.sendChat(message);
         } catch (Exception e) {
             sendChatMessage("§cFailed to send IRC message: " + e.getMessage());
-            Soar.LOGGER.error("Failed to send IRC message", e);
+            PupperClient.LOGGER.error("Failed to send IRC message", e);
         }
     }
 

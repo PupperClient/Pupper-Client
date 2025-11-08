@@ -3,9 +3,9 @@ package cn.pupperclient.management.mod.impl.settings;
 import java.util.Arrays;
 import java.util.Objects;
 
+import cn.pupperclient.PupperClient;
 import org.lwjgl.glfw.GLFW;
 
-import cn.pupperclient.Soar;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.client.ClientTickEvent;
 import cn.pupperclient.gui.modmenu.GuiModMenu;
@@ -124,7 +124,7 @@ public class ModMenuSettings extends Mod {
 			previousLanguageOption = currentLanguageOption;
 
 			// save config
-			Soar.getInstance().getConfigManager().save(ConfigType.MOD);
+			PupperClient.getInstance().getConfigManager().save(ConfigType.MOD);
 		}
 	}
 

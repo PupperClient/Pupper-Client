@@ -1,5 +1,6 @@
 package cn.pupperclient.mixin.mixins.minecraft.client.render;
 
+import cn.pupperclient.PupperClient;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -8,7 +9,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import cn.pupperclient.Soar;
 import cn.pupperclient.management.mod.impl.misc.HypixelMod;
 import cn.pupperclient.utils.server.Server;
 import cn.pupperclient.utils.server.ServerUtils;
@@ -49,7 +49,7 @@ public abstract class MixinEntityRenderer<T extends Entity, S extends EntityRend
 					if (HypixelMod.getInstance().isEnabled()
 							&& HypixelMod.getInstance().getLevelHeadSetting().isEnabled()) {
 						String levelText = Formatting.AQUA.toString() + "Level: " + Formatting.YELLOW.toString()
-								+ Soar.getInstance().getHypixelManager()
+								+ PupperClient.getInstance().getHypixelManager()
 										.getByUuid(player.getUuid().toString().replace("-", "")).getNetworkLevel();
 
 						float x = -textRenderer.getWidth(levelText) / 2F;

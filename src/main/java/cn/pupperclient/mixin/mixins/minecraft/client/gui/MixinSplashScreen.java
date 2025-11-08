@@ -28,7 +28,7 @@ public abstract class MixinSplashScreen {
     @Unique private long soar_animationStartTime = -1L;
     @Unique private long soar_reloadStartTime = -1L;
     @Unique private static final long MAX_RELOAD_TIME = 15_000L;
-    @Unique private static final Identifier CUSTOM_LOGO = Identifier.of("soar", "logo.png");
+    @Unique private static final Identifier CUSTOM_LOGO = Identifier.of("pupper", "logo.png");
     @Unique private static final int LOGO_ACTUAL_SIZE = 1080;
     @Unique private static final float LOGO_SCALE = 0.15f;
     @Unique private static final long ANIMATION_TOTAL_TIME = 4500L;

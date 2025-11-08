@@ -1,6 +1,6 @@
 package cn.pupperclient.gui;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.gui.api.SimpleSoarGui;
 import cn.pupperclient.management.color.api.ColorPalette;
 import cn.pupperclient.skia.Skia;
@@ -88,7 +88,7 @@ public class AddServerGui extends SimpleSoarGui {
 
     @Override
     public void draw(double mouseX, double mouseY) {
-        ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+        ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
         float centerX = client.getWindow().getWidth() / 2f;
         float centerY = client.getWindow().getHeight() / 2f;
         float panelWidth = 400;

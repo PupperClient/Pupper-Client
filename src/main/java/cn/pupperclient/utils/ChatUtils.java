@@ -11,7 +11,7 @@ public class ChatUtils {
     private static final String PREFIX_FORMATTED = Formatting.GRAY + "[" + Formatting.AQUA + "Pupper" + Formatting.GRAY + "] ";
     private static final Text PREFIX_TEXT = Text.literal("[")
         .formatted(Formatting.GRAY)
-        .append(Text.literal("Soar").formatted(Formatting.AQUA))
+        .append(Text.literal("PupperClient").formatted(Formatting.AQUA))
         .append(Text.literal("] ").formatted(Formatting.GRAY));
 
 

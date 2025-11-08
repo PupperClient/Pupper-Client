@@ -1,6 +1,6 @@
 package cn.pupperclient.management.Notification;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.animation.SimpleAnimation;
 import cn.pupperclient.management.color.api.ColorPalette;
 import cn.pupperclient.skia.font.Icon;
@@ -11,9 +11,9 @@ import java.util.List;
 public class NotificationManager {
     private final List<Notification> notifications = new ArrayList<>();
     private final SimpleAnimation globalAnimation = new SimpleAnimation();
-    private Soar.MusicToolStatus lastDisplayedStatus = null;
+    private PupperClient.MusicToolStatus lastDisplayedStatus = null;
 
-    public void showToolCheckNotification(Soar.MusicToolStatus status, float progress) {
+    public void showToolCheckNotification(PupperClient.MusicToolStatus status, float progress) {
         // 只有当状态改变时才创建新通知
         if (status == lastDisplayedStatus && !notifications.isEmpty()) {
             // 更新现有通知的进度
@@ -36,7 +36,7 @@ public class NotificationManager {
         globalAnimation.setValue(0);
     }
 
-    private String getMessageForStatus(Soar.MusicToolStatus status) {
+    private String getMessageForStatus(PupperClient.MusicToolStatus status) {
         return switch (status) {
             case CHECKING -> "正在检查音乐工具...";
             case INSTALLED -> "音乐工具已安装!";
@@ -47,7 +47,7 @@ public class NotificationManager {
         };
     }
 
-    private String getIconForStatus(Soar.MusicToolStatus status) {
+    private String getIconForStatus(PupperClient.MusicToolStatus status) {
         return switch (status) {
             case CHECKING -> Icon.AUTORENEW;
             case INSTALLED, DONE -> Icon.CHECK;
@@ -58,7 +58,7 @@ public class NotificationManager {
     }
 
     public void draw(double mouseX, double mouseY) {
-        Soar.MusicToolStatus currentStatus = Soar.getInstance().getMusicToolStatus();
+        PupperClient.MusicToolStatus currentStatus = PupperClient.getInstance().getMusicToolStatus();
 
         // 更新全局动画
         globalAnimation.onTick(notifications.isEmpty() ? 0 : 1, 15);
@@ -68,7 +68,7 @@ public class NotificationManager {
         }
 
         // 绘制通知
-        ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+        ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
         float windowWidth = cn.pupperclient.utils.IMinecraft.mc.getWindow().getWidth();
 
         float notificationWidth = 320;

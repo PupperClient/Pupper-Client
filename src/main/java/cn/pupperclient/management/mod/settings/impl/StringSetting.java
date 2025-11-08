@@ -1,6 +1,6 @@
 package cn.pupperclient.management.mod.settings.impl;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.mod.Mod;
 import cn.pupperclient.management.mod.settings.Setting;
 
@@ -14,7 +14,7 @@ public class StringSetting extends Setting {
 		this.defaultValue = string;
 		this.value = string;
 
-		Soar.getInstance().getModManager().addSetting(this);
+		PupperClient.getInstance().getModManager().addSetting(this);
 	}
 
 	@Override

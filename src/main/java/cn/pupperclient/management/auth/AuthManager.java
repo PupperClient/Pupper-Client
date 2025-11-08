@@ -1,8 +1,8 @@
 package cn.pupperclient.management.auth;
 
+import cn.pupperclient.PupperClient;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import cn.pupperclient.Soar;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.nio.file.Files;
@@ -63,13 +63,13 @@ public class AuthManager {
             if (Files.exists(USER_DATA_FILE)) {
                 String json = new String(Files.readAllBytes(USER_DATA_FILE));
                 users = GSON.fromJson(json, HashMap.class);
-                Soar.LOGGER.info("Loaded {} users from disk", users.size());
+                PupperClient.LOGGER.info("Loaded {} users from disk", users.size());
             } else {
-                Soar.LOGGER.info("No existing user data found, starting fresh");
+                PupperClient.LOGGER.info("No existing user data found, starting fresh");
                 users = new HashMap<>();
             }
         } catch (Exception e) {
-            Soar.LOGGER.error("Failed to load user data", e);
+            PupperClient.LOGGER.error("Failed to load user data", e);
             users = new HashMap<>();
         }
     }
@@ -79,9 +79,9 @@ public class AuthManager {
             Files.createDirectories(USER_DATA_FILE.getParent());
             String json = GSON.toJson(users);
             Files.write(USER_DATA_FILE, json.getBytes());
-            Soar.LOGGER.info("Saved {} users to disk", users.size());
+            PupperClient.LOGGER.info("Saved {} users to disk", users.size());
         } catch (Exception e) {
-            Soar.LOGGER.error("Failed to save user data", e);
+            PupperClient.LOGGER.error("Failed to save user data", e);
         }
     }
 

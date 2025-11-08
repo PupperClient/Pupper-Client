@@ -5,9 +5,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.pupperclient.PupperClient;
 import org.lwjgl.glfw.GLFW;
 
-import cn.pupperclient.Soar;
 import cn.pupperclient.animation.SimpleAnimation;
 import cn.pupperclient.management.color.api.ColorPalette;
 import cn.pupperclient.management.mod.impl.settings.SystemSettings;
@@ -39,7 +39,7 @@ public class MusicControlBar extends Component {
 		this.width = width;
 		this.height = 64;
 		
-		MusicManager musicManager = Soar.getInstance().getMusicManager();
+		MusicManager musicManager = PupperClient.getInstance().getMusicManager();
 
 		float offsetY = 26;
 
@@ -94,7 +94,7 @@ public class MusicControlBar extends Component {
 						
 						if(result) {
 							try {
-								Soar.getInstance().getMusicManager().load();
+								PupperClient.getInstance().getMusicManager().load();
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
@@ -112,7 +112,7 @@ public class MusicControlBar extends Component {
 	@Override
 	public void draw(double mouseX, double mouseY) {
 
-		Soar instance = Soar.getInstance();
+		PupperClient instance = PupperClient.getInstance();
 		ColorPalette palette = instance.getColorManager().getPalette();
 		MusicManager musicManager = instance.getMusicManager();
 		Music music = musicManager.getCurrentMusic();
@@ -177,7 +177,7 @@ public class MusicControlBar extends Component {
 
 	private void drawSeekBar(float x, float y, float width, float height) {
 
-		Soar instance = Soar.getInstance();
+		PupperClient instance = PupperClient.getInstance();
 		MusicManager musicManager = instance.getMusicManager();
 		ColorPalette palette = instance.getColorManager().getPalette();
 
@@ -253,7 +253,7 @@ public class MusicControlBar extends Component {
 			this.width = 26;
 			this.height = 26;
 			this.task = task;
-			this.color = Soar.getInstance().getColorManager().getPalette().getOnSurface();
+			this.color = PupperClient.getInstance().getColorManager().getPalette().getOnSurface();
 		}
 
 		@Override

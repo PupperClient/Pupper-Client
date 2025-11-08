@@ -1,7 +1,7 @@
 package cn.pupperclient.management.config.impl;
 
+import cn.pupperclient.PupperClient;
 import com.google.gson.JsonObject;
-import cn.pupperclient.Soar;
 import cn.pupperclient.management.config.Config;
 import cn.pupperclient.management.config.ConfigType;
 import cn.pupperclient.management.mod.Mod;
@@ -17,13 +17,13 @@ public class KeyConfig extends Config {
     public void onLoad() {
         if (jsonObject == null) {
             jsonObject = new JsonObject();
-            Soar.LOGGER.info("Created new key config");
+            PupperClient.LOGGER.info("Created new key config");
             return;
         }
 
-        ModManager modManager = Soar.getInstance().getModManager();
+        ModManager modManager = PupperClient.getInstance().getModManager();
         if (modManager == null) {
-            Soar.LOGGER.warn("ModManager is not initialized, cannot load keybinds");
+            PupperClient.LOGGER.warn("ModManager is not initialized, cannot load keybinds");
             return;
         }
 
@@ -44,30 +44,30 @@ public class KeyConfig extends Config {
                             if (mod != null) {
                                 mod.setKey(keyCode);
                                 loadedCount++;
-                                Soar.LOGGER.debug("Loaded keybind for mod {}: keycode {}", modName, keyCode);
+                                PupperClient.LOGGER.debug("Loaded keybind for mod {}: keycode {}", modName, keyCode);
                             } else {
-                                Soar.LOGGER.warn("Mod not found for keybind: {}", modName);
+                                PupperClient.LOGGER.warn("Mod not found for keybind: {}", modName);
                             }
                         }
                     } catch (Exception e) {
-                        Soar.LOGGER.error("Error loading keybind for mod {}: {}", modName, e.getMessage());
+                        PupperClient.LOGGER.error("Error loading keybind for mod {}: {}", modName, e.getMessage());
                     }
                 }
             }
 
-            Soar.LOGGER.info("Successfully loaded {} mod keybinds", loadedCount);
+            PupperClient.LOGGER.info("Successfully loaded {} mod keybinds", loadedCount);
 
         } catch (Exception e) {
-            Soar.LOGGER.error("Failed to load keybinds from config", e);
+            PupperClient.LOGGER.error("Failed to load keybinds from config", e);
             jsonObject = new JsonObject();
         }
     }
 
     @Override
     public void onSave() {
-        ModManager modManager = Soar.getInstance().getModManager();
+        ModManager modManager = PupperClient.getInstance().getModManager();
         if (modManager == null) {
-            Soar.LOGGER.warn("ModManager is not initialized, cannot save keybinds");
+            PupperClient.LOGGER.warn("ModManager is not initialized, cannot save keybinds");
             return;
         }
 
@@ -82,7 +82,7 @@ public class KeyConfig extends Config {
                         savedCount++;
                     }
                 } catch (Exception e) {
-                    Soar.LOGGER.error("Error saving keybind for mod {}: {}", mod.getName(), e.getMessage());
+                    PupperClient.LOGGER.error("Error saving keybind for mod {}: {}", mod.getName(), e.getMessage());
                 }
             }
 
@@ -96,15 +96,15 @@ public class KeyConfig extends Config {
             jsonObject.addProperty("lastSaved", System.currentTimeMillis());
             jsonObject.addProperty("totalModKeybinds", savedCount);
 
-            Soar.LOGGER.info("Successfully saved {} mod keybinds", savedCount);
+            PupperClient.LOGGER.info("Successfully saved {} mod keybinds", savedCount);
 
         } catch (Exception e) {
-            Soar.LOGGER.error("Failed to save keybinds to config", e);
+            PupperClient.LOGGER.error("Failed to save keybinds to config", e);
         }
     }
 
     public void resetAllKeybinds() {
-        ModManager modManager = Soar.getInstance().getModManager();
+        ModManager modManager = PupperClient.getInstance().getModManager();
         if (modManager != null) {
             int resetCount = 0;
             for (Mod mod : modManager.getMods()) {
@@ -113,12 +113,12 @@ public class KeyConfig extends Config {
                     resetCount++;
                 }
             }
-            Soar.LOGGER.info("Reset {} keybinds", resetCount);
+            PupperClient.LOGGER.info("Reset {} keybinds", resetCount);
         }
     }
 
     public String exportKeybindsAsText() {
-        ModManager modManager = Soar.getInstance().getModManager();
+        ModManager modManager = PupperClient.getInstance().getModManager();
         if (modManager == null) return "ModManager not available";
 
         StringBuilder sb = new StringBuilder();
@@ -182,7 +182,7 @@ public class KeyConfig extends Config {
     }
 
     public int getKeybindForMod(String modName) {
-        ModManager modManager = Soar.getInstance().getModManager();
+        ModManager modManager = PupperClient.getInstance().getModManager();
         if (modManager != null) {
             Mod mod = modManager.getModByName(modName);
             return mod != null ? mod.getKey() : 0;
@@ -191,7 +191,7 @@ public class KeyConfig extends Config {
     }
 
     public boolean setKeybindForMod(String modName, int keyCode) {
-        ModManager modManager = Soar.getInstance().getModManager();
+        ModManager modManager = PupperClient.getInstance().getModManager();
         if (modManager != null) {
             Mod mod = modManager.getModByName(modName);
             if (mod != null) {

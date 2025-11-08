@@ -3,7 +3,7 @@ package cn.pupperclient.management.mod.impl.misc;
 import java.time.OffsetDateTime;
 
 import com.google.gson.JsonObject;
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.libraries.discordipc.IPCClient;
 import cn.pupperclient.libraries.discordipc.IPCListener;
 import cn.pupperclient.libraries.discordipc.entities.ActivityType;
@@ -35,7 +35,7 @@ public class DiscordRPCMod extends Mod {
 
 				RichPresence.Builder builder = new RichPresence.Builder();
 
-				builder.setState("Playing Soar Client v" + Soar.getInstance().getVersion())
+				builder.setState("Playing PupperClient Client v" + PupperClient.getInstance().getVersion())
 						.setStartTimestamp(OffsetDateTime.now().toEpochSecond()).setLargeImage("icon")
 						.setActivityType(ActivityType.Playing);
 

@@ -7,7 +7,7 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.config.impl.KeyConfig;
 import cn.pupperclient.management.config.impl.ModConfig;
 import cn.pupperclient.management.keybind.KeybindManager;
@@ -42,7 +42,7 @@ public class ConfigManager {
             config.onSave();
             gson.toJson(config.getJsonObject(), writer);
         } catch (Exception e) {
-            Soar.LOGGER.error("Failed to save config: {}", config.getType(), e);
+            PupperClient.LOGGER.error("Failed to save config: {}", config.getType(), e);
         }
     }
 
@@ -64,7 +64,7 @@ public class ConfigManager {
                 KeybindManager.getInstance().refreshKeybinds();
             }
         } catch (Exception e) {
-            Soar.LOGGER.error("Failed to load config: {}", config.getType(), e);
+            PupperClient.LOGGER.error("Failed to load config: {}", config.getType(), e);
             config.setJsonObject(new JsonObject());
         }
     }

@@ -3,9 +3,9 @@ package cn.pupperclient.gui.modmenu.pages;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.pupperclient.PupperClient;
 import org.lwjgl.glfw.GLFW;
 
-import cn.pupperclient.Soar;
 import cn.pupperclient.animation.SimpleAnimation;
 import cn.pupperclient.gui.api.SoarGui;
 import cn.pupperclient.gui.api.page.Page;
@@ -27,7 +27,7 @@ public class SettingsPage extends Page {
 	public SettingsPage(SoarGui parent) {
 		super(parent, "text.settings", Icon.SETTINGS, new RightLeftTransition(true));
 
-		for (Mod m : Soar.getInstance().getModManager().getMods()) {
+		for (Mod m : PupperClient.getInstance().getModManager().getMods()) {
 			if (m.isHidden()) {
 				items.add(new Item(m));
 			}
@@ -38,7 +38,7 @@ public class SettingsPage extends Page {
 	public void draw(double mouseX, double mouseY) {
 		super.draw(mouseX, mouseY);
 
-		ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+		ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
 		float offsetY = 96;
 

@@ -2,7 +2,7 @@ package cn.pupperclient.ui.component.impl;
 
 import java.awt.Color;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.animation.SimpleAnimation;
 import cn.pupperclient.management.color.api.ColorPalette;
 import cn.pupperclient.skia.Skia;
@@ -114,7 +114,7 @@ public class IconButton extends Component {
 
 	private Color[] getColor() {
 
-		ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+		ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
 		switch (style) {
 		case PRIMARY:

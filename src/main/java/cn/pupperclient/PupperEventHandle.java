@@ -13,7 +13,7 @@ import cn.pupperclient.event.server.impl.GameJoinEvent;
 import cn.pupperclient.management.profile.Profile;
 import net.minecraft.client.MinecraftClient;
 
-public class SoarHandler {
+public class PupperEventHandle {
 
     @EventListener
     public void onMotion(EventMotion e) {
@@ -23,26 +23,26 @@ public class SoarHandler {
     }
 
 	public final EventBus.EventListener<ClientTickEvent> onClientTick = event -> {
-		Soar.getInstance().getColorManager().onTick();
-		Soar.getInstance().getHypixelManager().update();
-		Soar.getInstance().getUserManager().update();
+		PupperClient.getInstance().getColorManager().onTick();
+		PupperClient.getInstance().getHypixelManager().update();
+		PupperClient.getInstance().getUserManager().update();
 	};
 
 	public final EventBus.EventListener<GameJoinEvent> onGameJoin = event -> {
-		Soar.getInstance().getHypixelManager().clear();
-		Soar.getInstance().getUserManager().clear();
+		PupperClient.getInstance().getHypixelManager().clear();
+		PupperClient.getInstance().getUserManager().clear();
 	};
 
 	public final EventBus.EventListener<ServerJoinEvent> onServerJoin = event -> {
 
-		List<Profile> profiles = Soar.getInstance().getProfileManager().getProfiles();
+		List<Profile> profiles = PupperClient.getInstance().getProfileManager().getProfiles();
 
 		for (Profile p : profiles) {
 
 			String address = p.getServerIp();
 
 			if (event.getAddress().contains(address)) {
-				Soar.getInstance().getProfileManager().load(p);
+				PupperClient.getInstance().getProfileManager().load(p);
 				break;
 			}
 		}

@@ -21,9 +21,9 @@ public abstract class MixinTitleScreen extends Screen {
 
     @Inject(method = "init()V", at = @At("HEAD"), cancellable = true)
     public void onInit(CallbackInfo ci) {
-//        WelcomeGui welcomeGui = new WelcomeGui();
-//        welcomeGui.setNextScreen(new MainMenuGui().build());
-        MinecraftClient.getInstance().setScreen(new MainMenuGui().build());
+        WelcomeGui welcomeGui = new WelcomeGui();
+        welcomeGui.setNextScreen(new MainMenuGui().build());
+        MinecraftClient.getInstance().setScreen(welcomeGui.build());
         ci.cancel();
     }
 

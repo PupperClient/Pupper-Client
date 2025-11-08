@@ -1,6 +1,6 @@
 package cn.pupperclient.management.Notification;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.animation.SimpleAnimation;
 import cn.pupperclient.management.color.api.ColorPalette;
 import cn.pupperclient.skia.Skia;
@@ -10,14 +10,14 @@ import cn.pupperclient.utils.ColorUtils;
 public class Notification {
     String message;
     String icon;
-    Soar.MusicToolStatus status;
+    PupperClient.MusicToolStatus status;
     float progress;
     SimpleAnimation animation = new SimpleAnimation();
     long createTime;
     long updateTime;
     boolean removing = false;
 
-    public Notification(String message, String icon, Soar.MusicToolStatus status, float progress) {
+    public Notification(String message, String icon, PupperClient.MusicToolStatus status, float progress) {
         this.message = message;
         this.icon = icon;
         this.status = status;
@@ -28,7 +28,7 @@ public class Notification {
     }
 
     private java.awt.Color getIconColor() {
-        ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+        ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
         return switch (status) {
             case INSTALLED, DONE -> new java.awt.Color(76, 175, 80);
             case FAILED -> palette.getError();
@@ -37,7 +37,7 @@ public class Notification {
     }
 
     private java.awt.Color getProgressColor() {
-        ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+        ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
         return switch (status) {
             case INSTALLED, DONE -> new java.awt.Color(76, 175, 80); // 绿色
             case FAILED -> palette.getError();
@@ -52,9 +52,9 @@ public class Notification {
 
             // 只有安装完成或失败的状态才自动移除
             long displayTime = System.currentTimeMillis() - createTime;
-            if ((status == Soar.MusicToolStatus.INSTALLED || status == Soar.MusicToolStatus.DONE) && displayTime > 3000) {
+            if ((status == PupperClient.MusicToolStatus.INSTALLED || status == PupperClient.MusicToolStatus.DONE) && displayTime > 3000) {
                 removing = true;
-            } else if (status == Soar.MusicToolStatus.FAILED && displayTime > 5000) {
+            } else if (status == PupperClient.MusicToolStatus.FAILED && displayTime > 5000) {
                 removing = true;
             }
         } else {
@@ -65,7 +65,7 @@ public class Notification {
             return;
         }
 
-        ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+        ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
         // 背景
         java.awt.Color bgColor = ColorUtils.applyAlpha(palette.getSurfaceContainer(),
@@ -88,7 +88,7 @@ public class Notification {
         Skia.drawText(message, textX, textY, textColor, Fonts.getRegular(14));
 
         // 进度文本
-        if (status == Soar.MusicToolStatus.DOWNLOADING) {
+        if (status == PupperClient.MusicToolStatus.DOWNLOADING) {
             String progressText = String.format("%.0f%%", progress * 100);
             Skia.drawText(progressText, textX, textY + 18, textColor, Fonts.getRegular(12));
         }
@@ -98,7 +98,7 @@ public class Notification {
     }
 
     private void drawProgressBar(float x, float y, float width, float height, float progress) {
-        ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+        ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
         float barHeight = 4;
         float barY = y + height - 15;
@@ -117,13 +117,13 @@ public class Notification {
         }
 
         // 加载动画（用于 CHECKING 状态）
-        if (status == Soar.MusicToolStatus.CHECKING) {
+        if (status == PupperClient.MusicToolStatus.CHECKING) {
             drawLoadingAnimation(barX, barY, barWidth, barHeight);
         }
     }
 
     private void drawLoadingAnimation(float x, float y, float width, float height) {
-        ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+        ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
         long time = System.currentTimeMillis();
         float phase = (time % 1000) / 1000.0f;

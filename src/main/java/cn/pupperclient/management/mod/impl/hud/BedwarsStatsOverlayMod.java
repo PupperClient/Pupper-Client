@@ -2,7 +2,7 @@ package cn.pupperclient.management.mod.impl.hud;
 
 import java.io.File;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.client.RenderSkiaEvent;
 import cn.pupperclient.management.hypixel.api.HypixelUser;
@@ -54,7 +54,7 @@ public class BedwarsStatsOverlayMod extends HUDMod {
 
 				String name = player.getProfile().getName();
 				String uuid = player.getProfile().getId().toString().replace("-", "");
-				HypixelUser hypixelUser = Soar.getInstance().getHypixelManager().getByUuid(uuid);
+				HypixelUser hypixelUser = PupperClient.getInstance().getHypixelManager().getByUuid(uuid);
 
 				if (hypixelUser != null) {
 

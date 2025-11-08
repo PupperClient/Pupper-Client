@@ -1,6 +1,6 @@
 package cn.pupperclient.management.mod.api.hud;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.mod.Mod;
 import cn.pupperclient.management.mod.ModCategory;
 import cn.pupperclient.management.mod.api.Position;
@@ -44,7 +44,7 @@ public abstract class HUDMod extends Mod {
 	public abstract float getRadius();
 
 	public HUDDesign getDesign() {
-		return Soar.getInstance().getModManager().getCurrentDesign();
+		return PupperClient.getInstance().getModManager().getCurrentDesign();
 	}
 
 	public Position getPosition() {

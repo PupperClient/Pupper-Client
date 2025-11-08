@@ -1,6 +1,6 @@
 package cn.pupperclient.management.mod.impl.hud;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.client.RenderSkiaEvent;
 import cn.pupperclient.management.mod.api.hud.SimpleHUDMod;
@@ -19,7 +19,7 @@ public class PlayTimeDisplayMod extends SimpleHUDMod {
 	@Override
 	public String getText() {
 
-		int sec = (int) ((System.currentTimeMillis() - Soar.getInstance().getLaunchTime()) / 1000);
+		int sec = (int) ((System.currentTimeMillis() - PupperClient.getInstance().getLaunchTime()) / 1000);
 		int min = (sec % 3600) / 60;
 		int hour = sec / 3600;
 		sec = sec % 60;

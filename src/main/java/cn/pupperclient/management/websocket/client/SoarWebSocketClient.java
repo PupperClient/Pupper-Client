@@ -5,12 +5,12 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.pupperclient.PupperLogger;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import cn.pupperclient.SoarLogger;
 import cn.pupperclient.management.websocket.handler.WebSocketHandler;
 import cn.pupperclient.management.websocket.handler.impl.HypixelStatsHandler;
 import cn.pupperclient.management.websocket.handler.impl.SoarUserHandler;
@@ -35,7 +35,7 @@ public class SoarWebSocketClient extends WebSocketClient {
     
 	@Override
 	public void onOpen(ServerHandshake handshakedata) {
-		SoarLogger.info("API", "WebSocket connection opened");
+		PupperLogger.info("API", "WebSocket connection opened");
 	}
 
 	@Override
@@ -50,19 +50,19 @@ public class SoarWebSocketClient extends WebSocketClient {
 		if (handler != null) {
 			handler.handle(jsonObject);
 		} else {
-			//SoarLogger.warn("API", "No handler found for message type: " + type);
+			//PupperLogger.warn("API", "No handler found for message type: " + type);
 		}
 	}
 
 	@Override
 	public void onClose(int code, String reason, boolean remote) {
-		//SoarLogger.info("API", "WebSocket connection closed: " + reason);
+		//PupperLogger.info("API", "WebSocket connection closed: " + reason);
 		closeTask.run();
 	}
 
 	@Override
 	public void onError(Exception ex) {
-		//SoarLogger.error("API", "WebSocket error occurred", ex);
+		//PupperLogger.error("API", "WebSocket error occurred", ex);
 	}
 
 	private void register(String type, WebSocketHandler handler) {

@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.io.File;
 import java.util.Arrays;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.client.ClientTickEvent;
 import cn.pupperclient.event.client.RenderSkiaEvent;
@@ -212,7 +212,7 @@ public class TargetHUDMod extends HUDMod {
 
     private Color getAnimatedHealthColor() {
         try {
-            ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+            ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
             if (palette == null) {
                 return Color.RED;

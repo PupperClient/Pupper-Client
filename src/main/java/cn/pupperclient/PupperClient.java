@@ -34,12 +34,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class Soar implements IMinecraft {
+public class PupperClient implements IMinecraft {
     private static final String CONFIG_FILE_NAME = "pupper.ok";
     public static boolean hasAcceptedTerms = false;
 
-    public static final Logger LOGGER = SoarLogger.getLogger();
-    private final static Soar instance = new Soar();
+    public static final Logger LOGGER = PupperLogger.getLogger();
+    private final static PupperClient instance = new PupperClient();
 
     final ViaFabricPlusBase platform = ViaFabricPlus.getImpl();
     private ExternalToolManager toolManager;
@@ -82,7 +82,7 @@ public class Soar implements IMinecraft {
         toolManager = new ExternalToolManager();
         SoarCommand.register();
 
-        EventBus.getInstance().register(new SoarHandler());
+        EventBus.getInstance().register(new PupperEventHandle());
 		EventBus.getInstance().register(new PacketHandler());
 		EventBus.getInstance().register(new Delta());
 
@@ -95,7 +95,7 @@ public class Soar implements IMinecraft {
                 Files.createFile(configFile);
                 Files.writeString(configFile,
                     "First launch: " + launchTime + "\n" +
-                        "Soar Version: " + version + "\n"
+                        "PupperClient Version: " + version + "\n"
                 );
             } catch (IOException e) {
                 LOGGER.error("Failed to create first launch detection file: {}", e.getMessage());
@@ -120,9 +120,9 @@ public class Soar implements IMinecraft {
         });
 
         if (getClass().getClassLoader().getResource("assets/pupper/logo.png") == null) {
-            LOGGER.error("Soar icon not found in resources!");
+            LOGGER.error("PupperClient icon not found in resources!");
         } else {
-            LOGGER.info("Soar icon found in resources");
+            LOGGER.info("PupperClient icon found in resources");
         }
 
     }
@@ -131,7 +131,7 @@ public class Soar implements IMinecraft {
         keybindManager.cleanup();
     }
 
-	public static Soar getInstance() {
+	public static PupperClient getInstance() {
 		return instance;
 	}
 

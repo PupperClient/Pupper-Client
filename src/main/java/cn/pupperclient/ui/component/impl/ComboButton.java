@@ -2,9 +2,9 @@ package cn.pupperclient.ui.component.impl;
 
 import java.util.List;
 
+import cn.pupperclient.PupperClient;
 import org.lwjgl.glfw.GLFW;
 
-import cn.pupperclient.Soar;
 import cn.pupperclient.animation.Animation;
 import cn.pupperclient.animation.Duration;
 import cn.pupperclient.animation.cubicbezier.impl.EaseStandard;
@@ -39,7 +39,7 @@ public class ComboButton extends Component {
 	@Override
 	public void draw(double mouseX, double mouseY) {
 
-		ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+		ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
 		Skia.drawRoundedRect(x, y, width, height, 12, palette.getPrimary());
 		Skia.save();

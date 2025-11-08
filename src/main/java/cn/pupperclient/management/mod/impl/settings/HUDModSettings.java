@@ -2,7 +2,7 @@ package cn.pupperclient.management.mod.impl.settings;
 
 import java.util.Arrays;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.client.ClientTickEvent;
 import cn.pupperclient.management.mod.Mod;
@@ -38,8 +38,8 @@ public class HUDModSettings extends Mod {
 	}
 
 	public final EventBus.EventListener<ClientTickEvent> onClientTick = event -> {
-		if (!designSetting.getOption().equals(Soar.getInstance().getModManager().getCurrentDesign().getName())) {
-			Soar.getInstance().getModManager().setCurrentDesign(designSetting.getOption());
+		if (!designSetting.getOption().equals(PupperClient.getInstance().getModManager().getCurrentDesign().getName())) {
+			PupperClient.getInstance().getModManager().setCurrentDesign(designSetting.getOption());
 		}
 	};
 

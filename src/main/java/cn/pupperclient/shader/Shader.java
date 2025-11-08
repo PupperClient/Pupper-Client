@@ -62,7 +62,7 @@ public class Shader {
 		try {
 			return IOUtils.toString(
 					MinecraftClient.getInstance().getResourceManager()
-							.getResource(Identifier.of("soar", "shaders/" + path)).get().getInputStream(),
+							.getResource(Identifier.of("pupper", "shaders/" + path)).get().getInputStream(),
 					StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			throw new IllegalStateException("Could not read shader '" + path + "'", e);

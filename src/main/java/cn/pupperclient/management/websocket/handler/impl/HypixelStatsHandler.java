@@ -1,7 +1,7 @@
 package cn.pupperclient.management.websocket.handler.impl;
 
 import com.google.gson.JsonObject;
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.hypixel.HypixelManager;
 import cn.pupperclient.management.hypixel.api.HypixelUser;
 import cn.pupperclient.management.websocket.handler.WebSocketHandler;
@@ -12,7 +12,7 @@ public class HypixelStatsHandler extends WebSocketHandler {
 	@Override
 	public void handle(JsonObject jsonObject) {
 		
-		HypixelManager hypixelManager = Soar.getInstance().getHypixelManager();
+		HypixelManager hypixelManager = PupperClient.getInstance().getHypixelManager();
 
 		String uuid = JsonUtils.getStringProperty(jsonObject, "uuid", "null");
 		String networkLevel = JsonUtils.getStringProperty(jsonObject, "networkLevel", "-1");

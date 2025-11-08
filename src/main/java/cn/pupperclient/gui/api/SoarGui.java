@@ -3,9 +3,9 @@ package cn.pupperclient.gui.api;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.pupperclient.PupperClient;
 import org.lwjgl.glfw.GLFW;
 
-import cn.pupperclient.Soar;
 import cn.pupperclient.animation.Animation;
 import cn.pupperclient.animation.Duration;
 import cn.pupperclient.animation.cubicbezier.impl.EaseEmphasizedDecelerate;
@@ -62,7 +62,7 @@ public abstract class SoarGui extends SimpleSoarGui {
 	@Override
 	public void draw(double mouseX, double mouseY) {
 
-		ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+		ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
 		if (ModMenuSettings.getInstance().getBlurSetting().isEnabled()) {
 			Skia.drawImage(MipmapKawaseBlur.GUI_BLUR.getTexture(), 0, 0, client.getWindow().getWidth(),
@@ -189,7 +189,7 @@ public abstract class SoarGui extends SimpleSoarGui {
 			this.nextScreen = nextScreen;
 			inOutAnimation = new EaseEmphasizedDecelerate(Duration.EXTRA_LONG_1, 1, 0);
 			Multithreading.runAsync(() -> {
-				Soar.getInstance().getConfigManager().save(ConfigType.MOD);
+				PupperClient.getInstance().getConfigManager().save(ConfigType.MOD);
 			});
 		}
 	}

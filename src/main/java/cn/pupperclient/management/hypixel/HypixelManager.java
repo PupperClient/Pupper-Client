@@ -6,7 +6,7 @@ import java.util.Set;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.hypixel.api.HypixelUser;
 import cn.pupperclient.management.websocket.packet.impl.SC_HypixelStatsPacket;
 import cn.pupperclient.utils.TimerUtils;
@@ -35,7 +35,7 @@ public class HypixelManager {
 
 				if (iterator.hasNext()) {
 					String request = iterator.next();
-					Soar.getInstance().getWebSocketManager().send(new SC_HypixelStatsPacket(request));
+					PupperClient.getInstance().getWebSocketManager().send(new SC_HypixelStatsPacket(request));
 					requests.remove(request);
 				}
 

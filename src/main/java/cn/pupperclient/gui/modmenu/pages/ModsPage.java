@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import cn.pupperclient.PupperClient;
 import org.lwjgl.glfw.GLFW;
 
-import cn.pupperclient.Soar;
 import cn.pupperclient.animation.SimpleAnimation;
 import cn.pupperclient.gui.api.SoarGui;
 import cn.pupperclient.gui.api.page.Page;
@@ -57,7 +57,7 @@ public class ModsPage extends Page {
     public void init() {
         super.init();
         items.clear();
-        for (Mod m : Soar.getInstance().getModManager().getMods()) {
+        for (Mod m : PupperClient.getInstance().getModManager().getMods()) {
             Item i = new Item(m);
             if (m.isEnabled()) {
                 i.pressAnimation.setPressed();
@@ -103,7 +103,7 @@ public class ModsPage extends Page {
     @Override
     public void draw(double mouseX, double mouseY) {
         updateFilteredItems();
-        ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+        ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
         double relativeMouseY = mouseY - scrollHelper.getValue();
         Skia.save();
@@ -224,7 +224,7 @@ public class ModsPage extends Page {
                     }
                 }
                 if (MouseUtils.isInside(mouseX, relativeMouseY, itemX, itemY, 244, 116)
-                    && !Soar.getInstance().getModManager().getSettingsByMod(m).isEmpty()) {
+                    && !PupperClient.getInstance().getModManager().getSettingsByMod(m).isEmpty()) {
                     parent.setCurrentPage(new SettingsImplPage(parent, this.getClass(), m));
                     this.setTransition(new LeftRightTransition(true));
                 }

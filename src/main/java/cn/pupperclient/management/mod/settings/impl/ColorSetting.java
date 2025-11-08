@@ -2,7 +2,7 @@ package cn.pupperclient.management.mod.settings.impl;
 
 import java.awt.Color;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.mod.Mod;
 import cn.pupperclient.management.mod.settings.Setting;
 import cn.pupperclient.utils.ColorUtils;
@@ -24,7 +24,7 @@ public class ColorSetting extends Setting {
 		this.alpha = color.getAlpha() / 255F;
 		this.setColor(color);
 
-		Soar.getInstance().getModManager().addSetting(this);
+		PupperClient.getInstance().getModManager().addSetting(this);
 	}
 
 	@Override

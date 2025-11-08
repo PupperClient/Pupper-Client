@@ -2,7 +2,7 @@ package cn.pupperclient.management.mod.api.hud.design.impl;
 
 import java.awt.Color;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.color.api.ColorPalette;
 import cn.pupperclient.management.mod.api.hud.design.HUDDesign;
 import cn.pupperclient.skia.Skia;
@@ -19,7 +19,7 @@ public class MaterialYouDesign extends HUDDesign {
 	@Override
 	public void drawBackground(float x, float y, float width, float height, float radius) {
 
-		ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+		ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
 		Skia.drawRoundedBlur(x, y, width, height, radius);
 		Skia.drawShadow(x, y, width, height, radius);

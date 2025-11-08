@@ -3,9 +3,9 @@ package cn.pupperclient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class SoarLogger {
+public class PupperLogger {
 
-	private static final Logger logger = LogManager.getLogger("Soar Client");
+	private static final Logger logger = LogManager.getLogger("PupperClient Client");
 
 	public static void info(String prefix, String message) {
 		logger.info("[SC/INFO] [" + prefix + "] " + message);

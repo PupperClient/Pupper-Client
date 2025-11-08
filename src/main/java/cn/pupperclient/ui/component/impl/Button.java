@@ -4,7 +4,7 @@ import java.awt.Color;
 
 import org.lwjgl.glfw.GLFW;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.color.api.ColorPalette;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.font.Fonts;
@@ -65,7 +65,7 @@ public class Button extends Component {
 
 	private Color[] getColor() {
 
-		ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+		ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
 		switch (style) {
 		case ELEVATED:

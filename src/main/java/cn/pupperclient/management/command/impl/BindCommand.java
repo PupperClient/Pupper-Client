@@ -1,6 +1,6 @@
 package cn.pupperclient.management.command.impl;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.client.KeyEvent;
 import cn.pupperclient.management.config.ConfigType;
@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 public class BindCommand {
-    private static final ModManager modManager = Soar.getInstance().getModManager();
+    private static final ModManager modManager = PupperClient.getInstance().getModManager();
     private static final Map<String, Object> keyListeners = new HashMap<>();
 
     public static void handleCommand(String[] args) {
@@ -104,7 +104,7 @@ public class BindCommand {
         if (keyName.equalsIgnoreCase("none") || keyName.equalsIgnoreCase("clear")) {
             mod.setKey(0);
             ChatUtils.addChatMessage("§aCleared keybind for §6" + mod.getName());
-            Soar.getInstance().getConfigManager().save(ConfigType.KEY);
+            PupperClient.getInstance().getConfigManager().save(ConfigType.KEY);
             return;
         }
 
@@ -118,7 +118,7 @@ public class BindCommand {
 
             mod.setKey(keyCode);
             ChatUtils.addChatMessage("§aBound §6" + mod.getName() + "§a to §b" + getKeyName(keyCode));
-            Soar.getInstance().getConfigManager().save(ConfigType.KEY);
+            PupperClient.getInstance().getConfigManager().save(ConfigType.KEY);
 
         } catch (Exception e) {
             ChatUtils.addChatMessage("§cError setting keybind: " + e.getMessage());
@@ -128,7 +128,7 @@ public class BindCommand {
     private static void listKeybinds() {
         ChatUtils.addChatMessage("§6=== Current Keybinds ===");
 
-        KeybindManager keybindManager = Soar.getInstance().getKeybindManager();
+        KeybindManager keybindManager = PupperClient.getInstance().getKeybindManager();
         int boundCount = 0;
 
         // 遍历所有按键
@@ -177,7 +177,7 @@ public class BindCommand {
 
         String oldKeyName = getKeyName(mod.getKey());
         mod.setKey(0);
-        Soar.getInstance().getConfigManager().save(ConfigType.KEY);
+        PupperClient.getInstance().getConfigManager().save(ConfigType.KEY);
         ChatUtils.addChatMessage("§aCleared keybind for §6" + mod.getName() + "§a (was: " + oldKeyName + ")");
     }
 
@@ -198,7 +198,7 @@ public class BindCommand {
                     ChatUtils.addChatMessage("§aBound §6" + mod.getName() + "§a to §b" + keyName + "§a (keycode: " + e.getKey() + ")");
 
                     // 保存配置
-                    Soar.getInstance().getConfigManager().save(ConfigType.KEY);
+                    PupperClient.getInstance().getConfigManager().save(ConfigType.KEY);
 
                     // 清理监听器
                     cleanupListener(mod.getName());
@@ -227,7 +227,7 @@ public class BindCommand {
             }
         }
 
-        Soar.getInstance().getConfigManager().save(ConfigType.KEY);
+        PupperClient.getInstance().getConfigManager().save(ConfigType.KEY);
         ChatUtils.addChatMessage("§aCleared all keybinds (" + clearedCount + " mods)");
     }
 

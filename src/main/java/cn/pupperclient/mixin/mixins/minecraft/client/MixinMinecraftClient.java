@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.client.ClientTickEvent;
 import cn.pupperclient.event.client.GameLoopEvent;
@@ -89,7 +89,7 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 
 	@Inject(method = "stop", at = @At("HEAD"))
 	public void onStop(CallbackInfo ci) {
-		Soar.getInstance().getConfigManager().save(ConfigType.MOD);
+		PupperClient.getInstance().getConfigManager().save(ConfigType.MOD);
 		JCefBrowser.close();
 	}
 
@@ -127,19 +127,19 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 	 */
 	@Overwrite
 	public void updateWindowTitle() {
-		this.window.setTitle(Soar.getInstance().getName() + " Client v" + Soar.getInstance().getVersion() + " for "
+		this.window.setTitle(PupperClient.getInstance().getName() + " Client v" + PupperClient.getInstance().getVersion() + " for "
 				+ getWindowTitle());
 	}
 
 	@Inject(method = "<init>", at = @At("TAIL"))
 	public void init(CallbackInfo ci) throws IOException {
 		SkiaContext.createSurface(window.getWidth(), window.getHeight());
-		Soar.getInstance().start();
+		PupperClient.getInstance().start();
 	}
 
     @Inject(method = "stop", at = @At("HEAD"))
     public void onShutdown(CallbackInfo ci) {
-        Soar.getInstance().onShutdown();
+        PupperClient.getInstance().onShutdown();
     }
 
 	@Inject(method = "tick", at = @At("HEAD"))

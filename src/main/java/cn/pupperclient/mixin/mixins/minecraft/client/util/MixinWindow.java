@@ -1,6 +1,6 @@
 package cn.pupperclient.mixin.mixins.minecraft.client.util;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -36,7 +36,7 @@ public class MixinWindow {
             // 从资源加载图标
             try (InputStream is = getClass().getResourceAsStream("/assets/pupper/logo.png")) {
                 if (is == null) {
-                    System.err.println("Soar icon not found!");
+                    System.err.println("PupperClient icon not found!");
                     return;
                 }
 
@@ -55,7 +55,7 @@ public class MixinWindow {
                     );
 
                     if (iconBuffer == null) {
-                        System.err.println("Failed to load Soar icon: " + STBImage.stbi_failure_reason());
+                        System.err.println("Failed to load PupperClient icon: " + STBImage.stbi_failure_reason());
                         return;
                     }
 
@@ -68,11 +68,11 @@ public class MixinWindow {
                     GLFW.glfwSetWindowIcon(handle, images);
 
                     STBImage.stbi_image_free(iconBuffer);
-                    Soar.LOGGER.info("Soar icon loaded successfully!");
+                    PupperClient.LOGGER.info("PupperClient icon loaded successfully!");
                 }
             }
         } catch (IOException e) {
-            Soar.LOGGER.error("Error loading Soar icon: {}", e.getMessage());
+            PupperClient.LOGGER.error("Error loading PupperClient icon: {}", e.getMessage());
         }
     }
 

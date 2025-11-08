@@ -2,7 +2,7 @@ package cn.pupperclient.ui.component.impl.text;
 
 import org.lwjgl.glfw.GLFW;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.animation.Animation;
 import cn.pupperclient.animation.Duration;
 import cn.pupperclient.animation.SimpleAnimation;
@@ -34,7 +34,7 @@ public class TextField extends Component {
 	@Override
 	public void draw(double mouseX, double mouseY) {
 
-		ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+		ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
 		Skia.drawRoundedRect(x, y, width, height, 12, palette.getSurfaceContainer());
 
@@ -64,7 +64,7 @@ public class TextField extends Component {
 
 	private void drawCursor() {
 
-		ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+		ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
 		int selectionEnd = input.getSelectionEnd();
 		int cursorPosition = input.getCursorPosition();

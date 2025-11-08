@@ -5,9 +5,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import cn.pupperclient.PupperClient;
 import org.lwjgl.glfw.GLFW;
 
-import cn.pupperclient.Soar;
 import cn.pupperclient.gui.api.SimpleSoarGui;
 import cn.pupperclient.gui.edithud.api.GrabOffset;
 import cn.pupperclient.gui.edithud.api.HUDCore;
@@ -41,7 +41,7 @@ public class GuiEditHUD extends SimpleSoarGui {
 	}
 
 	private List<HUDMod> initializeMods() {
-		List<HUDMod> modsList = Soar.getInstance().getModManager().getHUDMods();
+		List<HUDMod> modsList = PupperClient.getInstance().getModManager().getHUDMods();
 		Collections.reverse(modsList);
 		return modsList;
 	}

@@ -1,6 +1,6 @@
 package cn.pupperclient.management.mod.impl.render;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.client.RenderSkiaEvent;
 import cn.pupperclient.management.mod.Mod;
@@ -20,7 +20,7 @@ public class MusicWaveformMod extends Mod {
 
 	public EventBus.EventListener<RenderSkiaEvent> onRenderSkia = event -> {
 
-		MusicManager musicManager = Soar.getInstance().getMusicManager();
+		MusicManager musicManager = PupperClient.getInstance().getMusicManager();
 		Music m = musicManager.getCurrentMusic();
 
 		int offsetX = 0;

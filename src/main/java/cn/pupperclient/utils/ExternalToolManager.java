@@ -1,6 +1,6 @@
 package cn.pupperclient.utils;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 
 import javax.net.ssl.*;
 import java.io.File;
@@ -52,33 +52,33 @@ public class ExternalToolManager {
         CompletableFuture.supplyAsync(() -> {
             try {
                 // 步骤1: 检查工具
-                callback.onProgress(Soar.MusicToolStatus.CHECKING, 0.1f);
+                callback.onProgress(PupperClient.MusicToolStatus.CHECKING, 0.1f);
 
                 boolean ytDlpAvailable = checkYtDlp();
                 boolean ffmpegAvailable = checkFfmpeg();
 
                 if (ytDlpAvailable && ffmpegAvailable) {
-                    callback.onProgress(Soar.MusicToolStatus.INSTALLED, 1.0f);
+                    callback.onProgress(PupperClient.MusicToolStatus.INSTALLED, 1.0f);
                     callback.onComplete(true);
                     return true;
                 }
 
                 // 步骤2: 下载缺失的工具
-                callback.onProgress(Soar.MusicToolStatus.DOWNLOADING, 0.3f);
+                callback.onProgress(PupperClient.MusicToolStatus.DOWNLOADING, 0.3f);
 
                 List<CompletableFuture<Boolean>> downloads = new ArrayList<>();
 
                 if (!ytDlpAvailable) {
                     downloads.add(downloadYtDlp(progress -> {
                         float overallProgress = 0.3f + (progress * 0.35f);
-                        callback.onProgress(Soar.MusicToolStatus.DOWNLOADING, overallProgress);
+                        callback.onProgress(PupperClient.MusicToolStatus.DOWNLOADING, overallProgress);
                     }));
                 }
 
                 if (!ffmpegAvailable) {
                     downloads.add(downloadFfmpeg(progress -> {
                         float overallProgress = 0.65f + (progress * 0.35f);
-                        callback.onProgress(Soar.MusicToolStatus.DOWNLOADING, overallProgress);
+                        callback.onProgress(PupperClient.MusicToolStatus.DOWNLOADING, overallProgress);
                     }));
                 }
 
@@ -97,18 +97,18 @@ public class ExternalToolManager {
                 ).get();
 
                 if (success) {
-                    callback.onProgress(Soar.MusicToolStatus.INSTALLED, 1.0f);
+                    callback.onProgress(PupperClient.MusicToolStatus.INSTALLED, 1.0f);
                     callback.onComplete(true);
                 } else {
-                    callback.onProgress(Soar.MusicToolStatus.FAILED, 1.0f);
+                    callback.onProgress(PupperClient.MusicToolStatus.FAILED, 1.0f);
                     callback.onComplete(false);
                 }
 
                 return success;
 
             } catch (Exception e) {
-                Soar.LOGGER.error("Tool installation failed: {}", e.getMessage());
-                callback.onProgress(Soar.MusicToolStatus.FAILED, 1.0f);
+                PupperClient.LOGGER.error("Tool installation failed: {}", e.getMessage());
+                callback.onProgress(PupperClient.MusicToolStatus.FAILED, 1.0f);
                 callback.onComplete(false);
                 return false;
             }
@@ -162,7 +162,7 @@ public class ExternalToolManager {
                 return extractSuccess;
 
             } catch (Exception e) {
-                Soar.LOGGER.error("Failed to download ffmpeg: {}", e.getMessage());
+                PupperClient.LOGGER.error("Failed to download ffmpeg: {}", e.getMessage());
                 return false;
             }
         });
@@ -188,7 +188,7 @@ public class ExternalToolManager {
                             outputStream.write(buffer, 0, bytesRead);
                         }
 
-                        Soar.LOGGER.info("Successfully extracted ffmpeg.exe");
+                        PupperClient.LOGGER.info("Successfully extracted ffmpeg.exe");
                         break;
                     }
                 }
@@ -205,7 +205,7 @@ public class ExternalToolManager {
             return ffmpegExe.exists() && ffmpegExe.length() > 0;
 
         } catch (Exception e) {
-            Soar.LOGGER.error("Failed to extract ffmpeg: {}", e.getMessage());
+            PupperClient.LOGGER.error("Failed to extract ffmpeg: {}", e.getMessage());
             return false;
         }
     }
@@ -241,7 +241,7 @@ public class ExternalToolManager {
 
                 return true;
             } catch (Exception e) {
-                Soar.LOGGER.error("Failed to download yt-dlp: {}", e.getMessage());
+                PupperClient.LOGGER.error("Failed to download yt-dlp: {}", e.getMessage());
                 return false;
             }
         });
@@ -285,7 +285,7 @@ public class ExternalToolManager {
             return exitCode == 0;
 
         } catch (Exception e) {
-            Soar.LOGGER.error("Error checking ffmpeg: {}", e.getMessage());
+            PupperClient.LOGGER.error("Error checking ffmpeg: {}", e.getMessage());
             return false;
         }
     }

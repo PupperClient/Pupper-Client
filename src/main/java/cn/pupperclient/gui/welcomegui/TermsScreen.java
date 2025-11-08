@@ -1,6 +1,6 @@
 package cn.pupperclient.gui.welcomegui;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.gui.api.SimpleSoarGui;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.font.Fonts;
@@ -33,7 +33,7 @@ public class TermsScreen extends SimpleSoarGui {
             public void onAction() {
                 accepted = true;
                 client.player.playSound(SoundEvents.UI_TOAST_IN, 1.0f, 1.0f);
-                Soar.hasAcceptedTerms = true;
+                PupperClient.hasAcceptedTerms = true;
                 client.setScreen(null);
             }
         });

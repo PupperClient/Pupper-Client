@@ -4,7 +4,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.animation.SimpleAnimation;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.client.EventDisconnect;
@@ -196,7 +196,7 @@ public class MultiplayerGui extends SimpleSoarGui {
             return;
         }
 
-        Soar instance = Soar.getInstance();
+        PupperClient instance = PupperClient.getInstance();
         ColorPalette palette = instance.getColorManager().getPalette();
 
         // 绘制背景
@@ -352,7 +352,7 @@ public class MultiplayerGui extends SimpleSoarGui {
         }
 
         public void draw(int mouseX, int mouseY) {
-            ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+            ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
             boolean hovered = MouseUtils.isInside(mouseX, mouseY, x, y, width, height);
 
             focusAnimation.onTick(hovered ? 1.0F : 0, 12);
@@ -484,7 +484,7 @@ public class MultiplayerGui extends SimpleSoarGui {
 
     public ProtocolVersion getProtocolVersion() {
         try {
-            return Soar.getInstance().getProtocolVersion();
+            return PupperClient.getInstance().getProtocolVersion();
         } catch (Exception e) {
             return ProtocolVersion.v1_21_4;
         }
@@ -492,9 +492,9 @@ public class MultiplayerGui extends SimpleSoarGui {
 
     public void setProtocolVersion(ProtocolVersion version) {
         try {
-            Soar.getInstance().setProtocolVersion(version);
+            PupperClient.getInstance().setProtocolVersion(version);
         } catch (Exception e) {
-            Soar.LOGGER.error("Failed to set protocol version: {}", e.getMessage());
+            PupperClient.LOGGER.error("Failed to set protocol version: {}", e.getMessage());
         }
     }
 

@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import cn.pupperclient.PupperClient;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import cn.pupperclient.Soar;
 import cn.pupperclient.libraries.resourcepack.ResourcePackConverter;
 import cn.pupperclient.utils.JsonUtils;
 import cn.pupperclient.utils.Multithreading;
@@ -42,7 +42,7 @@ public class GuiResourcePackConvert extends Screen {
             try {
                 converter.run();
             } catch (Exception e) {
-                Soar.LOGGER.error("converter error: {}", e.getMessage());
+                PupperClient.LOGGER.error("converter error: {}", e.getMessage());
             }
             if (client != null) {
                 client.setScreen(prevScreen);

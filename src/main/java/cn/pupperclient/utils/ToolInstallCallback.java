@@ -1,8 +1,8 @@
 package cn.pupperclient.utils;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 
 public interface ToolInstallCallback {
-    void onProgress(Soar.MusicToolStatus status, float progress);
+    void onProgress(PupperClient.MusicToolStatus status, float progress);
     void onComplete(boolean success);
 }

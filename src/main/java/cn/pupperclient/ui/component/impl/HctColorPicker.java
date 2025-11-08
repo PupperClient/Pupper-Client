@@ -4,7 +4,7 @@ import java.awt.Color;
 
 import org.lwjgl.glfw.GLFW;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.animation.SimpleAnimation;
 import cn.pupperclient.libraries.material3.hct.Hct;
 import cn.pupperclient.management.color.api.ColorPalette;
@@ -34,7 +34,7 @@ public class HctColorPicker extends Component {
 	@Override
 	public void draw(double mouseX, double mouseY) {
 
-		ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+		ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
 		slideAnimation.onTick(width * value, 20);
 

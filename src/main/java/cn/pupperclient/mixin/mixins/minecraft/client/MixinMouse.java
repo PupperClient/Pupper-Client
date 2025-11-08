@@ -1,5 +1,6 @@
 package cn.pupperclient.mixin.mixins.minecraft.client;
 
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.event.client.MouseClickEvent;
 import cn.pupperclient.management.mod.impl.hud.CPSDisplayMod;
 import net.minecraft.client.MinecraftClient;
@@ -10,7 +11,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import cn.pupperclient.Soar;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.client.MouseScrollEvent;
 import cn.pupperclient.management.mod.settings.impl.KeybindSetting;
@@ -24,7 +24,7 @@ public abstract class MixinMouse {
 	@Inject(method = "onMouseButton", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;onKeyPressed(Lnet/minecraft/client/util/InputUtil$Key;)V", shift = At.Shift.AFTER))
 	public void onPressed(long window, int button, int action, int mods, CallbackInfo ci) {
 
-		for (KeybindSetting s : Soar.getInstance().getModManager().getKeybindSettings()) {
+		for (KeybindSetting s : PupperClient.getInstance().getModManager().getKeybindSettings()) {
 
 			if (s.getKey().equals(Type.MOUSE.createFromCode(button))) {
 
@@ -39,7 +39,7 @@ public abstract class MixinMouse {
 
 	@Inject(method = "onMouseButton", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;setKeyPressed(Lnet/minecraft/client/util/InputUtil$Key;Z)V", shift = At.Shift.AFTER, ordinal = 0))
 	public void onReleased(long window, int button, int action, int mods, CallbackInfo ci) {
-		for (KeybindSetting s : Soar.getInstance().getModManager().getKeybindSettings()) {
+		for (KeybindSetting s : PupperClient.getInstance().getModManager().getKeybindSettings()) {
 			if (s.getKey().equals(Type.MOUSE.createFromCode(button))) {
 				s.setKeyDown(false);
 			}
@@ -78,7 +78,7 @@ public abstract class MixinMouse {
 
     @Inject(method = "onMouseButton", at = @At("HEAD"))
     public void onMouseButtonForCPS(long window, int button, int action, int mods, CallbackInfo ci) {
-        CPSDisplayMod cpsDisplayMod = Soar.getInstance().getModManager().getMods()
+        CPSDisplayMod cpsDisplayMod = PupperClient.getInstance().getModManager().getMods()
             .stream()
             .filter(mod -> mod instanceof CPSDisplayMod)
             .map(mod -> (CPSDisplayMod) mod)

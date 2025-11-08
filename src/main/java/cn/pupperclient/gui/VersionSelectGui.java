@@ -1,6 +1,6 @@
 package cn.pupperclient.gui;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.gui.api.SimpleSoarGui;
 import cn.pupperclient.management.color.api.ColorPalette;
 import cn.pupperclient.skia.Skia;
@@ -63,7 +63,7 @@ public class VersionSelectGui extends SimpleSoarGui {
             Typeface typeface = Typeface.makeDefault();
             regularFont = new Font(typeface, 16f);
         } catch (Exception e) {
-            Soar.LOGGER.error("Failed to initialize fonts", e);
+            PupperClient.LOGGER.error("Failed to initialize fonts", e);
         }
     }
 
@@ -160,7 +160,7 @@ public class VersionSelectGui extends SimpleSoarGui {
             return;
         }
 
-        Soar instance = Soar.getInstance();
+        PupperClient instance = PupperClient.getInstance();
         ColorPalette palette = instance.getColorManager().getPalette();
 
         // 更新paint颜色
@@ -331,7 +331,7 @@ public class VersionSelectGui extends SimpleSoarGui {
         }
 
         public void draw(int mouseX, int mouseY) {
-            ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+            ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
             boolean hovered = MouseUtils.isInside(mouseX, mouseY, x, y, width, height);
             boolean isCurrentVersion = parent.getProtocolVersion().equals(version);
 

@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
+import cn.pupperclient.PupperClient;
 import com.google.gson.JsonObject;
-import cn.pupperclient.Soar;
 import cn.pupperclient.animation.SimpleAnimation;
 import cn.pupperclient.gui.api.SimpleSoarGui;
 import cn.pupperclient.management.Notification.NotificationManager;
@@ -82,47 +82,44 @@ public class MainMenuGui extends SimpleSoarGui {
 
     private void checkTools() {
         toolsChecked = true;
-        Soar.LOGGER.info("开始检查工具...");
+        PupperClient.LOGGER.info("开始检查工具...");
 
         Multithreading.runAsync(() -> {
             try {
-                ExternalToolManager toolManager = Soar.getInstance().getToolManager();
+                ExternalToolManager toolManager = PupperClient.getInstance().getToolManager();
                 if (toolManager != null) {
                     toolManager.checkAndInstallTools(new ToolInstallCallback() {
                         @Override
-                        public void onProgress(Soar.MusicToolStatus status, float progress) {
-                            // 修复：使用 runOnMainThread 而不是 runAsync
+                        public void onProgress(PupperClient.MusicToolStatus status, float progress) {
                             Multithreading.runMainThread(() -> {
-                                Soar.LOGGER.info("工具检查进度: {} - {}%", status, progress * 100);
+                                PupperClient.LOGGER.info("工具检查进度: {} - {}%", status, progress * 100);
                                 notificationManager.showToolCheckNotification(status, progress);
                             });
                         }
 
                         @Override
                         public void onComplete(boolean success) {
-                            // 修复：使用 runOnMainThread 而不是 runAsync
                             Multithreading.runMainThread(() -> {
-                                Soar.LOGGER.info("工具检查完成: {}", success ? "成功" : "失败");
+                                PupperClient.LOGGER.info("工具检查完成: {}", success ? "成功" : "失败");
                                 toolsAvailable = success;
-                                Soar.MusicToolStatus finalStatus = success ? Soar.MusicToolStatus.INSTALLED : Soar.MusicToolStatus.FAILED;
+                                PupperClient.MusicToolStatus finalStatus = success ? PupperClient.MusicToolStatus.INSTALLED : PupperClient.MusicToolStatus.FAILED;
                                 notificationManager.showToolCheckNotification(finalStatus, 1f);
 
-                                // 强制更新所有按钮状态
                                 updateAllButtonStates();
                             });
                         }
                     });
                 } else {
-                    Soar.LOGGER.warn("工具管理器为空");
+                    PupperClient.LOGGER.warn("工具管理器为空");
                     Multithreading.runMainThread(() -> {
                         toolsAvailable = false;
                         updateAllButtonStates();
                     });
                 }
             } catch (Exception e) {
-                Soar.LOGGER.error("工具检查失败: {}", e.getMessage());
+                PupperClient.LOGGER.error("工具检查失败: {}", e.getMessage());
                 Multithreading.runMainThread(() -> {
-                    notificationManager.showToolCheckNotification(Soar.MusicToolStatus.FAILED, 0f);
+                    notificationManager.showToolCheckNotification(PupperClient.MusicToolStatus.FAILED, 0f);
                     toolsAvailable = false;
                     updateAllButtonStates();
                 });
@@ -131,7 +128,7 @@ public class MainMenuGui extends SimpleSoarGui {
     }
 
     private void updateAllButtonStates() {
-        Soar.LOGGER.info("更新按钮状态: toolsAvailable = {}", toolsAvailable);
+        PupperClient.LOGGER.info("更新按钮状态: toolsAvailable = {}", toolsAvailable);
 
         for (MainMenuButton button : buttons) {
             boolean isSettingsOrBackground = button == settingsButton || button == backgroundButton;
@@ -145,7 +142,7 @@ public class MainMenuGui extends SimpleSoarGui {
     }
 
     private void loadBackgroundSettings() {
-        JsonObject config = Soar.getInstance().getConfigManager().getConfig(ConfigType.MOD).getJsonObject();
+        JsonObject config = PupperClient.getInstance().getConfigManager().getConfig(ConfigType.MOD).getJsonObject();
         try {
             if (config.has("mainmenu.background")) {
                 selectedBackgroundId = config.get("mainmenu.background").getAsString();
@@ -156,9 +153,9 @@ public class MainMenuGui extends SimpleSoarGui {
     }
 
     private void saveBackgroundSettings() {
-        JsonObject config = Soar.getInstance().getConfigManager().getConfig(ConfigType.MOD).getJsonObject();
+        JsonObject config = PupperClient.getInstance().getConfigManager().getConfig(ConfigType.MOD).getJsonObject();
         config.addProperty("mainmenu.background", selectedBackgroundId);
-        Soar.getInstance().getConfigManager().save(ConfigType.MOD);
+        PupperClient.getInstance().getConfigManager().save(ConfigType.MOD);
     }
 
     private void updateLayout() {
@@ -206,7 +203,6 @@ public class MainMenuGui extends SimpleSoarGui {
         lastWindowHeight = client.getWindow().getHeight();
 
         for (MainMenuButton button : buttons) {
-            // 设置和背景按钮始终可用
             boolean isSettingsOrBackground = button == settingsButton || button == backgroundButton;
             button.setEnabled(toolsAvailable || isSettingsOrBackground);
         }
@@ -311,7 +307,7 @@ public class MainMenuGui extends SimpleSoarGui {
             saveBackgroundSettings();
 
         } catch (IOException e) {
-            Soar.LOGGER.error("Error copying background file: {}", e.getMessage(), e);
+            PupperClient.LOGGER.error("Error copying background file: {}", e.getMessage(), e);
         }
     }
 
@@ -356,7 +352,7 @@ public class MainMenuGui extends SimpleSoarGui {
             return;
         }
 
-        Soar instance = Soar.getInstance();
+        PupperClient instance = PupperClient.getInstance();
         ColorPalette palette = instance.getColorManager().getPalette();
 
         drawCustomBackground();
@@ -509,7 +505,7 @@ public class MainMenuGui extends SimpleSoarGui {
 
     private void drawLogoIcon() {
         float scaleFactor = calculateScaleFactor();
-        float logoSize = 170 * scaleFactor;
+        float logoSize = 170 * scaleFactor + 25;
         float logoX = client.getWindow().getWidth() / 2f - logoSize / 2;
 
         float centerY = client.getWindow().getHeight() / 2f;
@@ -668,7 +664,7 @@ public class MainMenuGui extends SimpleSoarGui {
         }
 
         public void draw(int mouseX, int mouseY) {
-            ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+            ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
             boolean hovered = enabled && MouseUtils.isInside(mouseX, mouseY, x, y, width, height);
 
             focusAnimation.onTick(hovered ? 1.0F : 0, 12);

@@ -1,6 +1,6 @@
 package cn.pupperclient.management.mod.settings.impl;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.libraries.material3.hct.Hct;
 import cn.pupperclient.management.mod.Mod;
 import cn.pupperclient.management.mod.settings.Setting;
@@ -15,7 +15,7 @@ public class HctColorSetting extends Setting {
 		this.hct = hct;
 		this.defaultHct = hct;
 
-		Soar.getInstance().getModManager().addSetting(this);
+		PupperClient.getInstance().getModManager().addSetting(this);
 	}
 
 	@Override

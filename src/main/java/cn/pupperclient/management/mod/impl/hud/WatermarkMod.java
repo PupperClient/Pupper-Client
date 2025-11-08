@@ -4,10 +4,10 @@ import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
+import cn.pupperclient.PupperLogger;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.client.RenderSkiaEvent;
-import cn.pupperclient.SoarLogger;
 import cn.pupperclient.management.color.api.ColorPalette;
 import cn.pupperclient.management.mod.api.hud.HUDMod;
 import cn.pupperclient.management.mod.settings.impl.BooleanSetting;
@@ -42,7 +42,7 @@ public class WatermarkMod extends HUDMod {
 
     // Settings
     private final StringSetting textSetting = new StringSetting("setting.text",
-        "setting.text.description", Icon.TEXT_FIELDS, this, "Soar Client");
+        "setting.text.description", Icon.TEXT_FIELDS, this, "PupperClient Client");
     private final BooleanSetting showLogoSetting = new BooleanSetting("setting.showLogo",
         "setting.showLogo.description", Icon.IMAGE, this, true);
 
@@ -56,7 +56,7 @@ public class WatermarkMod extends HUDMod {
                 this.logoImage = Image.makeDeferredFromEncodedBytes(imageData);
             }
         } catch (IOException e) {
-            SoarLogger.error("WatermarkMod", "Failed to load logo", e);
+            PupperLogger.error("WatermarkMod", "Failed to load logo", e);
         }
     }
 
@@ -81,13 +81,13 @@ public class WatermarkMod extends HUDMod {
             this.begin();
             drawContent();
         } catch (Exception e) {
-            SoarLogger.error("WatermarkMod", "Error in draw(): ", e);
+            PupperLogger.error("WatermarkMod", "Error in draw(): ", e);
             position.setSize(100, 20);
         } finally {
             try {
                 this.finish();
             } catch (Exception e) {
-                SoarLogger.error("WatermarkMod", "Error in finish(): ", e);
+                PupperLogger.error("WatermarkMod", "Error in finish(): ", e);
             }
         }
     }
@@ -135,7 +135,7 @@ public class WatermarkMod extends HUDMod {
         lastColorUpdate = currentTime;
 
         try {
-            ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+            ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
             if (palette == null) {
                 return Color.WHITE;
             }
@@ -161,7 +161,7 @@ public class WatermarkMod extends HUDMod {
 
             return currentColor;
         } catch (Exception e) {
-            SoarLogger.error("WatermarkMod", "Error in getSmoothAnimatedColor(): ", e);
+            PupperLogger.error("WatermarkMod", "Error in getSmoothAnimatedColor(): ", e);
             return Color.WHITE;
         }
     }

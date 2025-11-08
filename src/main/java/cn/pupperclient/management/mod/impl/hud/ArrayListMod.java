@@ -1,6 +1,6 @@
 package cn.pupperclient.management.mod.impl.hud;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.client.RenderSkiaEvent;
 import cn.pupperclient.management.mod.Mod;
@@ -56,7 +56,7 @@ public class ArrayListMod extends HUDMod {
         instance = this;
 
         // Listen for mod state changes to trigger animations
-        Soar.getInstance().getModManager().addStateListener(this::handleModStateChange);
+        PupperClient.getInstance().getModManager().addStateListener(this::handleModStateChange);
     }
 
     public static ArrayListMod getInstance() {
@@ -73,7 +73,7 @@ public class ArrayListMod extends HUDMod {
             updateAnimationStates();
             drawArrayList();
         } catch (Exception e) {
-            Soar.LOGGER.error("Error drawing ArrayListMod", e);
+            PupperClient.LOGGER.error("Error drawing ArrayListMod", e);
             position.setSize(100, 20);
         } finally {
             finish();
@@ -231,7 +231,7 @@ public class ArrayListMod extends HUDMod {
     private List<ModDisplayInfo> getEnabledMods() {
         List<ModDisplayInfo> enabledMods = new ArrayList<>();
 
-        for (Mod mod : Soar.getInstance().getModManager().getMods()) {
+        for (Mod mod : PupperClient.getInstance().getModManager().getMods()) {
             if (shouldDisplayMod(mod) && mod.isEnabled() && !mod.isHidden()) {
                 String displayName = I18n.get(mod.getName());
                 float nameWidth = Skia.getTextBounds(displayName, Fonts.getRegular(FONT_SIZE)).getWidth();

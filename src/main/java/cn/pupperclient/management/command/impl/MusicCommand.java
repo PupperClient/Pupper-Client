@@ -4,7 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.utils.ChatUtils;
 import cn.pupperclient.utils.Multithreading;
 import net.minecraft.text.ClickEvent;
@@ -182,7 +182,7 @@ public class MusicCommand {
 
             } catch (Exception e) {
                 Multithreading.runMainThread(() -> ChatUtils.addChatMessage("§c搜索失败: " + e.getMessage()));
-                Soar.LOGGER.error("音乐搜索失败: {}", e.getMessage(), e);
+                PupperClient.LOGGER.error("音乐搜索失败: {}", e.getMessage(), e);
             }
         });
     }
@@ -290,7 +290,7 @@ public class MusicCommand {
                 Multithreading.runMainThread(() -> {
                     ChatUtils.addChatMessage("§c下载失败: " + e.getMessage());
                 });
-                Soar.LOGGER.error("音乐下载失败: {}", e.getMessage(), e);
+                PupperClient.LOGGER.error("音乐下载失败: {}", e.getMessage(), e);
             }
         });
     }
@@ -322,7 +322,7 @@ public class MusicCommand {
 
             } catch (Exception e) {
                 Multithreading.runMainThread(() -> ChatUtils.addChatMessage("§c快速下载失败: " + e.getMessage()));
-                Soar.LOGGER.error("快速下载失败: {}", e.getMessage(), e);
+                PupperClient.LOGGER.error("快速下载失败: {}", e.getMessage(), e);
             }
         });
     }
@@ -459,7 +459,7 @@ public class MusicCommand {
 
             return true;
         } catch (Exception e) {
-            Soar.LOGGER.error("文件下载失败: {}", e.getMessage(), e);
+            PupperClient.LOGGER.error("文件下载失败: {}", e.getMessage(), e);
             return false;
         }
     }

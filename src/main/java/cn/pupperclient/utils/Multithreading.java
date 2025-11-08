@@ -12,7 +12,7 @@ import net.minecraft.client.MinecraftClient;
 public class Multithreading {
 
 	private static final ExecutorService executorService = Executors
-			.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("Soar-%d").build());
+			.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("PupperClient-%d").build());
 	private static final ScheduledExecutorService runnableExecutor = new ScheduledThreadPoolExecutor(
 			Runtime.getRuntime().availableProcessors() + 1);
 

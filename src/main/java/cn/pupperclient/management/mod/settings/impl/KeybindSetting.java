@@ -1,6 +1,6 @@
 package cn.pupperclient.management.mod.settings.impl;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.mod.Mod;
 import cn.pupperclient.management.mod.settings.Setting;
 
@@ -18,7 +18,7 @@ public class KeybindSetting extends Setting {
 		this.defaultKey = key;
 		this.key = key;
 
-		Soar.getInstance().getModManager().addSetting(this);
+		PupperClient.getInstance().getModManager().addSetting(this);
 	}
 
 	@Override

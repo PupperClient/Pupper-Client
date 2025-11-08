@@ -1,8 +1,8 @@
 package cn.pupperclient.ui.component.impl.text;
 
+import cn.pupperclient.PupperClient;
 import org.lwjgl.glfw.GLFW;
 
-import cn.pupperclient.Soar;
 import cn.pupperclient.animation.Animation;
 import cn.pupperclient.animation.Duration;
 import cn.pupperclient.animation.SimpleAnimation;
@@ -48,7 +48,7 @@ public class SearchBar extends Component {
 	@Override
 	public void draw(double mouseX, double mouseY) {
 
-		ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+		ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
 		float hintTextValue = hintTextAnimation.getValue();
 
@@ -84,7 +84,7 @@ public class SearchBar extends Component {
 
 	private void drawCursor() {
 
-		ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+		ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
 		int selectionEnd = input.getSelectionEnd();
 		int cursorPosition = input.getCursorPosition();

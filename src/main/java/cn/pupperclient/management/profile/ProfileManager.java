@@ -11,7 +11,7 @@ import java.util.List;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.config.Config;
 import cn.pupperclient.management.config.ConfigManager;
 import cn.pupperclient.management.config.ConfigType;
@@ -34,7 +34,7 @@ public class ProfileManager {
             profileDir.mkdirs();
         }
 
-        ConfigManager configManager = Soar.getInstance().getConfigManager();
+        ConfigManager configManager = PupperClient.getInstance().getConfigManager();
 
         JsonObject infoJson = new JsonObject();
         infoJson.addProperty("name", name);
@@ -76,7 +76,7 @@ public class ProfileManager {
         List<ObjectObjectImmutablePair<ConfigType, JsonObject>> configs = profile.getConfigs();
 
         for (ObjectObjectImmutablePair<ConfigType, JsonObject> p : configs) {
-            Config config = Soar.getInstance().getConfigManager().getConfig(p.left());
+            Config config = PupperClient.getInstance().getConfigManager().getConfig(p.left());
             config.setJsonObject(p.right());
             config.onLoad();
         }

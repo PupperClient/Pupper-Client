@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import cn.pupperclient.SoarLogger;
+import cn.pupperclient.PupperLogger;
 import cn.pupperclient.utils.Multithreading;
 
 import net.ccbluex.liquidbounce.mcef.MCEF;
@@ -75,7 +75,7 @@ public class JCefBrowser {
 			
 			if(!resourceManager.isSystemCompatible()) {
 				unsupport = true;
-				SoarLogger.error("JCEF", "The computer does not support the browser");
+				PupperLogger.error("JCEF", "The computer does not support the browser");
 				return;
 			}
 			

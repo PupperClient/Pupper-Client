@@ -2,7 +2,7 @@ package cn.pupperclient.management.mod.settings.impl;
 
 import java.io.File;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.mod.Mod;
 import cn.pupperclient.management.mod.settings.Setting;
 
@@ -17,7 +17,7 @@ public class FileSetting extends Setting {
 		this.defaultValue = file;
 		this.file = file;
 		this.extensions = extensions;
-		Soar.getInstance().getModManager().addSetting(this);
+		PupperClient.getInstance().getModManager().addSetting(this);
 	}
 
 	@Override

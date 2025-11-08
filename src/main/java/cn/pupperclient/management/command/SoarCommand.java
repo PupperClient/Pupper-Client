@@ -1,6 +1,6 @@
 package cn.pupperclient.management.command;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.command.impl.*;
 import cn.pupperclient.management.mod.Mod;
 import cn.pupperclient.management.mod.ModManager;
@@ -18,7 +18,7 @@ import java.io.IOException;
 
 public class SoarCommand implements IMinecraft {
     private static final String PREFIX = ".";
-    private static final ModManager modManager = Soar.getInstance().getModManager();
+    private static final ModManager modManager = PupperClient.getInstance().getModManager();
 
     public static void register() {
         ClientSendMessageEvents.ALLOW_CHAT.register((message) -> {

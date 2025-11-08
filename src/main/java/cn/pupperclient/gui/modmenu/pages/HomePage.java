@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.gui.api.SoarGui;
 import cn.pupperclient.gui.api.page.Page;
 import cn.pupperclient.gui.api.page.impl.RightLeftTransition;
@@ -35,14 +35,14 @@ public class HomePage extends Page {
         super.draw(mouseX, mouseY);
         updateTime();
 
-        ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+        ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
         Skia.drawGradientRoundedRect(x, y, width, height, 20,
             palette.getSurfaceContainerLow(),
             palette.getSurfaceContainer());
 
         Skia.drawText("Welcome to", x + 50, y + 80, palette.getOnSurfaceVariant(), Fonts.getMedium(24));
-        Skia.drawText("Soar-CN " + Soar.getInstance().getVersion(), x + 50, y + 110, palette.getOnSurface(), Fonts.getRegular(36));
+        Skia.drawText("PupperClient-CN " + PupperClient.getInstance().getVersion(), x + 50, y + 110, palette.getOnSurface(), Fonts.getRegular(36));
 
         Skia.drawText(currentTime, x + width - 325, y + 80, palette.getOnSurfaceVariant(),
             Fonts.getMedium(24));

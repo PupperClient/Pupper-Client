@@ -2,7 +2,7 @@ package cn.pupperclient.management.mod.settings.impl;
 
 import java.util.List;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.mod.Mod;
 import cn.pupperclient.management.mod.settings.Setting;
 
@@ -17,7 +17,7 @@ public class ComboSetting extends Setting {
 		this.option = option;
 		this.defaultOption = option;
 
-		Soar.getInstance().getModManager().addSetting(this);
+		PupperClient.getInstance().getModManager().addSetting(this);
 	}
 
 	@Override

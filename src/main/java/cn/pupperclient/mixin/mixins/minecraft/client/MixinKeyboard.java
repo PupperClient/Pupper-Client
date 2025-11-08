@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.mod.settings.impl.KeybindSetting;
 
 import net.minecraft.client.Keyboard;
@@ -28,7 +28,7 @@ public abstract class MixinKeyboard {
     private void onKeyPressed(long window, int key, int scancode, int action, int modifiers, CallbackInfo ci) {
         if (action == GLFW.GLFW_PRESS || action == GLFW.GLFW_REPEAT) {
             InputUtil.Key inputKey = InputUtil.fromKeyCode(key, scancode);
-            for (KeybindSetting setting : Soar.getInstance().getModManager().getKeybindSettings()) {
+            for (KeybindSetting setting : PupperClient.getInstance().getModManager().getKeybindSettings()) {
                 if (setting.getKey().equals(inputKey)) {
                     setting.setPressed();
                     setting.setKeyDown(true);
@@ -48,7 +48,7 @@ public abstract class MixinKeyboard {
     private void onKeyReleased(long window, int key, int scancode, int action, int modifiers, CallbackInfo ci) {
         if (action == GLFW.GLFW_RELEASE) {
             InputUtil.Key inputKey = InputUtil.fromKeyCode(key, scancode);
-            for (KeybindSetting setting : Soar.getInstance().getModManager().getKeybindSettings()) {
+            for (KeybindSetting setting : PupperClient.getInstance().getModManager().getKeybindSettings()) {
                 if (setting.getKey().equals(inputKey)) {
                     setting.setKeyDown(false);
                 }
@@ -61,7 +61,7 @@ public abstract class MixinKeyboard {
         method = {"onKey"}
     )
     private void onKeyPress(long pWindowPointer, int pKey, int pScanCode, int pAction, int pModifiers, CallbackInfo ci) {
-        if (pKey != -1 && Soar.getInstance() != null && EventBus.getInstance() != null) {
+        if (pKey != -1 && PupperClient.getInstance() != null && EventBus.getInstance() != null) {
             EventBus.getInstance().post(new KeyEvent(pKey, pAction != 0));
         }
     }

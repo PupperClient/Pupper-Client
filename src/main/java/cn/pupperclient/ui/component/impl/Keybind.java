@@ -2,7 +2,7 @@ package cn.pupperclient.ui.component.impl;
 
 import org.lwjgl.glfw.GLFW;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.color.api.ColorPalette;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.font.Fonts;
@@ -30,7 +30,7 @@ public class Keybind extends Component {
 	@Override
 	public void draw(double mouseX, double mouseY) {
 
-		ColorPalette palette = Soar.getInstance().getColorManager().getPalette();
+		ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
 		Skia.drawRoundedRect(x, y, width, height, 12, palette.getPrimary());
 		Skia.save();

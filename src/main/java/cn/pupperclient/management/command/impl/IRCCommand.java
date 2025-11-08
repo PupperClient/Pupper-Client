@@ -1,6 +1,6 @@
 package cn.pupperclient.management.command.impl;
 
-import cn.pupperclient.Soar;
+import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.mod.impl.misc.IRCChatMod;
 import cn.pupperclient.utils.IMinecraft;
 import net.minecraft.text.Text;
@@ -13,7 +13,7 @@ public class IRCCommand implements IMinecraft {
             return;
         }
 
-        IRCChatMod ircMod = (IRCChatMod) Soar.getInstance().getModManager().getModByName("mod.irc.name");
+        IRCChatMod ircMod = (IRCChatMod) PupperClient.getInstance().getModManager().getModByName("mod.irc.name");
 
         if (ircMod == null) {
             sendMessage("§cIRC Chat mod not found!");
