@@ -1,0 +1,40 @@
+package cn.pupperclient.management.mod.impl.render;
+
+import cn.pupperclient.Soar;
+import cn.pupperclient.event.EventBus;
+import cn.pupperclient.event.client.RenderSkiaEvent;
+import cn.pupperclient.management.mod.Mod;
+import cn.pupperclient.management.mod.ModCategory;
+import cn.pupperclient.management.music.Music;
+import cn.pupperclient.management.music.MusicManager;
+import cn.pupperclient.management.music.MusicPlayer;
+import cn.pupperclient.skia.Skia;
+import cn.pupperclient.skia.font.Icon;
+import cn.pupperclient.utils.ColorUtils;
+
+public class MusicWaveformMod extends Mod {
+
+	public MusicWaveformMod() {
+		super("mod.musicwaveform.name", "mod.musicwaveform.description", Icon.AIRWAVE, ModCategory.RENDER);
+	}
+
+	public EventBus.EventListener<RenderSkiaEvent> onRenderSkia = event -> {
+
+		MusicManager musicManager = Soar.getInstance().getMusicManager();
+		Music m = musicManager.getCurrentMusic();
+
+		int offsetX = 0;
+
+		if (musicManager.isPlaying()) {
+
+			for (int i = 0; i < MusicPlayer.SPECTRUM_BANDS; i++) {
+
+				MusicPlayer.ANIMATIONS[i].onTick(MusicPlayer.VISUALIZER[i], 10);
+				Skia.drawRect(offsetX, mc.getWindow().getScaledHeight() + MusicPlayer.ANIMATIONS[i].getValue(), 10,
+						mc.getWindow().getScaledHeight(), ColorUtils.applyAlpha(m.getColor(), 80));
+
+				offsetX += 10;
+			}
+		}
+	};
+}

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="EntryPointsManager">
     <list size="3">
-      <item index="0" class="java.lang.String" itemvalue="com.soarclient.event.EventListener" />
+      <item index="0" class="java.lang.String" itemvalue="cn.pupperclient.event.EventListener" />
       <item index="1" class="java.lang.String" itemvalue="org.spongepowered.asm.mixin.Mixin" />
       <item index="2" class="java.lang.String" itemvalue="org.spongepowered.asm.mixin.Shadow" />
     </list>

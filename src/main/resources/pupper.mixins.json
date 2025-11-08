@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "com.soarclient.mixin.mixins",
+  "package": "cn.pupperclient.mixin.mixins",
   "compatibilityLevel": "JAVA_21",
   "client": [
     "minecraft.client.MixinKeyboard",

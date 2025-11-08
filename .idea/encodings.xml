@@ -1,12 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
-    <file url="file://$PROJECT_DIR$/src/main/java/com/soarclient/gui/welcomegui/TermsScreen.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/Soar.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/SoarHandler.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/SoarLogger.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/animation" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/animation" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/event/Event.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/event/EventBus.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/event/EventListener.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/event/EventType.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/event/MethodEventListener.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/gui" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/gui" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/gui/welcomegui/TermsScreen.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/libraries/flac/ChannelData.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/libraries/flac/Constants.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/libraries/flac/FLACDecoder.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/libraries/flac/FixedPredictor.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/libraries/flac/FrameDecodeException.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/libraries/flac/FrameListener.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/libraries/flac/FrameListeners.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/libraries/flac/LPCPredictor.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/libraries/flac/PCMProcessor.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/libraries/flac/PCMProcessors.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/management/command/impl/BindCommand.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/management/command/impl/IRCCommand.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/management/config/impl/KeyConfig.java" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/management/irc/client/IRCTransport.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/mixin" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/mixin" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/shader" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/shader" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/skia" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/skia" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/ui" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/ui" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/utils/ChatUtils.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/utils/ColorUtils.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/utils/ExternalToolManager.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/utils/HealthUtils.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/utils/HttpUtils.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/utils/IMinecraft.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/utils/ImageUtils.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/utils/JNAWindowChecker.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/utils/JsonUtils.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/utils/MathUtils.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/utils/Multithreading.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/utils/OS.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/utils/RandomUtils.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/utils/RippleEffect.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/utils/ScreenInfo.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/utils/SearchUtils.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/utils/SkinUtils.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/utils/SoundEventHelper.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/utils/TimerUtils.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/utils/ToolInstallCallback.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/soarclient/event" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/soarclient/event" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/soarclient/libraries" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/soarclient/libraries" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/soarclient/logger" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/soarclient/logger" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/soarclient/management" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/soarclient/management" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java/com/soarclient/management/Rotation/RotationManager.java" charset="GBK" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/soarclient/management/command/impl/BindCommand.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/soarclient/management/command/impl/IRCCommand.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/soarclient/management/config/impl/KeyConfig.java" charset="GBK" />
-    <file url="file://$PROJECT_DIR$/src/main/java/com/soarclient/management/irc/client/IRCTransport.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/soarclient/utils" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/soarclient/utils" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java/com/soarclient/utils/rotation" charset="GBK" />
     <file url="file://$PROJECT_DIR$/src/main/java/com/soarclient/utils/rotation/RayTraceUtil.java" charset="GBK" />
     <file url="file://$PROJECT_DIR$/src/main/java/com/soarclient/utils/rotation/Rotation.java" charset="GBK" />

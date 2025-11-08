@@ -66,8 +66,8 @@ dependencies {
     jij 'com.googlecode.soundlibs:jlayer:1.0.1.4'
     jij "net.lenni0451:MCPing:1.4.2"
     jij "net.lenni0451:Reflect:1.4.0"
-    jij 'net.java.dev.jna:jna:5.12.1'
-    jij 'net.java.dev.jna:jna-platform:5.12.1'
+    modImplementation 'net.java.dev.jna:jna:5.12.1'
+    modImplementation 'net.java.dev.jna:jna-platform:5.12.1'
 
     modJij 'com.github.CCBlueX:mcef:3.0.0-1.21.4'
 
