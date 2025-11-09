@@ -24,9 +24,9 @@ public class Sprint extends Mod {
 
     @EventListener
     public void onKeyPress(KeyEvent event) {
-        if (event.getKey() == GLFW.GLFW_KEY_W) {
+        if (event.getKeybind() == GLFW.GLFW_KEY_W) {
             mc.options.sprintKey.setPressed(true);
-        } else if (event.getKey() == GLFW.GLFW_KEY_S) {
+        } else if (event.getKeybind() == GLFW.GLFW_KEY_S) {
             mc.options.sprintKey.setPressed(false);
         }
     }

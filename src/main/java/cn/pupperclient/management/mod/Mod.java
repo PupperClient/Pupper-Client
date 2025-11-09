@@ -3,8 +3,8 @@ package cn.pupperclient.management.mod;
 import cn.pupperclient.PupperClient;
 import cn.pupperclient.event.EventBus;
 
+import cn.pupperclient.event.mod.ModStateChangeEvent;
 import cn.pupperclient.management.keybind.KeybindManager;
-import cn.pupperclient.management.mod.event.ModStateChangeEvent;
 import cn.pupperclient.utils.IMinecraft;
 
 public class Mod implements IMinecraft {
@@ -37,7 +37,7 @@ public class Mod implements IMinecraft {
         }
     }
 
-    public void setKey(int newKey) {
+    public void setKeybind(int newKey) {
         KeybindManager.getInstance().updateKeybind(this.key, newKey, this);
 
         int previousKey = this.key;
@@ -46,7 +46,7 @@ public class Mod implements IMinecraft {
         PupperClient.LOGGER.debug("Keybind updated for mod {}: {} -> {}", name, previousKey, newKey);
     }
 
-    public int getKey() {
+    public int getKeybind() {
         return key;
     }
 
@@ -76,7 +76,6 @@ public class Mod implements IMinecraft {
 
     private void notifyStateChange() {
         EventBus.getInstance().post(new ModStateChangeEvent(this, enabled));
-        PupperClient.getInstance().getModManager().onModStateChanged(this, enabled);
     }
 
     public void onEnable() {
@@ -95,43 +94,43 @@ public class Mod implements IMinecraft {
         }
     }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public String getIcon() {
-		return icon;
-	}
+    public String getIcon() {
+        return icon;
+    }
 
-	public boolean isMovable() {
-		return movable;
-	}
+    public boolean isMovable() {
+        return movable;
+    }
 
-	public void setMovable(boolean movable) {
-		this.movable = movable;
-	}
+    public void setMovable(boolean movable) {
+        this.movable = movable;
+    }
 
-	public ModCategory getCategory() {
-		return category;
-	}
+    public ModCategory getCategory() {
+        return category;
+    }
 
-	public void setCategory(ModCategory category) {
-		this.category = category;
-	}
+    public boolean isEnabled() {
+        return enabled;
+    }
 
-	public boolean isEnabled() {
-		return enabled;
-	}
+    public boolean isHidden() {
+        return hidden;
+    }
 
-	public boolean isHidden() {
-		return hidden;
-	}
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
+    }
 
-	public void setHidden(boolean hidden) {
-		this.hidden = hidden;
-	}
+    public String getRawName() {
+        return name;
+    }
 }

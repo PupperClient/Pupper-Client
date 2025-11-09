@@ -7,14 +7,12 @@ import java.util.stream.Collectors;
 import cn.pupperclient.management.mod.api.hud.*;
 import cn.pupperclient.management.mod.api.hud.design.HUDDesign;
 import cn.pupperclient.management.mod.api.hud.design.impl.*;
-import cn.pupperclient.management.mod.event.ModStateChangeEvent;
 import cn.pupperclient.management.mod.impl.fun.*;
 import cn.pupperclient.management.mod.impl.hud.*;
 import cn.pupperclient.management.mod.impl.misc.*;
 import cn.pupperclient.management.mod.impl.player.*;
 import cn.pupperclient.management.mod.impl.render.*;
 import cn.pupperclient.management.mod.impl.settings.*;
-import cn.pupperclient.management.mod.listener.ModStateListener;
 import cn.pupperclient.management.mod.settings.Setting;
 import cn.pupperclient.management.mod.settings.impl.KeybindSetting;
 
@@ -22,8 +20,6 @@ public class ModManager {
 	private final List<Mod> mods = new CopyOnWriteArrayList<>();
 	private final List<Setting> settings = new CopyOnWriteArrayList<>();
 	private final List<HUDDesign> designs = new CopyOnWriteArrayList<>();
-    private final List<ModStateListener> stateListeners = new CopyOnWriteArrayList<>();
-    private final Map<String, Long> recentStateChanges = new HashMap<>();
 
     private HUDDesign currentDesign;
 
@@ -69,6 +65,7 @@ public class ModManager {
         mods.add(new Island());
         mods.add(new FallDamageHelp());
         mods.add(new CloudMusicHudMod());
+        mods.add(new CooldownHudMod());
 
 		// Player
 		mods.add(new AutoGGMod());
@@ -177,131 +174,5 @@ public class ModManager {
             .filter(mod -> mod.getName().equalsIgnoreCase(modName))
             .findFirst()
             .orElse(null);
-    }
-
-    public int getModByKeybind(String modName) {
-        Mod targetMod = getModByName(modName);
-        return targetMod.getKey();
-    }
-
-    public Boolean toggleMod(String modName) {
-        Mod targetMod = getModByName(modName);
-        if (targetMod != null) {
-            targetMod.toggle();
-            return targetMod.isEnabled();
-        }
-        return null;
-    }
-
-    public Boolean getModState(String modName) {
-        Mod targetMod = getModByName(modName);
-        return targetMod != null ? targetMod.isEnabled() : null;
-    }
-
-    public void addStateListener(ModStateListener listener) {
-        stateListeners.add(listener);
-    }
-
-    public void removeStateListener(ModStateListener listener) {
-        stateListeners.remove(listener);
-    }
-
-    public void onModStateChanged(Mod mod, boolean enabled) {
-        ModStateChangeEvent event = new ModStateChangeEvent(mod, enabled);
-
-        for (ModStateListener listener : stateListeners) {
-            listener.onModStateChanged(event);
-        }
-
-        recentStateChanges.put(mod.getName(), System.currentTimeMillis());
-    }
-
-    public ModStateCheckResult checkRecentStateChange(String modName, long withinMillis) {
-        Long changeTime = recentStateChanges.get(modName);
-        if (changeTime != null) {
-            long timeSinceChange = System.currentTimeMillis() - changeTime;
-            if (timeSinceChange <= withinMillis) {
-                Mod mod = getModByName(modName);
-                if (mod != null) {
-                    return new ModStateCheckResult(mod, mod.isEnabled(), true);
-                }
-            }
-        }
-        return new ModStateCheckResult(null, false, false);
-    }
-
-    public List<ModStateCheckResult> getRecentStateChanges(long withinMillis) {
-        List<ModStateCheckResult> results = new ArrayList<>();
-        long currentTime = System.currentTimeMillis();
-
-        for (Map.Entry<String, Long> entry : recentStateChanges.entrySet()) {
-            long timeSinceChange = currentTime - entry.getValue();
-            if (timeSinceChange <= withinMillis) {
-                Mod mod = getModByName(entry.getKey());
-                if (mod != null) {
-                    results.add(new ModStateCheckResult(mod, mod.isEnabled(), true));
-                }
-            }
-        }
-
-        return results;
-    }
-
-    public void cleanupOldStateChanges(long olderThanMillis) {
-        long currentTime = System.currentTimeMillis();
-        recentStateChanges.entrySet().removeIf(entry ->
-            currentTime - entry.getValue() > olderThanMillis);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T extends Mod> T getModule(Class<T> clazz) {
-        return (T) mods.stream()
-            .filter(mod -> mod.getClass() == clazz)
-            .findFirst()
-            .orElse(null);
-    }
-
-    /**
-     * 通过类名获取 Mod 实例，如果不存在则创建新实例
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends Mod> T getOrCreateModule(Class<T> clazz) {
-        T existing = (T) mods.stream()
-            .filter(mod -> mod.getClass() == clazz)
-            .findFirst()
-            .orElse(null);
-
-        if (existing != null) {
-            return existing;
-        }
-
-        try {
-            T newInstance = clazz.getDeclaredConstructor().newInstance();
-            mods.add(newInstance);
-            sortMods(); // 重新排序
-            return newInstance;
-        } catch (Exception e) {
-            System.err.println("Failed to create mod instance: " + clazz.getSimpleName());
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    /**
-     * 检查 Mod 是否已启用
-     */
-    public <T extends Mod> boolean isModuleEnabled(Class<T> clazz) {
-        T mod = getModule(clazz);
-        return mod != null && mod.isEnabled();
-    }
-
-    /**
-     * 启用/禁用指定类的 Mod
-     */
-    public <T extends Mod> void setModuleEnabled(Class<T> clazz, boolean enabled) {
-        T mod = getModule(clazz);
-        if (mod != null) {
-            mod.setEnabled(enabled);
-        }
     }
 }

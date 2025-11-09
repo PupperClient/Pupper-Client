@@ -102,7 +102,7 @@ public class BindCommand {
         }
 
         if (keyName.equalsIgnoreCase("none") || keyName.equalsIgnoreCase("clear")) {
-            mod.setKey(0);
+            mod.setKeybind(0);
             ChatUtils.addChatMessage("§aCleared keybind for §6" + mod.getName());
             PupperClient.getInstance().getConfigManager().save(ConfigType.KEY);
             return;
@@ -116,7 +116,7 @@ public class BindCommand {
                 return;
             }
 
-            mod.setKey(keyCode);
+            mod.setKeybind(keyCode);
             ChatUtils.addChatMessage("§aBound §6" + mod.getName() + "§a to §b" + getKeyName(keyCode));
             PupperClient.getInstance().getConfigManager().save(ConfigType.KEY);
 
@@ -170,13 +170,13 @@ public class BindCommand {
             return;
         }
 
-        if (mod.getKey() == 0) {
+        if (mod.getKeybind() == 0) {
             ChatUtils.addChatMessage("§7No keybind set for " + mod.getName());
             return;
         }
 
-        String oldKeyName = getKeyName(mod.getKey());
-        mod.setKey(0);
+        String oldKeyName = getKeyName(mod.getKeybind());
+        mod.setKeybind(0);
         PupperClient.getInstance().getConfigManager().save(ConfigType.KEY);
         ChatUtils.addChatMessage("§aCleared keybind for §6" + mod.getName() + "§a (was: " + oldKeyName + ")");
     }
@@ -185,17 +185,17 @@ public class BindCommand {
         return new Object() {
             public final EventBus.EventListener<KeyEvent> onKey = e -> {
                 if (e.isState()) {
-                    if (e.getKey() == 256) {
+                    if (e.getKeybind() == 256) {
                         ChatUtils.addChatMessage("§cKey binding cancelled");
                         cleanupListener(mod.getName());
                         return;
                     }
 
                     // 设置按键绑定
-                    mod.setKey(e.getKey());
-                    String keyName = getKeyName(e.getKey());
+                    mod.setKeybind(e.getKeybind());
+                    String keyName = getKeyName(e.getKeybind());
 
-                    ChatUtils.addChatMessage("§aBound §6" + mod.getName() + "§a to §b" + keyName + "§a (keycode: " + e.getKey() + ")");
+                    ChatUtils.addChatMessage("§aBound §6" + mod.getName() + "§a to §b" + keyName + "§a (keycode: " + e.getKeybind() + ")");
 
                     // 保存配置
                     PupperClient.getInstance().getConfigManager().save(ConfigType.KEY);
@@ -221,8 +221,8 @@ public class BindCommand {
     private static void clearAllKeybinds() {
         int clearedCount = 0;
         for (Mod mod : modManager.getMods()) {
-            if (mod.getKey() != 0) {
-                mod.setKey(0);
+            if (mod.getKeybind() != 0) {
+                mod.setKeybind(0);
                 clearedCount++;
             }
         }

@@ -42,7 +42,7 @@ public class KeyConfig extends Config {
 
                             Mod mod = modManager.getModByName(modName);
                             if (mod != null) {
-                                mod.setKey(keyCode);
+                                mod.setKeybind(keyCode);
                                 loadedCount++;
                                 PupperClient.LOGGER.debug("Loaded keybind for mod {}: keycode {}", modName, keyCode);
                             } else {
@@ -77,8 +77,8 @@ public class KeyConfig extends Config {
 
             for (Mod mod : modManager.getMods()) {
                 try {
-                    if (mod.getKey() != 0) {
-                        modKeybinds.addProperty(mod.getName(), mod.getKey());
+                    if (mod.getKeybind() != 0) {
+                        modKeybinds.addProperty(mod.getName(), mod.getKeybind());
                         savedCount++;
                     }
                 } catch (Exception e) {
@@ -108,8 +108,8 @@ public class KeyConfig extends Config {
         if (modManager != null) {
             int resetCount = 0;
             for (Mod mod : modManager.getMods()) {
-                if (mod.getKey() != 0) {
-                    mod.setKey(0);
+                if (mod.getKeybind() != 0) {
+                    mod.setKeybind(0);
                     resetCount++;
                 }
             }
@@ -130,12 +130,12 @@ public class KeyConfig extends Config {
         sb.append("-------------\n");
 
         long modsWithKeybinds = modManager.getMods().stream()
-            .filter(mod -> mod.getKey() != 0)
+            .filter(mod -> mod.getKeybind() != 0)
             .sorted((m1, m2) -> m1.getName().compareToIgnoreCase(m2.getName()))
             .peek(mod -> {
-                String keyName = getKeyName(mod.getKey());
+                String keyName = getKeyName(mod.getKeybind());
                 sb.append(String.format("%-30s: %s (Keycode: %d)\n",
-                    mod.getName(), keyName, mod.getKey()));
+                    mod.getName(), keyName, mod.getKeybind()));
             })
             .count();
 
@@ -179,26 +179,5 @@ public class KeyConfig extends Config {
                 }
                 return "KEY_" + keyCode;
         }
-    }
-
-    public int getKeybindForMod(String modName) {
-        ModManager modManager = PupperClient.getInstance().getModManager();
-        if (modManager != null) {
-            Mod mod = modManager.getModByName(modName);
-            return mod != null ? mod.getKey() : 0;
-        }
-        return 0;
-    }
-
-    public boolean setKeybindForMod(String modName, int keyCode) {
-        ModManager modManager = PupperClient.getInstance().getModManager();
-        if (modManager != null) {
-            Mod mod = modManager.getModByName(modName);
-            if (mod != null) {
-                mod.setKey(keyCode);
-                return true;
-            }
-        }
-        return false;
     }
 }

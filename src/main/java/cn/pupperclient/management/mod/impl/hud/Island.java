@@ -1,16 +1,16 @@
 package cn.pupperclient.management.mod.impl.hud;
 
-import cn.pupperclient.PupperClient;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.EventListener;
 import cn.pupperclient.event.client.RenderSkiaEvent;
 import cn.pupperclient.event.mod.AutoAgainEvent;
 import cn.pupperclient.management.mod.api.hud.HUDMod;
-import cn.pupperclient.management.mod.event.ModStateChangeEvent;
+import cn.pupperclient.event.mod.ModStateChangeEvent;
 import cn.pupperclient.management.mod.settings.impl.StringSetting;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.font.Fonts;
 import cn.pupperclient.skia.font.Icon;
+import cn.pupperclient.utils.IMinecraft;
 import cn.pupperclient.utils.language.I18n;
 import io.github.humbleui.skija.FontMetrics;
 import io.github.humbleui.types.Rect;
@@ -21,7 +21,7 @@ import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Queue;
 
-public class Island extends HUDMod {
+public class Island extends HUDMod implements IMinecraft {
     private final StringSetting name = new StringSetting("mod.Island.customname", "mod.Island.customname.description", Icon.FLIGHT_LAND, this, "PupperClient CN");
 
     private static final long DISPLAY_DURATION = 2000;
@@ -56,13 +56,11 @@ public class Island extends HUDMod {
     @Override
     public void onEnable() {
         super.onEnable();
-        PupperClient.getInstance().getModManager().addStateListener(this::handleModStateChange);
     }
 
     @Override
     public void onDisable() {
         super.onDisable();
-        PupperClient.getInstance().getModManager().removeStateListener(this::handleModStateChange);
     }
 
     // 静态方法：在配置加载前调用
@@ -367,22 +365,21 @@ public class Island extends HUDMod {
         Skia.drawText(text, x, y, color, font);
     }
 
+    @EventListener
     private void handleModStateChange(ModStateChangeEvent event) {
-        // 忽略配置加载时的事件
         if (isConfigLoading) {
             return;
         }
 
-        // 忽略自身的事件
         if (Objects.equals(event.getMod().getName(), "Island")) {
             return;
         }
 
-        // 创建ModStateEvent
-        ModStateEvent modStateEvent = new ModStateEvent(event.getMod().getName(), event.isEnabled());
+        ModStateEvent modStateEvent = new ModStateEvent(
+            Objects.equals(I18n.get(event.getMod().getName()), "null") ? event.getMod().getRawName() : I18n.get(event.getMod().getName()),
+            event.isEnabled());
 
         if (currentModState == null) {
-            // 如果没有正在显示的ModState，立即开始显示
             currentModState = modStateEvent;
             modStateStartTime = System.currentTimeMillis();
             isEntering = true;
@@ -390,7 +387,6 @@ public class Island extends HUDMod {
             expandProgress = 0.0f;
             textAlpha = 0.0f;
         } else {
-            // 否则加入队列
             modStateQueue.offer(modStateEvent);
         }
     }
@@ -400,7 +396,6 @@ public class Island extends HUDMod {
         return 6;
     }
 
-    // ModState事件内部类
     private static class ModStateEvent {
         String modName;
         boolean enabled;

@@ -215,7 +215,6 @@ public class IRCChatMod extends Mod implements IMinecraft, IRCHandler {
         }
     }
 
-    // Cleanup
     @Override
     public void cleanup() {
         super.cleanup();

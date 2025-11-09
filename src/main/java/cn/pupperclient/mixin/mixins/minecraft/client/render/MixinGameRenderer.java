@@ -1,7 +1,7 @@
 package cn.pupperclient.mixin.mixins.minecraft.client.render;
 
 import cn.pupperclient.management.mod.impl.render.NoHurtFov;
-import cn.pupperclient.shader.impl.MipmapKawaseBlur;
+import cn.pupperclient.shader.impl.Kawaseblur;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -28,7 +28,7 @@ public class MixinGameRenderer {
 	public void render(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci) {
 
 		if (HUDModSettings.getInstance().getBlurSetting().isEnabled()) {
-			MipmapKawaseBlur.INGAME_BLUR.draw((int) HUDModSettings.getInstance().getBlurIntensitySetting().getValue());
+            Kawaseblur.INGAME_BLUR.draw((int) HUDModSettings.getInstance().getBlurIntensitySetting().getValue());
 		}
 
 		SkiaContext.draw((context) -> {
@@ -43,7 +43,7 @@ public class MixinGameRenderer {
 	public void renderGuiBlur(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci) {
 
 		if (HUDModSettings.getInstance().getBlurSetting().isEnabled()) {
-			MipmapKawaseBlur.GUI_BLUR.draw((int) ModMenuSettings.getInstance().getBlurIntensitySetting().getValue());
+            Kawaseblur.GUI_BLUR.draw((int) ModMenuSettings.getInstance().getBlurIntensitySetting().getValue());
 		}
 	}
 

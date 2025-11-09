@@ -1,4 +1,4 @@
-package cn.pupperclient.management.mod.event;
+package cn.pupperclient.event.mod;
 
 import cn.pupperclient.event.Event;
 import cn.pupperclient.management.mod.Mod;

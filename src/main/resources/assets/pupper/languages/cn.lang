@@ -58,6 +58,9 @@ mod.playercounter.description=显示玩家数量
 mod.healthdisplay.name=生命值显示
 mod.healthdisplay.description=显示你的生命值
 
+mod.cooldown.name=冷却指示器
+mod.cooldown.description=攻击冷却可视化
+
 mod.yawdisplay.name=偏航角显示
 mod.yawdisplay.description=显示你的偏航角
 

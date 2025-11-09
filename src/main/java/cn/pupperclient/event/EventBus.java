@@ -44,15 +44,13 @@ public class EventBus {
 
     public void register(final Object object) {
         if (registeredHandlers.containsKey(object)) {
-            return; // 避免重复注册
+            return;
         }
 
         List<EventListener<?>> handlers = new CopyOnWriteArrayList<>();
 
-        // 1. 注册旧式的字段监听器 (保持向后兼容)
         registerFieldListeners(object, handlers);
 
-        // 2. 注册新式的方法注解监听器
         registerMethodListeners(object, handlers);
 
         if (!handlers.isEmpty()) {
@@ -60,9 +58,6 @@ public class EventBus {
         }
     }
 
-    /**
-     * 注册旧式的字段监听器 (向后兼容)
-     */
     private void registerFieldListeners(final Object object, List<EventListener<?>> handlers) {
         for (final Field field : getCachedDeclaredFields(object.getClass())) {
             // 修改这里：使用 EventListener 而不是 EventListener
@@ -77,14 +72,9 @@ public class EventBus {
         }
     }
 
-    /**
-     * 注册新式的方法注解监听器
-     */
     private void registerMethodListeners(final Object object, List<EventListener<?>> handlers) {
         for (final Method method : getCachedDeclaredMethods(object.getClass())) {
-            // 修正这里：现在 EventListener 是注解，可以直接使用
             if (method.isAnnotationPresent(cn.pupperclient.event.EventListener.class)) {
-                // 验证方法签名
                 if (method.getParameterCount() != 1) {
                     throw new IllegalArgumentException(
                         "EventListener method must have exactly one parameter: " + method);

@@ -12,7 +12,7 @@ public class KeyEvent extends Event {
         this.state = state;
 	}
 
-    public int getKey() {
+    public int getKeybind() {
         return this.key;
     }
 

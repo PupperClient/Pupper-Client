@@ -1,7 +1,10 @@
 package cn.pupperclient.mixin.mixins.minecraft.client.gui;
 
+import cn.pupperclient.gui.AuthScreen;
 import cn.pupperclient.gui.MainMenuGui;
 import cn.pupperclient.gui.welcomegui.WelcomeGui;
+import cn.pupperclient.management.auth.AuthManager;
+import net.minecraft.data.Main;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -21,9 +24,7 @@ public abstract class MixinTitleScreen extends Screen {
 
     @Inject(method = "init()V", at = @At("HEAD"), cancellable = true)
     public void onInit(CallbackInfo ci) {
-        WelcomeGui welcomeGui = new WelcomeGui();
-        welcomeGui.setNextScreen(new MainMenuGui().build());
-        MinecraftClient.getInstance().setScreen(welcomeGui.build());
+        MinecraftClient.getInstance().setScreen(new MainMenuGui().build());
         ci.cancel();
     }
 

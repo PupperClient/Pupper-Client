@@ -27,7 +27,7 @@ public class MusicCommand {
     private static final String CHECK_API = "https://ncm.zhenxin.me/check/music";
     private static final String URL_API = "https://ncm.zhenxin.me/song/url/v1";
 
-    private static final File MUSIC_DIR = new File("soar/music");
+    private static final File MUSIC_DIR = new File("pupper/music");
 
     // 音质等级映射
     private static final String[] QUALITY_LEVELS = {
@@ -274,7 +274,7 @@ public class MusicCommand {
                 Multithreading.runMainThread(() -> {
                     if (downloadSuccess) {
                         ChatUtils.addChatMessage("§a下载完成: §b" + finalFileName);
-                        ChatUtils.addChatMessage("§7保存位置: soar/music/" + finalFileName);
+                        ChatUtils.addChatMessage("§7保存位置: pupper/music/" + finalFileName);
 
                         // 显示文件大小
                         if (outputFile.exists()) {

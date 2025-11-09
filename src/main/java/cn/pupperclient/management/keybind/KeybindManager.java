@@ -10,6 +10,8 @@ import cn.pupperclient.utils.IMinecraft;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static cn.pupperclient.PupperClient.*;
+
 public class KeybindManager implements IMinecraft {
     private static KeybindManager instance;
     public final Map<Integer, List<Mod>> keybindMap = new HashMap<>();
@@ -29,7 +31,7 @@ public class KeybindManager implements IMinecraft {
 
         // 注册全局按键监听器
         EventBus.getInstance().register(globalKeyListener);
-        PupperClient.LOGGER.info("KeybindManager initialized");
+        LOGGER.info("KeybindManager initialized");
         initialized = true;
 
         // 初始加载所有模组的按键绑定
@@ -42,21 +44,20 @@ public class KeybindManager implements IMinecraft {
 
         if (modManager != null) {
             for (Mod mod : modManager.getMods()) {
-                if (mod.getKey() != 0) {
-                    registerKeybind(mod.getKey(), mod);
-                    PupperClient.LOGGER.debug("Registered keybind: {} -> {}", mod.getKey(), mod.getName());
+                if (mod.getKeybind() != 0) {
+                    registerKeybind(mod.getKeybind(), mod);
+                    LOGGER.debug("Registered keybind: {} -> {}", mod.getKeybind(), mod.getName());
                 }
             }
         }
-        PupperClient.LOGGER.info("Refreshed keybinds: {} key mappings with total {} mods",
+        LOGGER.info("Refreshed keybinds: {} key mappings with total {} mods",
             keybindMap.size(), getTotalBoundMods());
     }
 
     public void registerKeybind(int keyCode, Mod mod) {
         if (keyCode != 0) {
-            // 使用computeIfAbsent确保每个key都有对应的List
             keybindMap.computeIfAbsent(keyCode, k -> new CopyOnWriteArrayList<>()).add(mod);
-            PupperClient.LOGGER.debug("Registered keybind: {} -> {}", keyCode, mod.getName());
+            LOGGER.debug("Registered keybind: {} -> {}", keyCode, mod.getName());
         }
     }
 
@@ -65,7 +66,7 @@ public class KeybindManager implements IMinecraft {
         if (mods != null) {
             boolean removed = mods.remove(mod);
             if (removed) {
-                PupperClient.LOGGER.debug("Unregistered keybind: {} -> {}", keyCode, mod.getName());
+                LOGGER.debug("Unregistered keybind: {} -> {}", keyCode, mod.getName());
             }
             // 如果该按键没有绑定任何Mod，移除整个条目
             if (mods.isEmpty()) {
@@ -81,7 +82,7 @@ public class KeybindManager implements IMinecraft {
         if (newKeyCode != 0) {
             registerKeybind(newKeyCode, mod);
         }
-        PupperClient.LOGGER.debug("Updated keybind: {} -> {} for mod {}", oldKeyCode, newKeyCode, mod.getName());
+        LOGGER.debug("Updated keybind: {} -> {} for mod {}", oldKeyCode, newKeyCode, mod.getName());
     }
 
     // 获取绑定到特定按键的所有Mod
@@ -116,15 +117,15 @@ public class KeybindManager implements IMinecraft {
         // 防止在GUI界面中误触发
         if (mc != null && mc.currentScreen != null) return;
 
-        int keyCode = event.getKey();
+        int keyCode = event.getKeybind();
         List<Mod> mods = getModsByKey(keyCode);
 
         if (!mods.isEmpty()) {
-            PupperClient.LOGGER.debug("Keybind triggered: {} for {} mod(s)", keyCode, mods.size());
+            LOGGER.debug("Keybind triggered: {} for {} mod(s)", keyCode, mods.size());
 
             // 触发所有绑定到此按键的Mod
             for (Mod mod : mods) {
-                PupperClient.LOGGER.debug("Toggling mod: {}", mod.getName());
+                LOGGER.debug("Toggling mod: {}", mod.getName());
                 mod.toggle();
             }
         }
@@ -132,6 +133,6 @@ public class KeybindManager implements IMinecraft {
 
     public void cleanup() {
         keybindMap.clear();
-        PupperClient.LOGGER.info("KeybindManager cleaned up");
+        LOGGER.info("KeybindManager cleaned up");
     }
 }

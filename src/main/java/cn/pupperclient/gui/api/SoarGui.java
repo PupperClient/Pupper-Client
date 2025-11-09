@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.pupperclient.PupperClient;
+import cn.pupperclient.shader.impl.Kawaseblur;
 import org.lwjgl.glfw.GLFW;
 
 import cn.pupperclient.animation.Animation;
@@ -14,7 +15,6 @@ import cn.pupperclient.gui.api.page.SimplePage;
 import cn.pupperclient.management.color.api.ColorPalette;
 import cn.pupperclient.management.config.ConfigType;
 import cn.pupperclient.management.mod.impl.settings.ModMenuSettings;
-import cn.pupperclient.shader.impl.MipmapKawaseBlur;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.ui.component.Component;
 import cn.pupperclient.utils.Multithreading;
@@ -65,7 +65,7 @@ public abstract class SoarGui extends SimpleSoarGui {
 		ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
 		if (ModMenuSettings.getInstance().getBlurSetting().isEnabled()) {
-			Skia.drawImage(MipmapKawaseBlur.GUI_BLUR.getTexture(), 0, 0, client.getWindow().getWidth(),
+			Skia.drawImage(Kawaseblur.GUI_BLUR.getTexture(), 0, 0, client.getWindow().getWidth(),
 					client.getWindow().getHeight(), inOutAnimation.getValue(), SurfaceOrigin.BOTTOM_LEFT);
 		}
 

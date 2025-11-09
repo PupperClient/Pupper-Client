@@ -14,7 +14,6 @@ public class MethodEventListener<T extends Event> implements EventBus.EventListe
         this.method = method;
         this.eventType = (Class<T>) method.getParameterTypes()[0];
 
-        // 现在 EventListener 是注解，可以直接使用
         EventListener annotation = method.getAnnotation(EventListener.class);
         this.priority = annotation != null ? annotation.priority() : 0;
 

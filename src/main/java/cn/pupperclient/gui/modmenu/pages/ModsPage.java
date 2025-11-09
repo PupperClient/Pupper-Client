@@ -2,6 +2,7 @@ package cn.pupperclient.gui.modmenu.pages;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import cn.pupperclient.PupperClient;
@@ -154,8 +155,12 @@ public class ModsPage extends Page {
             i.pressAnimation.draw(itemX, itemY + 116, 224, 35, palette.getPrimaryContainer(), 1);
             Skia.restore();
 
-            Skia.drawFullCenteredText(I18n.get(m.getName()), itemX + (244 / 2), itemY + 116 + (35 / 2), palette.getOnSurfaceVariant(), Fonts.getRegular(16));
-            Skia.drawFullCenteredText(m.getIcon(), itemX + (244 / 2), itemY + (116 / 2), palette.getOnSurfaceVariant(), Fonts.getIcon(68));
+            String modname;
+            if (Objects.equals(I18n.get(m.getName()), "null"))  modname = m.getRawName();
+            else modname = I18n.get(m.getName());
+
+            Skia.drawFullCenteredText(modname, itemX + ((float) 244 / 2), itemY + 116 + ((float) 35 / 2), palette.getOnSurfaceVariant(), Fonts.getRegular(16));
+            Skia.drawFullCenteredText(m.getIcon(), itemX + ((float) 244 / 2), itemY + ((float) 116 / 2), palette.getOnSurfaceVariant(), Fonts.getIcon(68));
 
             index++;
             offsetX += 32 + 244;

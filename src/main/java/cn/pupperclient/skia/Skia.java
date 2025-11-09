@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.io.File;
 
 import cn.pupperclient.management.mod.impl.settings.HUDModSettings;
-import cn.pupperclient.shader.impl.MipmapKawaseBlur;
+import cn.pupperclient.shader.impl.Kawaseblur;
 import cn.pupperclient.skia.context.SkiaContext;
 import cn.pupperclient.skia.font.FontManager;
 import cn.pupperclient.skia.image.ImageHelper;
@@ -69,7 +69,7 @@ public class Skia {
 
 			save();
 			getCanvas().clipPath(path, ClipMode.INTERSECT, true);
-			drawImage(MipmapKawaseBlur.INGAME_BLUR.getTexture(), 0, 0, window.getScaledWidth(), window.getScaledHeight(), 1F,
+			drawImage(Kawaseblur.INGAME_BLUR.getTexture(), 0, 0, window.getScaledWidth(), window.getScaledHeight(), 1F,
 					SurfaceOrigin.BOTTOM_LEFT);
 			restore();
 		}
@@ -85,7 +85,7 @@ public class Skia {
 
 			save();
 			getCanvas().clipPath(path, ClipMode.INTERSECT, true);
-			drawImage(MipmapKawaseBlur.INGAME_BLUR.getTexture(), 0, 0, window.getScaledWidth(), window.getScaledHeight(), 1F,
+			drawImage(Kawaseblur.INGAME_BLUR.getTexture(), 0, 0, window.getScaledWidth(), window.getScaledHeight(), 1F,
 					SurfaceOrigin.BOTTOM_LEFT);
 			restore();
 		}

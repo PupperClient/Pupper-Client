@@ -1,9 +1,8 @@
 package cn.pupperclient.event.client;
 
 import cn.pupperclient.event.Event;
+import cn.pupperclient.utils.IMinecraft;
 import net.minecraft.entity.Entity;
-
-import static cn.pupperclient.utils.IMinecraft.mc;
 
 public class EventMoveInput extends Event {
     public static Object r;
@@ -100,6 +99,6 @@ public class EventMoveInput extends Event {
     }
 
     public Entity getEntity() {
-        return mc.player;
+        return IMinecraft.mc.player;
     }
 }

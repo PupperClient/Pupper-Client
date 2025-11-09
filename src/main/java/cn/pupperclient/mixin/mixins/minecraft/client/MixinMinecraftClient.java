@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import cn.pupperclient.event.client.WorldChangeEvent;
+import cn.pupperclient.shader.impl.Kawaseblur;
 import net.minecraft.client.gui.screen.Screen;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -26,7 +27,6 @@ import cn.pupperclient.management.mod.impl.player.HitDelayFixMod;
 import cn.pupperclient.management.mod.impl.player.OldAnimationsMod;
 import cn.pupperclient.mixin.interfaces.IMixinLivingEntity;
 import cn.pupperclient.mixin.interfaces.IMixinMinecraftClient;
-import cn.pupperclient.shader.impl.MipmapKawaseBlur;
 import cn.pupperclient.skia.context.SkiaContext;
 
 import net.minecraft.client.MinecraftClient;
@@ -154,8 +154,8 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 
 	@Inject(method = "onResolutionChanged", at = @At("TAIL"))
 	public void onResolutionChanged(CallbackInfo info) {
-		MipmapKawaseBlur.GUI_BLUR.resize();
-		MipmapKawaseBlur.INGAME_BLUR.resize();
+		Kawaseblur.GUI_BLUR.resize();
+        Kawaseblur.INGAME_BLUR.resize();
 	}
 
 	@Override

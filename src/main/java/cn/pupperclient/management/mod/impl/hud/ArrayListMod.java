@@ -2,11 +2,12 @@ package cn.pupperclient.management.mod.impl.hud;
 
 import cn.pupperclient.PupperClient;
 import cn.pupperclient.event.EventBus;
+import cn.pupperclient.event.EventListener;
 import cn.pupperclient.event.client.RenderSkiaEvent;
 import cn.pupperclient.management.mod.Mod;
 import cn.pupperclient.management.mod.ModCategory;
 import cn.pupperclient.management.mod.api.hud.HUDMod;
-import cn.pupperclient.management.mod.event.ModStateChangeEvent;
+import cn.pupperclient.event.mod.ModStateChangeEvent;
 import cn.pupperclient.management.mod.settings.impl.BooleanSetting;
 import cn.pupperclient.management.mod.settings.impl.ComboSetting;
 import cn.pupperclient.skia.Skia;
@@ -54,9 +55,6 @@ public class ArrayListMod extends HUDMod {
     public ArrayListMod() {
         super("mod.arraylist.name", "mod.arraylist.description", Icon.LIST);
         instance = this;
-
-        // Listen for mod state changes to trigger animations
-        PupperClient.getInstance().getModManager().addStateListener(this::handleModStateChange);
     }
 
     public static ArrayListMod getInstance() {
@@ -233,7 +231,7 @@ public class ArrayListMod extends HUDMod {
 
         for (Mod mod : PupperClient.getInstance().getModManager().getMods()) {
             if (shouldDisplayMod(mod) && mod.isEnabled() && !mod.isHidden()) {
-                String displayName = I18n.get(mod.getName());
+                String displayName = Objects.equals(I18n.get(mod.getName()), "null") ? mod.getRawName() : I18n.get(mod.getName());
                 float nameWidth = Skia.getTextBounds(displayName, Fonts.getRegular(FONT_SIZE)).getWidth();
                 enabledMods.add(new ModDisplayInfo(mod.getName(), displayName, nameWidth));
             }
@@ -287,6 +285,7 @@ public class ArrayListMod extends HUDMod {
         return (float) (1 - Math.pow(1 - x, 3));
     }
 
+    @EventListener
     private void handleModStateChange(ModStateChangeEvent event) {
         // Trigger animation update on next render
         lastUpdateTime = System.currentTimeMillis() - 1;

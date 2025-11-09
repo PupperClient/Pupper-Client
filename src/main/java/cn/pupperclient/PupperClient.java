@@ -3,10 +3,8 @@ package cn.pupperclient;
 import cn.pupperclient.animation.Delta;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.server.PacketHandler;
-import cn.pupperclient.gui.AuthScreen;
 import cn.pupperclient.gui.welcomegui.TermsScreen;
 import cn.pupperclient.libraries.browser.JCefBrowser;
-import cn.pupperclient.management.auth.AuthManager;
 import cn.pupperclient.management.color.ColorManager;
 import cn.pupperclient.management.command.SoarCommand;
 import cn.pupperclient.management.config.ConfigManager;
@@ -27,7 +25,6 @@ import com.viaversion.viafabricplus.ViaFabricPlus;
 import com.viaversion.viafabricplus.api.ViaFabricPlusBase;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.minecraft.client.MinecraftClient;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
@@ -37,6 +34,7 @@ import java.nio.file.Path;
 public class PupperClient implements IMinecraft {
     private static final String CONFIG_FILE_NAME = "pupper.ok";
     public static boolean hasAcceptedTerms = false;
+    public static boolean firstLaunch = false;
 
     public static final Logger LOGGER = PupperLogger.getLogger();
     private final static PupperClient instance = new PupperClient();
@@ -90,7 +88,7 @@ public class PupperClient implements IMinecraft {
         Path configFile = configDir.resolve(CONFIG_FILE_NAME);
 
         if (!Files.exists(configFile)) {
-            boolean firstLaunch = true;
+            firstLaunch = true;
             try {
                 Files.createFile(configFile);
                 Files.writeString(configFile,
@@ -102,18 +100,8 @@ public class PupperClient implements IMinecraft {
             }
         }
 
-        if (!AuthManager.getInstance().isLoggedIn()) {
-            MinecraftClient.getInstance().execute(() -> {
-                MinecraftClient.getInstance().setScreen(new AuthScreen());
-            });
-        }
-
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-//            if (firstLaunch && client.world != null && !hasAcceptedTerms) {
-//                TermsScreen termsScreen = new TermsScreen();
-//                client.setScreen(termsScreen.build());
-//            }
-            if (client.world != null && !hasAcceptedTerms) { //debug
+            if (firstLaunch && client.world != null && !hasAcceptedTerms) {
                 TermsScreen termsScreen = new TermsScreen();
                 client.setScreen(termsScreen.build());
             }

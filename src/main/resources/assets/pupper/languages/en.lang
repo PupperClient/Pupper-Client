@@ -25,6 +25,9 @@ design.classic=Classic
 design.clear=Clear
 design.materialyou=MaterialYou
 
+mod.cooldown.name=Cooldown Indicator
+mod.cooldown.description=Enhanced attack cooldown visualization
+
 mod.hudsettings.name=HUD
 mod.hudsettings.description=Customizing the HUD
 
