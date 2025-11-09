@@ -1,6 +1,5 @@
 plugins {
     id 'fabric-loom' version '1.12-SNAPSHOT'
-    id 'maven-publish'
 }
 
 project.ext.lwjglVersion = "3.3.3"
@@ -30,19 +29,6 @@ configurations {
     modJij
     include.extendsFrom modJij
     modImplementation.extendsFrom modJij
-    modCompileOnlyApi.extendsFrom modJij
-}
-
-sourceSets {
-    api {
-        java {
-            srcDirs = ['src/api/java']
-        }
-    }
-    main {
-        compileClasspath += sourceSets.api.output
-        runtimeClasspath += sourceSets.api.output
-    }
 }
 
 dependencies {
@@ -94,9 +80,6 @@ dependencies {
         include dep
     }
 
-    apiImplementation 'org.apache.logging.log4j:log4j-api:2.24.1'
-    apiImplementation 'org.apache.logging.log4j:log4j-core:2.24.1'
-
     afterEvaluate {
         configurations.jij.incoming.resolutionResult.allDependencies.each {
             dependencies.include(dependencies.implementation(dependencies.compileOnlyApi(it.requested.toString()) {
@@ -105,13 +88,6 @@ dependencies {
         }
     }
 }
-
-compileApiJava {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
-}
-
-compileJava.dependsOn compileApiJava
 
 processResources {
     inputs.property "version", project.version
@@ -133,70 +109,6 @@ tasks.withType(JavaCompile).configureEach {
     it.options.release = 21
 }
 
-jar {
-    from sourceSets.api.output
-}
-
 java {
     withSourcesJar()
-
-    registerFeature('api') {
-        usingSourceSet(sourceSets.api)
-    }
-}
-
-tasks.register('apiSourceJar', Jar) {
-    archiveClassifier = 'api-sources'
-    from sourceSets.api.allJava
-}
-
-
-build.dependsOn apiSourceJar
-
-classes.dependsOn apiClasses
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-            groupId = 'cn.pupperclient'
-            artifactId = 'pupperclient'
-            version = project.version
-
-            artifact sourcesJar
-        }
-
-        api(MavenPublication) {
-            groupId = 'cn.pupperclient'
-            artifactId = 'pupperclient-api'
-            version = project.version
-
-            artifact tasks.named('apiJar')
-            artifact apiSourceJar
-            pom {
-                name = 'PupperClient API'
-                description = 'API for developing plugins for PupperClient'
-                url = 'https://github.com/PupperClient/Pupper-Client'
-
-                licenses {
-                    license {
-                        name = 'MIT License'
-                        url = 'https://opensource.org/licenses/MIT'
-                    }
-                }
-
-                developers {
-                    developer {
-                        id = 'oneachina'
-                        name = 'oneachina'
-                        email = 'ruiruixi@hotmail.com'
-                    }
-                }
-            }
-        }
-    }
-
-    repositories {
-        mavenLocal()
-    }
 }
