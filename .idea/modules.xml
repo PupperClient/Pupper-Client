@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/SoarClient-CN.main.iml" filepath="$PROJECT_DIR$/.idea/modules/SoarClient-CN.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/SoarClient-CN.test.iml" filepath="$PROJECT_DIR$/.idea/modules/SoarClient-CN.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cn.pupperclient.SoarClient-CN.main.iml" filepath="$PROJECT_DIR$/.idea/modules/cn.pupperclient.SoarClient-CN.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cn.pupperclient.SoarClient-CN.test.iml" filepath="$PROJECT_DIR$/.idea/modules/cn.pupperclient.SoarClient-CN.test.iml" />
     </modules>
   </component>
 </project>

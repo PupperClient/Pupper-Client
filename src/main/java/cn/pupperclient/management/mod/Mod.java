@@ -6,6 +6,7 @@ import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.mod.ModStateChangeEvent;
 import cn.pupperclient.management.keybind.KeybindManager;
 import cn.pupperclient.utils.IMinecraft;
+import cn.pupperclient.utils.language.I18n;
 
 public class Mod implements IMinecraft {
     private final String name, description, icon;
@@ -95,7 +96,7 @@ public class Mod implements IMinecraft {
     }
 
     public String getName() {
-        return name;
+        return I18n.get(name);
     }
 
     public String getDescription() {

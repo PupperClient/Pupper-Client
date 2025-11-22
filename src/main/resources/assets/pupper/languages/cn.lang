@@ -28,6 +28,12 @@ design.materialyou=MaterialYou
 mod.hudsettings.name=界面
 mod.hudsettings.description=自定义界面
 
+mod.potionhud.name=药水显示
+mod.potionhud.description=显示玩家药水效果
+
+mod.scoreboard.name=分数板
+mod.scoreboard.description=显示玩家分数
+
 mod.modmenu.name=模组菜单
 mod.modmenu.description=自定义模组菜单相关设置
 
@@ -379,8 +385,6 @@ setting.clickeffect.duration=持续时间
 setting.clickeffect.duration.description=设置持续时间
 setting.clickeffect.menuonly=菜单专用模式
 setting.clickeffect.menuonly.description=设置菜单专用模式
-
-text.hack=hack
 text.hud=hud
 text.render=render
 text.player=player
@@ -401,16 +405,6 @@ addServer.serverAddress=服务器地址
 
 mod.targethud.name=Target hud
 mod.targethud.description=Target hud
-mod.disabler.aggressive.name=Disabler
-mod.disabler.aggressive.description=Disabler Anticheat
-mod.disabler.logging.name=开启日志
-mod.disabler.logging.description=日志
-
-mod.disabler.grimDuplicateRotPlace.name=Grim DuplicateRotPlace
-mod.disabler.grimDuplicateRotPlace.description=Disabler Grim DuplicateRotPlace
-
-mod.velocity.name=反击退
-mod.velocity.description=反击退
 
 mod.arraylist.name=Arraylist
 mod.arraylist.description=List Mod
@@ -429,21 +423,8 @@ setting.mode.description=set mode
 
 menu.ias=账户
 
-mod.noslow.name=No Slow
-mod.noslow.description=No Slow
-
-mod.noweb.name=No Web
-mod.noweb.description=No Web
-
-mod.velocity.perfectjump.name=完美跳跃
-mod.velocity.perfectjump.description=完美跳跃
-mod.velocity.mode.jumpreset.name=跳跃重置
-mod.velocity.mode.jumpreset.description=跳跃重置
-mod.velocity.mode.grimvelocityreduce.name=Grim Velocity Reduce
-mod.velocity.mode.grimvelocityreduce.description=Grim Velocity Reduce
-
-mod.Island.name=Island
-mod.Island.description=Island
+mod.DynamicIsland.name=Dynamic Island
+mod.DynamicIsland.description=Dynamic Island
 
 language.english=English
 language.chinese=中文
@@ -453,29 +434,12 @@ gui.cancel=取消
 
 menu.version_select=选择协议版本
 
-mod.fastplace.name=快速放置
-mod.fastplace.description=快速放置
-mod.Island.logging.name=日志
-mod.Island.logging.description=日志
+mod.DynamicIsland.logging.name=日志
+mod.DynamicIsland.logging.description=日志
 
 mod.fallDamageHelp.name=摔落伤害帮助
 mod.fallDamageHelp.description=摔落伤害帮助
 
-mod.eagle.name=安全搭路
-mod.eagle.description=安全搭路
-
-mod.autotool.name=自动工具
-mod.autotool.description=自动工具
-
-text.hack=hack
-mod.autoplay.logging.name=日志
-mod.autoplay.logging.description=日志
-mod.autotool.considerDurability.name=考虑耐久度
-mod.autotool.considerDurability.description=考虑耐久度
-mod.autotool.switchDelay.name=切换延迟
-mod.autotool.switchDelay.description=切换延迟
-mod.autotool.switchBack.name=切回
-mod.autotool.switchBack.description=切换回之前的物品
 mod.disabled=已禁用
 mod.enabled=已启用
 command.help.example=示例
@@ -492,8 +456,6 @@ mod.eagle.autoplace.description=自动放置
 mod.eagle.delay.name=Delay
 mod.eagle.delay.description=Set BlockEdge Sensitivity
 
-mod.totemtracker.name=Totem tracker
-mod.totemtracker.description=Totem tracker
 command.help.modlist.refresh=刷新
 command.help.modlist.refresh.tip=点击刷新mod列表
 mod.disabled.tip=点击启用mod
@@ -519,98 +481,16 @@ mod.smtcDisplay.description=SMTC Display
 text.accpet=接受条款
 text.decline=拒绝条款
 
-mod.nohurtfov.name=nohurtfov
-mod.nohurtfov.description=nohurtfov
-mod.nohurtfov.nohurtFov.name=无伤害fov
-mod.nohurtfov.nohurtFov.description=无伤害fov
-
-setting.cps=点击速度
-setting.autoattackplayer.cps.description=每秒点击次数
-mod.autoattackplayer.name=自动攻击玩家
-mod.autoattackplayer.description=自动攻击玩家
-
-mod.autoaim.name=自动瞄准
-mod.autoaim.description=自动瞄准
-mod.aim.attackPlayer.name=攻击玩家
-mod.aim.attackPlayer.description=攻击玩家
-mod.aim.attackInvisible.name=攻击不可见玩家
-mod.aim.attackInvisible.description=攻击不可见玩家
-mod.aim.attackAnimals.name=攻击动物
-mod.aim.attackAnimals.description=攻击动物
-mod.aim.attackMobs.name=攻击怪物
-mod.aim.attackMobs.description=攻击怪物
-mod.aim.clickonly.name=点击攻击
-mod.aim.clickonly.description=点击攻击
-mod.aim.slient.name=静默
-mod.aim.slient.description=静默
-mod.aim.rotateSpeed.name=旋转速度
-mod.aim.rotateSpeed.description=设置旋转速度
-mod.aim.aimRange.name=瞄准范围
-mod.aim.aimRange.description=设置瞄准范围
-mod.aim.fov.name=视野
-mod.aim.fov.description=设置视野
-mod.aim.priority.name=优先级
-mod.aim.priority.description=设置优先级
-mod.aim.priority.health=血量
-mod.aim.priority.fov=视野
-mod.aim.priority.range=范围
-mod.aim.priority.none=None
-
-mod.antibots.name=Anti Bots
-mod.antibots.description=Prevents bots from being targeted by aim assist.
-mod.antibots.respawnTime.name=Respawn Time
-mod.antibots.respawnTime.description=Set the respawn time for bots
+mod.nohurtfov.name=取消伤害fov
+mod.nohurtfov.description=取消伤害fov
+mod.nohurtfov.nohurtFov.name=取消伤害fov
+mod.nohurtfov.nohurtFov.description=取消伤害fov
 
 mod.autogg.name=自动GG
 mod.autogg.description=自动GG
-mod.teams.name=队伍识别
-mod.teams.description=在游戏中识别和管理队友
-setting.teams.show_team_esp=显示队伍ESP
-setting.teams.show_team_esp.description=在队友周围显示ESP框
-setting.teams.show_team_names=显示队伍名称
-setting.teams.show_team_names.description=在队友上方显示队伍名称
-setting.teams.highlight_in_tab=高亮标签页
-setting.teams.highlight_in_tab.description=在标签页中高亮队友
-setting.teams.team_color=队伍颜色
-setting.teams.team_color.description=队伍指示器的颜色
-setting.teams.max_distance=最大距离
-setting.teams.max_distance.description=显示队友的最大距离
-
-mod.autowalk.name=自动行走
-mod.autowalk.description=自动走向最近的玩家
-
-setting.maxdistance=最大距离
-setting.autowalk.maxdistance.description=自动行走的最大距离
-
-setting.avoidteammates=避开队友
-setting.autowalk.avoidteammates.description=不走向被识别为队友的玩家
-
-setting.stopdistance=停止距离
-setting.autowalk.stopdistance.description=距离目标多远时停止
-
-setting.smartpathing=智能路径
-setting.autowalk.smartpathing.description=只走向有视线的目标
-
-mod.autowtap.name=自动WTap
-mod.autowtap.description=自动执行WTap技巧增加击退效果
-
-setting.tapdelay=点击延迟
-setting.autowtap.tapdelay.description=WTap之间的延迟时间(毫秒)
-
-setting.onlyplayers=仅对玩家
-setting.autowtap.onlyplayers.description=只对玩家执行WTap
-
-setting.requireattack=需要攻击
-setting.autowtap.requireattack.description=只在攻击时执行WTap
-
-setting.mindistance=最小距离
-setting.autowtap.mindistance.description=执行WTap的最小距离
 
 mod.heypixel.autoAgain.name=自动再次开始游戏
 mod.heypixel.autoAgain.description=自动再次开始游戏
-
-setting.checkitem.name=Check Item
-setting.autoattackplayer.checkitem.description=Check Item
 
 # IRC Mod
 mod.irc.name=IRC Chat
@@ -630,22 +510,6 @@ setting.irc.auto_connect.description=Automatically connect to IRC on startup
 setting.irc.show_messages=Show Messages
 setting.irc.show_messages.description=Display IRC messages in chat
 
-mod.midpearl.name=快捷珍珠
-mod.midpearl.description=点击中键投掷珍珠
-mod.midpearl.switchBack.name=切换回原物品
-mod.midpearl.switchBack.description=切换回使用前的物品
-mod.midpearl.useDelay.name=使用延迟
-mod.midpearl.useDelay.description=设置使用中键珍珠之间的延迟时间（毫秒）
-
-mod.legitchestaura.name=箱子光环
-mod.legitchestaura.description=箱子光环
-mod.legitchestaura.range.name=范围
-mod.legitchestaura.range.description=设置箱子光环的范围
-mod.legitchestaura.autoClose.name=自动关闭
-mod.legitchestaura.autoClose.description=自动关闭已打开的箱子
-mod.legitchestaura.rotationSpeed.name=旋转速度
-mod.legitchestaura.rotationSpeed.description=设置箱子光环的旋转速度
-
 mod.cloudmusic.name=云音乐
 mod.cloudmusic.description=显示当前正在播放的云音乐歌曲名称
 
@@ -655,27 +519,6 @@ mod.cloudmusic.mode=Cloud Music Mode
 mod.cloudmusic.mode.description=Change the Cloud Music Name Mode
 mod.cloudmusic.smtc=Smtc
 mod.cloudmusic.powershell=Powershell
-
-mod.nofall.name=无摔落伤害
-mod.nofall.description=使用风弹防止摔落伤害
-mod.nofallwindcharge.switchBack.name=切换回原物品
-mod.nofallwindcharge.switchBack.description=使用风弹后自动切换回原物品
-mod.nofall.mode.name=模式
-mod.nofall.mode.description=选择防止摔落伤害的方式
-mod.nofall.mode.windcharge.name=风弹模式
-mod.nofall.mode.water.name=水桶模式
-mod.nofallwindcharge.predictiveAiming.name=预测瞄准
-mod.nofallwindcharge.predictiveAiming.description=预测玩家移动以优化风弹投掷时机
-mod.nofallwindcharge.minHeight.name=最小高度
-mod.nofallwindcharge.minHeight.description=设置触发风弹使用的掉落高度
-mod.nofallwindcharge.maxHeight.name=最大高度
-mod.nofallwindcharge.maxHeight.description=设置触发风弹使用的最大掉落高度
-mod.nofallwindcharge.timingOffset.name=时间偏移
-mod.nofallwindcharge.timingOffset.description=设置风弹爆炸的时间偏移
-mod.nofallwindcharge.onlyDangerous.name=仅对危险高度
-mod.nofallwindcharge.onlyDangerous.description=仅在高度超过最大高度时使用风弹
-mod.nofallwindcharge.predictiveAiming.name=预测瞄准
-mod.nofallwindcharge.predictiveAiming.description=预测玩家移动以优化风弹投掷时机
 
 text.accept=接受条款
 text.decline=拒绝条款
@@ -705,3 +548,9 @@ setting.glow.intensity.name=发光强度
 setting.glow.intensity.description=设置歌曲封面发光的强度
 setting.glow.range.name=发光范围
 setting.glow.range.description=设置歌曲封面发光的范围
+
+musictool.name.check=正在检查音乐工具...
+musictool.name.installed=音乐工具已安装!
+musictool.name.downloading=正在下载音乐工具...
+musictool.name.failed=音乐工具安装失败
+musictool.name.done=音乐工具准备就绪

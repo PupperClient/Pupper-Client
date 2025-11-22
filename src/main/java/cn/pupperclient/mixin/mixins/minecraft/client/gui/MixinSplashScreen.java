@@ -1,10 +1,15 @@
 package cn.pupperclient.mixin.mixins.minecraft.client.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import cn.pupperclient.skia.Skia;
+import cn.pupperclient.skia.context.SkiaContext;
+import cn.pupperclient.skia.font.Fonts;
+import io.github.humbleui.skija.Canvas;
+import io.github.humbleui.skija.Font;
+import io.github.humbleui.types.Rect;
+import java.awt.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.SplashOverlay;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.texture.ResourceTexture;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
@@ -33,12 +38,13 @@ public abstract class MixinSplashScreen {
     @Unique private static final float LOGO_SCALE = 0.15f;
     @Unique private static final long ANIMATION_TOTAL_TIME = 4500L;
     @Unique private static final long FADE_DURATION = 500L;
-    @Unique private static final int PROGRESS_BAR_HEIGHT = 2;
-    @Unique private static final int PROGRESS_BAR_BASE_COLOR = 0xFFFFFF;
-    @Unique private static final int PROGRESS_BAR_BG_BASE_COLOR = 0x303030;
+    @Unique private static final long WELCOME_DISPLAY_TIME = 2000L;
+    @Unique private static final int PROGRESS_BAR_HEIGHT = 4;
     @Unique private int lastWindowWidth = -1;
     @Unique private int lastWindowHeight = -1;
     @Unique private boolean skipNextFrame = false;
+    @Unique private boolean welcomeDisplayed = false;
+    @Unique private long welcomeStartTime = -1L;
 
     @Unique
     private void ensureLogoTexture() {
@@ -49,30 +55,38 @@ public abstract class MixinSplashScreen {
     }
 
     @Inject(method = "render", at = @At("HEAD"), cancellable = true)
-    private void soar_takeOverAndRender(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
-        int width = context.getScaledWindowWidth();
-        int height = context.getScaledWindowHeight();
-        if (lastWindowWidth != -1 && lastWindowHeight != -1 &&
-            (width != lastWindowWidth || height != lastWindowHeight)) {
-            skipNextFrame = true;
+    private void pupper_takeOverAndRender(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+//        int width = context.getScaledWindowWidth();
+//        int height = context.getScaledWindowHeight();
+        int width = MinecraftClient.getInstance().getWindow().getWidth();
+        int height = MinecraftClient.getInstance().getWindow().getHeight();
+
+        if (lastWindowWidth != width || lastWindowHeight != height) {
+            SkiaContext.createSurface(width, height);
+            lastWindowWidth = width;
+            lastWindowHeight = height;
         }
 
-        lastWindowWidth = width;
-        lastWindowHeight = height;
-
-        if (skipNextFrame || width <= 0 || height <= 0) {
-            skipNextFrame = false;
+        if (width <= 0 || height <= 0) {
             return;
         }
 
         ci.cancel();
 
+        SkiaContext.draw(canvas -> {
+            renderWithSkia(canvas, width, height);
+        });
+    }
 
+    @Unique
+    private void renderWithSkia(Canvas canvas, int width, int height) {
         ensureLogoTexture();
 
         if (this.reloading) {
             if (this.soar_reloadStartTime == -1L) this.soar_reloadStartTime = Util.getMeasuringTimeMs();
             this.soar_animationStartTime = -1L;
+            this.welcomeDisplayed = false;
+            this.welcomeStartTime = -1L;
 
             long reloadElapsed = Util.getMeasuringTimeMs() - this.soar_reloadStartTime;
             if (reloadElapsed > MAX_RELOAD_TIME) {
@@ -84,53 +98,7 @@ public abstract class MixinSplashScreen {
                 return;
             }
 
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-            try {
-                // 背景
-                context.fill(0, 0, width, height, 0xFF000000);
-
-                // Logo
-                RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-                context.getMatrices().push();
-                try {
-                    int scaledSize = (int)(LOGO_ACTUAL_SIZE * LOGO_SCALE);
-                    int logoX = (width - scaledSize) / 2;
-                    int logoY = (height - scaledSize) / 2;
-
-                    context.getMatrices().translate(logoX + scaledSize / 2f, logoY + scaledSize / 2f, 0);
-                    context.getMatrices().scale(LOGO_SCALE, LOGO_SCALE, 1f);
-                    context.getMatrices().translate(-LOGO_ACTUAL_SIZE / 2f, -LOGO_ACTUAL_SIZE / 2f, 0);
-
-                    context.drawTexture(
-                        RenderLayer::getGuiTextured,
-                        CUSTOM_LOGO,
-                        0, 0, 0, 0,
-                        LOGO_ACTUAL_SIZE, LOGO_ACTUAL_SIZE,
-                        LOGO_ACTUAL_SIZE, LOGO_ACTUAL_SIZE
-                    );
-                } finally {
-                    context.getMatrices().pop();
-                }
-
-                //进度条
-                long cycle = 1500L;
-                float p = (float)(Util.getMeasuringTimeMs() % cycle) / (float)cycle;
-                int barWidth = Math.max(1, width / 3);
-                int start = (int)((width + barWidth) * p) - barWidth;
-                int end = start + barWidth;
-
-                int bgColor = (0xFF << 24) | PROGRESS_BAR_BG_BASE_COLOR;
-                int progressBarY = height - PROGRESS_BAR_HEIGHT;
-                context.fill(0, progressBarY, width, height, bgColor);
-
-                int fgColor = (0xFF << 24) | PROGRESS_BAR_BASE_COLOR;
-                context.fill(Math.max(0, start), progressBarY, Math.min(width, end), height, fgColor);
-
-            } finally {
-                RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-                RenderSystem.disableBlend();
-            }
+            renderLoadingScreen(width, height, reloadElapsed, 1.0f, false);
             return;
         }
 
@@ -140,15 +108,33 @@ public abstract class MixinSplashScreen {
         }
 
         long timePassed = Util.getMeasuringTimeMs() - this.soar_animationStartTime;
-        if (timePassed >= ANIMATION_TOTAL_TIME) {
-            try {
-                this.client.setOverlay(null);
-                this.exceptionHandler.accept(Optional.empty());
-            } catch (Exception ignored) {}
-            this.soar_animationStartTime = -1L;
+
+        // 检查是否应该显示欢迎文字
+        if (timePassed >= ANIMATION_TOTAL_TIME && !welcomeDisplayed) {
+            welcomeDisplayed = true;
+            welcomeStartTime = Util.getMeasuringTimeMs();
+        }
+
+        // 欢迎文字显示逻辑
+        if (welcomeDisplayed) {
+            long welcomeTimePassed = Util.getMeasuringTimeMs() - welcomeStartTime;
+
+            if (welcomeTimePassed >= WELCOME_DISPLAY_TIME) {
+                try {
+                    this.client.setOverlay(null);
+                    this.exceptionHandler.accept(Optional.empty());
+                } catch (Exception ignored) {}
+                this.soar_animationStartTime = -1L;
+                this.welcomeDisplayed = false;
+                this.welcomeStartTime = -1L;
+                return;
+            }
+
+            renderWelcomeScreen(width, height, welcomeTimePassed);
             return;
         }
 
+        // 正常加载动画
         float alpha = 1f;
         long fadeStartTime = ANIMATION_TOTAL_TIME - FADE_DURATION;
         if (timePassed > fadeStartTime) {
@@ -157,48 +143,139 @@ public abstract class MixinSplashScreen {
         }
         alpha = Math.max(0f, alpha);
 
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        try {
-            context.fill(0, 0, width, height, 0xFF000000);
+        renderLoadingScreen(width, height, timePassed, alpha, true);
+    }
 
-            // Logo
-            RenderSystem.setShaderColor(1f, 1f, 1f, alpha);
-            context.getMatrices().push();
-            try {
-                int scaledSize = (int)(LOGO_ACTUAL_SIZE * LOGO_SCALE);
-                int logoX = (width - scaledSize) / 2;
-                int logoY = (height - scaledSize) / 2;
+    @Unique
+    private void renderLoadingScreen(int width, int height, long timePassed, float alpha, boolean showProgress) {
+        // 背景
+        Skia.drawRect(0, 0, width, height, new Color(0, 0, 0, (int)(255 * alpha)));
 
-                context.getMatrices().translate(logoX + scaledSize / 2f, logoY + scaledSize / 2f, 0);
-                context.getMatrices().scale(LOGO_SCALE, LOGO_SCALE, 1f);
-                context.getMatrices().translate(-LOGO_ACTUAL_SIZE / 2f, -LOGO_ACTUAL_SIZE / 2f, 0);
+        // 计算缩放后的Logo尺寸和位置
+        int scaledSize = (int)(LOGO_ACTUAL_SIZE * LOGO_SCALE);
+        int logoX = (width - scaledSize) / 2;
+        int logoY = (height - scaledSize) / 3;
 
-                context.drawTexture(
-                    RenderLayer::getGuiTextured,
-                    CUSTOM_LOGO,
-                    0, 0, 0, 0,
-                    LOGO_ACTUAL_SIZE, LOGO_ACTUAL_SIZE,
-                    LOGO_ACTUAL_SIZE, LOGO_ACTUAL_SIZE
-                );
-            } finally {
-                context.getMatrices().pop();
-            }
+        // 绘制Logo
+        drawLogo(logoX, logoY, scaledSize, alpha);
 
-            // 进度条
+//        // 绘制loading圈 - 在Logo下方
+//        float circleCenterX = width / 2f;
+//        float circleCenterY = logoY + scaledSize + 50;
+//        drawLoadingCircle(circleCenterX, circleCenterY, timePassed, alpha);
+
+        if (showProgress) {
+            // 进度条 - 在loading圈下方
             float progress = Math.min(1f, (float) timePassed / ANIMATION_TOTAL_TIME);
-            int progressBarY = height - PROGRESS_BAR_HEIGHT;
-            int progressWidth = (int) (width * progress);
-
-            int bgColor = (0xFF << 24) | PROGRESS_BAR_BG_BASE_COLOR;
-            context.fill(0, progressBarY, width, height, bgColor);
-
-            int fgColor = ((int)(alpha * 255f) << 24) | PROGRESS_BAR_BASE_COLOR;
-            context.fill(0, progressBarY, progressWidth, height, fgColor);
-
-        } finally {
-            RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-            RenderSystem.disableBlend();
+            drawProgressBar(width, height, progress, alpha);
+        } else {
+            // 重载时的动态进度条
+            drawReloadingProgressBar(width, height, timePassed, alpha);
         }
+    }
+
+    @Unique
+    private void drawLogo(int x, int y, int size, float alpha) {
+        // 使用Skia绘制Logo
+        int textureId = MinecraftClient.getInstance().getTextureManager().getTexture(CUSTOM_LOGO).getGlId();
+        Skia.drawImage(textureId, x, y, size, size, alpha);
+    }
+
+    @Unique
+    private void drawLoadingCircle(float centerX, float centerY, long time, float alpha) {
+        float radius = 20f;
+        float strokeWidth = 4f;
+
+        // 计算旋转角度（每1.5秒旋转一圈）
+        float rotation = (time % 1500) / 1500f * 360f;
+
+        // 绘制loading圈背景
+        Skia.drawCircle(centerX, centerY, radius,
+            new Color(60, 60, 60, (int)(150 * alpha)));
+
+        // 绘制旋转的圆弧
+        Skia.drawArc(centerX, centerY, radius, rotation, 270f, strokeWidth,
+            new Color(255, 255, 255, (int)(200 * alpha)));
+    }
+
+    @Unique
+    private void drawProgressBar(int width, int height, float progress, float alpha) {
+        int barWidth = width / 2;
+        int barHeight = PROGRESS_BAR_HEIGHT;
+        int barX = (width - barWidth) / 2;
+        int barY = height - 80; // 从底部向上偏移
+
+        // 进度条背景
+        Skia.drawRect(barX, barY, barWidth, barHeight,
+            new Color(0x30, 0x30, 0x30, (int)(255 * alpha)));
+
+        // 进度条前景
+        int progressWidth = (int)(barWidth * progress);
+        Skia.drawRect(barX, barY, progressWidth, barHeight,
+            new Color(255, 255, 255, (int)(255 * alpha)));
+    }
+
+    @Unique
+    private void drawReloadingProgressBar(int width, int height, long time, float alpha) {
+        int barWidth = width / 2;
+        int barHeight = PROGRESS_BAR_HEIGHT;
+        int barX = (width - barWidth) / 2;
+        int barY = height - 80;
+
+        // 进度条背景
+        Skia.drawRect(barX, barY, barWidth, barHeight,
+            new Color(0x30, 0x30, 0x30, (int)(255 * alpha)));
+
+        // 动态进度指示器
+        long cycle = 1500L;
+        float p = (float)(time % cycle) / (float)cycle;
+        int indicatorWidth = barWidth / 4;
+        int start = (int)((barWidth + indicatorWidth) * p) - indicatorWidth;
+        int end = Math.min(start + indicatorWidth, barWidth);
+
+        Skia.drawRect(barX + Math.max(0, start), barY,
+            barX + end, barY + barHeight,
+            new Color(255, 255, 255, (int)(255 * alpha)));
+    }
+
+    @Unique
+    private void renderWelcomeScreen(int width, int height, long welcomeTimePassed) {
+        // 背景
+        float bgAlpha = getWelcomeAlpha(welcomeTimePassed);
+        Skia.drawRect(0, 0, width, height, new Color(0, 0, 0, (int)(255 * bgAlpha)));
+
+        // 计算欢迎文字的透明度
+        float textAlpha = getWelcomeAlpha(welcomeTimePassed);
+
+        // 绘制欢迎文字
+        String welcomeText = "Welcome to Pupper Client";
+        Font font = Fonts.getMedium(32f);
+
+        // 计算文字位置（居中）
+        Rect textBounds = font.measureText(welcomeText);
+        float textX = (width - textBounds.getWidth()) / 2;
+        float textY = height / 2f - textBounds.getHeight() / 2;
+
+        // 绘制文字（带透明度）
+        Color welcomeColor = new Color(1.0f, 1.0f, 1.0f, textAlpha);
+        Skia.drawText(welcomeText, textX, textY, welcomeColor, font);
+    }
+
+    @Unique
+    private static float getWelcomeAlpha(long welcomeTimePassed) {
+        float welcomeAlpha = 1.0f;
+        long fadeDuration = 500L;
+
+        if (welcomeTimePassed < fadeDuration) {
+            // 渐入
+            welcomeAlpha = (float) welcomeTimePassed / fadeDuration;
+        } else if (welcomeTimePassed > WELCOME_DISPLAY_TIME - fadeDuration) {
+            // 渐出
+            long fadeOutTime = welcomeTimePassed - (WELCOME_DISPLAY_TIME - fadeDuration);
+            welcomeAlpha = 1.0f - (float) fadeOutTime / fadeDuration;
+        }
+
+        welcomeAlpha = Math.max(0f, Math.min(1f, welcomeAlpha));
+        return welcomeAlpha;
     }
 }

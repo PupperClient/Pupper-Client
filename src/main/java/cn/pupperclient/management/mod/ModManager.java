@@ -31,6 +31,7 @@ public class ModManager {
 	private void initMods() {
 
 		// HUD
+        mods.add(new Scoreboard());
 		mods.add(new BedwarsStatsOverlayMod());
 		mods.add(new BossBarMod());
 		mods.add(new ClockMod());
@@ -62,10 +63,11 @@ public class ModManager {
         mods.add(new CPSDisplayMod());
         mods.add(new TargetHUDMod());
         mods.add(new ArrayListMod());
-        mods.add(new Island());
+        mods.add(new DynamicIsland());
         mods.add(new FallDamageHelp());
         mods.add(new CloudMusicHudMod());
         mods.add(new CooldownHudMod());
+        mods.add(new PotionHudMod());
 
 		// Player
 		mods.add(new AutoGGMod());
@@ -110,6 +112,7 @@ public class ModManager {
 		sortMods();
         ClickEffectMod clickEffectMod = new ClickEffectMod();
         clickEffectMod.setEnabled(true);
+
 	}
 
 	private void initDesigns() {
@@ -172,6 +175,13 @@ public class ModManager {
     public Mod getModByName(String modName) {
         return mods.stream()
             .filter(mod -> mod.getName().equalsIgnoreCase(modName))
+            .findFirst()
+            .orElse(null);
+    }
+
+    public Mod getModByRawName(String modName) {
+        return mods.stream()
+            .filter(mod -> mod.getRawName().equalsIgnoreCase(modName))
             .findFirst()
             .orElse(null);
     }

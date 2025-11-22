@@ -4,6 +4,7 @@ import cn.pupperclient.PupperClient;
 import cn.pupperclient.animation.SimpleAnimation;
 import cn.pupperclient.management.color.api.ColorPalette;
 import cn.pupperclient.skia.font.Icon;
+import cn.pupperclient.utils.language.I18n;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,12 +39,11 @@ public class NotificationManager {
 
     private String getMessageForStatus(PupperClient.MusicToolStatus status) {
         return switch (status) {
-            case CHECKING -> "正在检查音乐工具...";
-            case INSTALLED -> "音乐工具已安装!";
-            case DOWNLOADING -> "正在下载音乐工具...";
-            case FAILED -> "音乐工具安装失败";
-            case DONE -> "音乐工具准备就绪";
-            default -> "";
+            case CHECKING -> I18n.get("musictool.name.check");
+            case INSTALLED -> I18n.get("musictool.name.installed");
+            case DOWNLOADING -> I18n.get("musictool.name.downloading");
+            case FAILED -> I18n.get("musictool.name.failed");
+            case DONE -> I18n.get("musictool.name.done");
         };
     }
 

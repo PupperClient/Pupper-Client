@@ -36,8 +36,7 @@ public class ModsPage extends Page {
         RENDER("text.render"),
         PLAYER("text.player"),
         MISC("text.misc"),
-        FUN("text.fun"),
-        HACK("text.hack");
+        FUN("text.fun");
 
         private final String name;
 
@@ -156,8 +155,8 @@ public class ModsPage extends Page {
             Skia.restore();
 
             String modname;
-            if (Objects.equals(I18n.get(m.getName()), "null"))  modname = m.getRawName();
-            else modname = I18n.get(m.getName());
+            if (m.getName() == null || Objects.equals(m.getName(), "null"))  modname = m.getRawName();
+            else modname = m.getName();
 
             Skia.drawFullCenteredText(modname, itemX + ((float) 244 / 2), itemY + 116 + ((float) 35 / 2), palette.getOnSurfaceVariant(), Fonts.getRegular(16));
             Skia.drawFullCenteredText(m.getIcon(), itemX + ((float) 244 / 2), itemY + ((float) 116 / 2), palette.getOnSurfaceVariant(), Fonts.getIcon(68));

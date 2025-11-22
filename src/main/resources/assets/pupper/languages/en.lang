@@ -28,6 +28,12 @@ design.materialyou=MaterialYou
 mod.cooldown.name=Cooldown Indicator
 mod.cooldown.description=Enhanced attack cooldown visualization
 
+mod.scoreboard.name=Scoreboard
+mod.scoreboard.description=Display player score
+
+mod.potionhud.name=Potion HUD
+mod.potionhud.description=Display active potion effects
+
 mod.hudsettings.name=HUD
 mod.hudsettings.description=Customizing the HUD
 
@@ -391,15 +397,6 @@ addServer.serverAddress=Server Address
 
 mod.targethud.name=Target hud
 mod.targethud.description=Target hud
-mod.disabler.aggressive.name=Disabler
-mod.disabler.aggressive.description=Disabler Anticheat
-mod.disabler.logging.name=Logging
-mod.disabler.logging.description=Logging
-mod.disabler.grimDuplicateRotPlace.name=Grim DuplicateRotPlace
-mod.disabler.grimDuplicateRotPlace.description=Disabler Grim DuplicateRotPlace
-
-mod.velocity.name=Velocity
-mod.velocity.description=Velocity
 
 mod.arraylist.name=Arraylist
 mod.arraylist.description=List Mod
@@ -418,26 +415,8 @@ setting.mode.description=set mode
 
 menu.ias=Account
 
-mod.noslow.name=No Slow
-mod.noslow.description=No Slow
-
-mod.noweb.name=No Web
-mod.noweb.description=No Web
-
-mod.velocity.mode.name=Velocity Mode
-mod.velocity.mode.description=Set the velocity mode
-mod.velocity.perfectjump.name=Perfect Jump
-mod.velocity.perfectjump.description=Perfect Jump
-mod.velocity.mode.jumpreset.name=Jump Reset
-mod.velocity.mode.jumpreset.description=Jump Reset
-mod.velocity.mode.grimvelocityreduce.name=Grim Velocity Reduce
-mod.velocity.mode.grimvelocityreduce.description=Grim Velocity Reduce
-
-mod.Island.name=Island
-mod.Island.description=Island
-
-mod.autoClick.itemCheck.name=Item Check
-mod.autoClick.itemCheck.description=Check if the item is a weapon/tool
+mod.DynamicIsland.name=Dynamic Island
+mod.DynamicIsland.description=Dynamic Island
 
 language.english=English
 language.chinese=中文
@@ -447,34 +426,14 @@ gui.cancel=Cancel
 
 menu.version_select=Select Protocol Version
 
-mod.autoClick.minCps.name=Min CPS
-mod.autoClick.minCps.description=Set the min cps
-mod.autoClick.maxCps.name=Max CPS
-mod.autoClick.maxCps.description=Set the max cps
-mod.fastplace.name=Fast Place
-mod.fastplace.description=Fast Place
-mod.Island.logging.name=Logging
-mod.Island.logging.description=Logging
+mod.DynamicIsland.logging.name=Logging
+mod.DynamicIsland.logging.description=Logging
 
 mod.fallDamageHelp.name=Fall Damage Help
 mod.fallDamageHelp.description=Fall Damage Help
 
-mod.eagle.name=Eagle
-mod.eagle.description=Legit Scaffold
-
-mod.autotool.name=Auto Tool
-mod.autotool.description=Auto Tool
-
-text.hack=Hack
 mod.autoplay.logging.name=Logging
 mod.autoplay.logging.description=Logging
-
-mod.autotool.considerDurability.name=Consider Durability
-mod.autotool.considerDurability.description=Consider Durability
-mod.autotool.switchDelay.name=Switch Delay
-mod.autotool.switchDelay.description=Switch Delay
-mod.autotool.switchBack.name=Switch Back
-mod.autotool.switchBack.description=Switch Back
 
 mod.disabled=Disabled
 mod.enabled=Enabled
@@ -489,12 +448,6 @@ mod.notFound=Mod not found
 modManager.notInitialized=ModManager not initialized
 command.help.unknown=Unknown command, input .help to view help
 command.help.toggle.usage=Usage: .t <mod name>
-mod.eagle.delay.name=Delay
-mod.eagle.delay.description=Set BlockEdge Sensitivity
-mod.eagle.autoplace.name=Autoplace
-mod.eagle.autoplace.description=Autoplace
-mod.totemtracker.name=Totem tracker
-mod.totemtracker.description=Totem tracker
 
 command.help.modlist.refresh=Refresh
 command.help.modlist.refresh.tip=Click to refresh mod list
@@ -541,94 +494,8 @@ mod.nohurtfov.nohurtFov.description=No Hurt Fov
 mod.heypixel.logging.name=Logging
 mod.heypixel.logging.description=Logging
 
-setting.cps=CPS
-mod.autoattackplayer.name=Auto Attack Player
-mod.autoattackplayer.description=Auto Attack Player
-setting.autoattackplayer.cps.description=Clicks per second
-
-mod.autoaim.name=AimAssist
-mod.autoaim.description=Automatically aims at targets
-mod.aim.attackPlayer.name=Attack Player
-mod.aim.attackPlayer.description=Attack Player
-mod.aim.attackInvisible.name=Attack Invisible
-mod.aim.attackInvisible.description=Attack Invisible
-mod.aim.attackAnimals.name=Attack Animals
-mod.aim.attackAnimals.description=Attack Animals
-mod.aim.attackMobs.name=Attack Mobs
-mod.aim.attackMobs.description=Attack Mobs
-mod.aim.clickonly.name=Click Only
-mod.aim.clickonly.description=Click Only
-mod.aim.slient.name=Slient
-mod.aim.slient.description=Slient
-mod.aim.rotateSpeed.name=Rotate Speed
-mod.aim.rotateSpeed.description=Set the rotate speed
-mod.aim.aimRange.name=Aim Range
-mod.aim.aimRange.description=Set the aim range
-mod.aim.fov.name=FoV
-mod.aim.fov.description=Set the field of view
-mod.aim.priority.name=Priority
-mod.aim.priority.description=Set the priority
-mod.aim.priority.health=Health
-mod.aim.priority.fov=FoV
-mod.aim.priority.range=Range
-mod.aim.priority.none=None
-
-mod.antibots.name=Anti Bots
-mod.antibots.description=Prevents bots from being targeted by aim assist.
-mod.antibots.respawnTime.name=Respawn Time
-mod.antibots.respawnTime.description=Set the respawn time for bots
-
 mod.autogg.name=Auto GG
 mod.autogg.description=Auto GG
-
-mod.teams.name=Teams
-mod.teams.description=Identify and manage teammates in games
-setting.teams.show_team_esp=Show Team ESP
-setting.teams.show_team_esp.description=Display ESP boxes around teammates
-setting.teams.show_team_names=Show Team Names
-setting.teams.show_team_names.description=Display team names above teammates
-setting.teams.highlight_in_tab=Highlight in Tab
-setting.teams.highlight_in_tab.description=Highlight teammates in tab list
-setting.teams.team_color=Team Color
-setting.teams.team_color.description=Color for team indicators
-setting.teams.max_distance=Max Distance
-setting.teams.max_distance.description=Maximum distance to show teammates
-
-mod.autowalk.name=Auto Walk
-mod.autowalk.description=Automatically walks towards the nearest player
-
-setting.maxdistance=Max Distance
-setting.autowalk.maxdistance.description=Set the maximum distance to walk
-
-setting.avoidteammates=Avoid Teammates
-setting.autowalk.avoidteammates.description=Avoid walking towards teammates
-
-setting.stopdistance=Stop Distance
-setting.autowalk.stopdistance.description=Distance to stop walking
-
-setting.smartpathing=Smart Pathing
-setting.autowalk.smartpathing.description=Only walk towards targets with line of sight
-
-mod.autowtap.name=Auto WTap
-mod.autowtap.description=Automatically executes WTap trick to increase knockback effect
-
-setting.tapdelay=Tap Delay
-setting.autowtap.tapdelay.description=Set the delay time between WTap (milliseconds)
-
-setting.onlyplayers=Only Players
-setting.autowtap.onlyplayers.description=Only execute WTap on players
-
-setting.requireattack=Require Attack
-setting.autowtap.requireattack.description=Only execute WTap when attacking
-
-setting.mindistance=Min Distance
-setting.autowtap.mindistance.description=Set the minimum distance to execute WTap
-
-mod.heypixel.autoAgain.name=Auto Again
-mod.heypixel.autoAgain.description=Auto Again
-
-setting.checkitem.name=Check Item
-setting.autoattackplayer.checkitem.description=Check Item
 
 # IRC Mod
 mod.irc.name=IRC Chat
@@ -649,52 +516,12 @@ setting.irc.show_messages=Show Messages
 setting.irc.show_messages.description=Display IRC messages in chat
 
 
-mod.test.name=Test
-mod.test.description=Test
-
-# test moa lang (test mod 不确定mod setting 随时变换)
-setting.reduction_strength=Reduction Strength
-setting.reduction_strength.description=Set the reduction strength for velocity
-setting.combo_requirement=Combo Requirement
-setting.combo_requirement.description=Set the number of attacks required for combo
-setting.require_sprinting=Require Sprinting
-setting.require_sprinting.description=Require sprinting to activate combo
-
-mod.midpearl.name=Mid Pearl
-mod.midpearl.description=Mid Pearl
-
-mod.midpearl.switchBack.name=Switch Back
-mod.midpearl.switchBack.description=Switch back to the previous item after using Mid Pearl
-mod.midpearl.useDelay.name=Use Delay
-mod.midpearl.useDelay.description=Set the delay time between using Mid Pearl (milliseconds)
-
 mod.cloudmusic.name=Cloud Music
 mod.cloudmusic.description=Show the name of the currently playing song on Cloud Music
 mod.cloudmusic.mode=Cloud Music Mode
 mod.cloudmusic.mode.description=Change the Cloud Music Name Mode
 mod.cloudmusic.smtc=Smtc
 mod.cloudmusic.powershell=Powershell
-
-mod.nofall.name=No Fall
-mod.nofall.description=Prevent fall damage using wind charges
-mod.nofallwindcharge.switchBack.name=Switch Back
-mod.nofallwindcharge.switchBack.description=Switch back to the previous item after using wind charge
-mod.nofall.mode.name=Mode
-mod.nofall.mode.description=Select the method to prevent fall damage
-mod.nofall.mode.windcharge.name=Wind Charge Mode
-mod.nofall.mode.water.name=Water Bucket Mode
-mod.nofallwindcharge.predictiveAiming.name=Predictive Aiming
-mod.nofallwindcharge.predictiveAiming.description=Predict player movement to optimize wind charge throw timing
-mod.nofallwindcharge.minHeight.name=Min Height
-mod.nofallwindcharge.minHeight.description=Set the minimum height to trigger wind charge usage
-mod.nofallwindcharge.maxHeight.name=Max Height
-mod.nofallwindcharge.maxHeight.description=Set the maximum height to trigger wind charge usage
-mod.nofallwindcharge.timingOffset.name=Timing Offset
-mod.nofallwindcharge.timingOffset.description=Set the offset time for wind charge explosion (milliseconds)
-mod.nofallwindcharge.onlyDangerous.name=Only Dangerous Heights
-mod.nofallwindcharge.onlyDangerous.description=Only use wind charge when height exceeds max height
-mod.nofallwindcharge.predictiveAiming.name=Predictive Aiming
-mod.nofallwindcharge.predictiveAiming.description=Predict player movement to optimize wind charge throw timing
 
 mod.sprint.name=Sprint
 mod.sprint.description=Sprint
@@ -720,3 +547,10 @@ setting.glow.intensity.name=Glow Intensity
 setting.glow.intensity.description=Set the intensity of the glow effect for the song cover
 setting.glow.range.name=Glow Range
 setting.glow.range.description=Set the range of the glow effect for the song cover
+
+musictool.name.check=Checking music tool...
+musictool.name.installed=Music tool installed!
+musictool.name.downloading=Downloading music tool...
+musictool.name.failed=Music tool installation failed
+musictool.name.done=Music tool ready
+

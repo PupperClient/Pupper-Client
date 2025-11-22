@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 
 import cn.pupperclient.PupperClient;
+import cn.pupperclient.management.mod.impl.hud.DynamicIsland;
 import com.google.gson.JsonObject;
 import cn.pupperclient.libraries.material3.hct.Hct;
 import cn.pupperclient.management.config.Config;
@@ -13,7 +14,6 @@ import cn.pupperclient.management.mod.ModManager;
 import cn.pupperclient.management.mod.api.AnchorPosition;
 import cn.pupperclient.management.mod.api.Position;
 import cn.pupperclient.management.mod.api.hud.HUDMod;
-import cn.pupperclient.management.mod.impl.hud.Island;
 import cn.pupperclient.management.mod.settings.Setting;
 import cn.pupperclient.management.mod.settings.impl.*;
 import cn.pupperclient.utils.ColorUtils;
@@ -56,7 +56,7 @@ public class ModConfig extends Config {
     }
 
     private void loadModsConfiguration(ModManager modManager, JsonObject modsJson) {
-        Island.setConfigLoading(true);
+        DynamicIsland.setConfigLoading(true);
 
         for (Mod mod : modManager.getMods()) {
             JsonObject modJson = JsonUtils.getObjectProperty(modsJson, mod.getName());
@@ -68,7 +68,7 @@ public class ModConfig extends Config {
             }
         }
 
-        Island.setConfigLoading(false);
+        DynamicIsland.setConfigLoading(false);
     }
 
     private void loadModBasicSettings(Mod mod, JsonObject modJson) {

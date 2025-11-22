@@ -38,14 +38,14 @@ public class ArrayListMod extends HUDMod {
         "setting.mode.description", Icon.ALIGN_HORIZONTAL_RIGHT, this,
         Arrays.asList("setting.right", "setting.left"), "setting.right");
 
-    // Animation constants
-    private static final long ANIMATION_DURATION = 300;
-    private static final long EXIT_ANIMATION_DURATION = 200;
+    // Design constants
     private static final float FONT_SIZE = 8.5f;
+    private static final float ICON_SIZE = 9f;
     private static final float ROW_HEIGHT = 14f;
-    private static final float HORIZONTAL_PADDING = 8f;
+    private static final float HORIZONTAL_PADDING = 6f; // 减少内边距，因为有两个背景
     private static final float VERTICAL_PADDING = 3f;
     private static final float ITEM_SPACING = 2f;
+    public static final float ICON_TEXT_SPACING = 4f; // 图标和文字背景之间的间距
 
     // Animation states
     private final Map<String, ModAnimationState> animationStates = new ConcurrentHashMap<>();
@@ -120,7 +120,7 @@ public class ArrayListMod extends HUDMod {
 
             // Remove mods that have finished exit animation
             if (state.animationType == AnimationType.EXIT) {
-                float progress = getAnimationProgress(currentTime, state.animationStartTime, EXIT_ANIMATION_DURATION);
+                float progress = getAnimationProgress(currentTime, state.animationStartTime, 200);
                 if (progress >= 1.0f) {
                     iterator.remove();
                 }
@@ -139,26 +139,32 @@ public class ArrayListMod extends HUDMod {
         // Add all active mods (both entering and stable)
         for (ModAnimationState state : animationStates.values()) {
             if (state.animationType != AnimationType.EXIT ||
-                getAnimationProgress(System.currentTimeMillis(), state.animationStartTime, EXIT_ANIMATION_DURATION) < 1.0f) {
+                getAnimationProgress(System.currentTimeMillis(), state.animationStartTime, 200) < 1.0f) {
                 sortedDisplayMods.add(state.modInfo);
             }
         }
 
         // Sort by display name length (longest first) for consistent layout
-        sortedDisplayMods.sort((a, b) -> Float.compare(b.width, a.width));
+        sortedDisplayMods.sort((a, b) -> Float.compare(b.totalWidth, a.totalWidth));
     }
 
     private void drawArrayList() {
-        if (sortedDisplayMods.isEmpty()) {
-            position.setSize(0, 0);
-            return;
-        }
-
         boolean isRightAligned = isRightAligned();
+
+        // Calculate total height including title and all mod entries
+        int totalEntries = 1 + sortedDisplayMods.size(); // 1 for title + mod entries
+        float totalHeight = totalEntries * (ROW_HEIGHT + ITEM_SPACING) - ITEM_SPACING;
+
+        // Calculate max width
         float maxWidth = calculateMaxWidth();
-        float totalHeight = sortedDisplayMods.size() * (ROW_HEIGHT + ITEM_SPACING) - ITEM_SPACING;
+
         float currentY = 0;
 
+        // Draw title "</> Enable Module" (always visible)
+        drawTitleEntry(maxWidth, currentY, isRightAligned);
+        currentY += ROW_HEIGHT + ITEM_SPACING;
+
+        // Draw enabled mods
         for (int i = 0; i < sortedDisplayMods.size(); i++) {
             ModDisplayInfo modInfo = sortedDisplayMods.get(i);
             ModAnimationState state = animationStates.get(modInfo.originalName);
@@ -173,13 +179,46 @@ public class ArrayListMod extends HUDMod {
         position.setSize(maxWidth, totalHeight);
     }
 
+    private void drawTitleEntry(float maxWidth, float y, boolean isRightAligned) {
+        String titleIcon = Icon.CODE;
+        String titleText = "Enable Module";
+
+        // Calculate widths
+        float iconWidth = Skia.getTextBounds(titleIcon, Fonts.getRegular(FONT_SIZE)).getWidth();
+        float textWidth = Skia.getTextBounds(titleText, Fonts.getRegular(FONT_SIZE)).getWidth();
+
+        // Calculate background dimensions
+        float iconBgWidth = iconWidth + HORIZONTAL_PADDING * 2;
+        float textBgWidth = textWidth + HORIZONTAL_PADDING * 2;
+        float totalWidth = iconBgWidth + ICON_TEXT_SPACING + textBgWidth;
+
+        // Calculate positions
+        float bgX = getX() + (isRightAligned ? (maxWidth - totalWidth) : 0);
+        float bgY = getY() + y;
+
+        // Draw backgrounds
+        if (backgroundSetting.isEnabled()) {
+            // Draw icon background
+            drawRoundedBackground(bgX, bgY, iconBgWidth, 255);
+
+            // Draw text background
+            float textBgX = bgX + iconBgWidth + ICON_TEXT_SPACING;
+            drawRoundedBackground(textBgX, bgY, textBgWidth, 255);
+        }
+
+        // Draw title icon and text
+        float iconX = bgX + HORIZONTAL_PADDING;
+        float textX = bgX + iconBgWidth + ICON_TEXT_SPACING + HORIZONTAL_PADDING;
+        float contentY = bgY + VERTICAL_PADDING;
+
+        Skia.drawText(titleIcon, iconX, contentY, Color.WHITE, Fonts.getIcon(9F));
+        Skia.drawText(titleText, textX, contentY, Color.WHITE, Fonts.getRegular(FONT_SIZE));
+    }
+
     private void drawModEntry(ModDisplayInfo modInfo, ModAnimationState state, float maxWidth,
                               float y, int index, boolean isRightAligned) {
         long currentTime = System.currentTimeMillis();
-        long animationDuration = state.animationType == AnimationType.EXIT ?
-            EXIT_ANIMATION_DURATION : ANIMATION_DURATION;
-
-        float progress = getAnimationProgress(currentTime, state.animationStartTime, animationDuration);
+        float progress = getAnimationProgress(currentTime, state.animationStartTime, 300);
 
         // Apply easing
         float easedProgress = easeOutCubic(progress);
@@ -201,27 +240,35 @@ public class ArrayListMod extends HUDMod {
             animationOffset = -maxWidth * (1 - easedProgress);
         }
 
-        // Calculate position
-        float bgWidth = modInfo.width + HORIZONTAL_PADDING * 2;
-        float bgX = getX() + (isRightAligned ? (maxWidth - bgWidth) : 0) + animationOffset;
+        // Calculate positions
+        float totalWidth = modInfo.iconBgWidth + ICON_TEXT_SPACING + modInfo.textBgWidth;
+        float bgX = getX() + (isRightAligned ? (maxWidth - totalWidth) : 0) + animationOffset;
         float bgY = getY() + y;
 
-        // Draw background with alpha
+        // Draw backgrounds with alpha
         if (backgroundSetting.isEnabled()) {
-            drawRoundedBackground(bgX, bgY, bgWidth, (int)alpha);
+            // Draw icon background
+            drawRoundedBackground(bgX, bgY, modInfo.iconBgWidth, (int)alpha);
+
+            // Draw text background
+            float textBgX = bgX + modInfo.iconBgWidth + ICON_TEXT_SPACING;
+            drawRoundedBackground(textBgX, bgY, modInfo.textBgWidth, (int)alpha);
         }
 
-        // Draw text with alpha
-        Color textColor = new Color(255, 255, 255, (int)alpha);
-        float textX = bgX + HORIZONTAL_PADDING;
-        float textY = bgY + VERTICAL_PADDING;
+        // Draw content with alpha
+        Color contentColor = new Color(255, 255, 255, (int)alpha);
 
-        Skia.drawText(modInfo.displayName, textX, textY, textColor, Fonts.getRegular(FONT_SIZE));
+        // Draw check icon and module name
+        float iconX = bgX + HORIZONTAL_PADDING;
+        float textX = bgX + modInfo.iconBgWidth + ICON_TEXT_SPACING + HORIZONTAL_PADDING;
+        float contentY = bgY + VERTICAL_PADDING;
+
+        Skia.drawText(Icon.CHECK, iconX, contentY, contentColor, Fonts.getIcon(ICON_SIZE));
+        Skia.drawText(modInfo.displayName, textX, contentY, contentColor, Fonts.getRegular(FONT_SIZE));
     }
 
     private void drawRoundedBackground(float x, float y, float width, int alpha) {
         float radius = ROW_HEIGHT / 2;
-        // 使用带透明度的背景
         Skia.drawRoundedRect(x, y, width, ROW_HEIGHT, radius,
             new Color(255, 255, 255, Math.min(120, alpha)));
     }
@@ -231,9 +278,20 @@ public class ArrayListMod extends HUDMod {
 
         for (Mod mod : PupperClient.getInstance().getModManager().getMods()) {
             if (shouldDisplayMod(mod) && mod.isEnabled() && !mod.isHidden()) {
-                String displayName = Objects.equals(I18n.get(mod.getName()), "null") ? mod.getRawName() : I18n.get(mod.getName());
-                float nameWidth = Skia.getTextBounds(displayName, Fonts.getRegular(FONT_SIZE)).getWidth();
-                enabledMods.add(new ModDisplayInfo(mod.getName(), displayName, nameWidth));
+                String displayName;
+                if (mod.getName().equals("null") || mod.getName() == null) displayName = mod.getRawName();
+                else displayName = mod.getName();
+
+                // Calculate widths for layout
+                float iconWidth = Skia.getTextBounds(Icon.CHECK, Fonts.getIcon(ICON_SIZE)).getWidth();
+                float textWidth = Skia.getTextBounds(displayName, Fonts.getRegular(FONT_SIZE)).getWidth();
+
+                // Calculate background widths
+                float iconBgWidth = iconWidth + HORIZONTAL_PADDING * 2;
+                float textBgWidth = textWidth + HORIZONTAL_PADDING * 2;
+                float totalWidth = iconBgWidth + ICON_TEXT_SPACING + textBgWidth;
+
+                enabledMods.add(new ModDisplayInfo(mod.getName(), displayName, totalWidth, iconBgWidth, textBgWidth));
             }
         }
 
@@ -243,29 +301,32 @@ public class ArrayListMod extends HUDMod {
     private boolean shouldDisplayMod(Mod mod) {
         ModCategory category = mod.getCategory();
 
-        if (category == ModCategory.HUD && !hudSetting.isEnabled()) {
-            return false;
-        }
-        if (category == ModCategory.RENDER && !renderSetting.isEnabled()) {
-            return false;
-        }
-        if (category == ModCategory.PLAYER && !playerSetting.isEnabled()) {
-            return false;
-        }
-        if (category == ModCategory.MISC && !otherSetting.isEnabled()) {
-            return false;
-        }
-
-        // Always display HACK and FUN category mods if their respective settings are enabled
-        return true;
+        return switch (category) {
+            case HUD -> hudSetting.isEnabled();
+            case RENDER -> renderSetting.isEnabled();
+            case PLAYER -> playerSetting.isEnabled();
+            case MISC -> otherSetting.isEnabled();
+            default -> true;
+        };
     }
 
     private float calculateMaxWidth() {
         float maxWidth = 0;
+
+        // Calculate title width
+        String titleIcon = "</>";
+        String titleText = "Enable Module";
+        float titleIconWidth = Skia.getTextBounds(titleIcon, Fonts.getRegular(FONT_SIZE)).getWidth();
+        float titleTextWidth = Skia.getTextBounds(titleText, Fonts.getRegular(FONT_SIZE)).getWidth();
+        float titleIconBgWidth = titleIconWidth + HORIZONTAL_PADDING * 2;
+        float titleTextBgWidth = titleTextWidth + HORIZONTAL_PADDING * 2;
+        float titleTotalWidth = titleIconBgWidth + ICON_TEXT_SPACING + titleTextBgWidth;
+        maxWidth = Math.max(maxWidth, titleTotalWidth);
+
+        // Calculate max width from enabled mods
         for (ModDisplayInfo modInfo : sortedDisplayMods) {
-            float totalWidth = modInfo.width + HORIZONTAL_PADDING * 2;
-            if (totalWidth > maxWidth) {
-                maxWidth = totalWidth;
+            if (modInfo.totalWidth > maxWidth) {
+                maxWidth = modInfo.totalWidth;
             }
         }
         return maxWidth;
@@ -296,16 +357,19 @@ public class ArrayListMod extends HUDMod {
         return 6;
     }
 
-    // Helper classes
     private static class ModDisplayInfo {
         String originalName;
         String displayName;
-        float width;
+        float totalWidth; // Total width including both backgrounds and spacing
+        float iconBgWidth;  // Icon background width
+        float textBgWidth;  // Text background width
 
-        ModDisplayInfo(String originalName, String displayName, float width) {
+        ModDisplayInfo(String originalName, String displayName, float totalWidth, float iconBgWidth, float textBgWidth) {
             this.originalName = originalName;
             this.displayName = displayName;
-            this.width = width;
+            this.totalWidth = totalWidth;
+            this.iconBgWidth = iconBgWidth;
+            this.textBgWidth = textBgWidth;
         }
     }
 

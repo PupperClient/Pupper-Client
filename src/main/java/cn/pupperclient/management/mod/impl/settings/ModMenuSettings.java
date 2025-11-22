@@ -94,10 +94,7 @@ public class ModMenuSettings extends Mod {
 		}
 
 		if (keybindSetting.isPressed()) {
-			if (modMenu == null) {
-				modMenu = new GuiModMenu().build();
-			}
-			mc.setScreen(modMenu);
+			mc.setScreen(new GuiModMenu().build());
 		}
 
 		handleLanguageChange();

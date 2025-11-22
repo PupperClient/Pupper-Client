@@ -107,6 +107,10 @@ public class PupperClient implements IMinecraft {
             }
         });
 
+        if (!firstLaunch){
+            setMusicToolStatus(MusicToolStatus.DONE);
+        }
+
         if (getClass().getClassLoader().getResource("assets/pupper/logo.png") == null) {
             LOGGER.error("PupperClient icon not found in resources!");
         } else {

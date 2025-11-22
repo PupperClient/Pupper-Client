@@ -51,9 +51,8 @@ public class SettingsPage extends Page {
 
 			SimpleAnimation yAnimation = i.yAnimation;
 			Mod m = i.mod;
-
 			if (!searchBar.getText().isEmpty() && !SearchUtils
-					.isSimilar(I18n.get(m.getName()) + " " + I18n.get(m.getDescription()), searchBar.getText())) {
+					.isSimilar(I18n.get(m.getRawName()) + " " + I18n.get(m.getDescription()), searchBar.getText())) {
 				continue;
 			}
 

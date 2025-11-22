@@ -24,6 +24,8 @@
     "minecraft.client.render.MixinInGameHud",
     "minecraft.client.render.MixinInGameOverlayRenderer",
     "minecraft.client.render.MixinLightmapTextureManager",
+    "minecraft.client.render.PupperInGameHud",
+    "minecraft.client.render.PupperScoreboard",
     "minecraft.client.sound.MixinSoundSystem",
     "minecraft.client.util.MixinWindow",
     "minecraft.entity.MixinClientPlayerEntity",

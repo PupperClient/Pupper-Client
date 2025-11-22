@@ -11,14 +11,9 @@
     <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/PupperLogger.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/animation" charset="GBK" />
     <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/event/Event.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/event/Event.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/event/EventBus.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/event/EventBus.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/event/EventListener.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/event/EventListener.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/event/EventType.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/event/EventType.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/event/MethodEventListener.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/event/MethodEventListener.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/gui" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/gui/welcomegui/TermsScreen.java" charset="UTF-8" />
@@ -37,6 +32,7 @@
     <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/management/config/impl/KeyConfig.java" charset="GBK" />
     <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/management/irc/client/IRCTransport.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/management/mod/Mod.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/management/mod/impl/hud/ArrayListMod.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/mixin" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/shader" charset="GBK" />
     <file url="file://$PROJECT_DIR$/src/main/java/cn/pupperclient/skia" charset="UTF-8" />
@@ -74,6 +70,7 @@
     <file url="file://$PROJECT_DIR$/src/main/java/com/soarclient/utils/rotation/RotationUtils.java" charset="GBK" />
     <file url="file://$PROJECT_DIR$/src/main/resources/assets/pupper/RUNOOB-SVG-IMAGE.png" charset="GBK" />
     <file url="file://$PROJECT_DIR$/src/main/resources/assets/pupper/logo.png" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/assets/pupper/oldlogo.png" charset="GBK" />
     <file url="file://$PROJECT_DIR$/src/main/resources/assets/pupper/pupper.png" charset="GBK" />
     <file url="PROJECT" charset="GBK" />
   </component>

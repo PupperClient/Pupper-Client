@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="EntryPointsManager">
-    <list size="3">
+    <list size="4">
       <item index="0" class="java.lang.String" itemvalue="cn.pupperclient.event.EventListener" />
       <item index="1" class="java.lang.String" itemvalue="org.spongepowered.asm.mixin.Mixin" />
       <item index="2" class="java.lang.String" itemvalue="org.spongepowered.asm.mixin.Shadow" />
+      <item index="3" class="java.lang.String" itemvalue="org.spongepowered.asm.mixin.Unique" />
     </list>
+    <writeAnnotations>
+      <writeAnnotation name="org.spongepowered.asm.mixin.Unique" />
+    </writeAnnotations>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="ProjectRootManager" version="2" languageLevel="JDK_21" project-jdk-name="23" project-jdk-type="JavaSDK" />
