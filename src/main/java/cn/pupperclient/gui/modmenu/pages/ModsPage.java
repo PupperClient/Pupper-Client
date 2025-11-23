@@ -76,7 +76,7 @@ public class ModsPage extends Page {
             .filter(i -> {
                 Mod m = i.mod;
                 if (m.isHidden()) return false;
-                boolean searchMatch = searchBar.getText().isEmpty() || SearchUtils.isSimilar(I18n.get(m.getName()), searchBar.getText());
+                boolean searchMatch = searchBar.getText().isEmpty() || SearchUtils.isSimilar(m.getName(), searchBar.getText());
                 boolean categoryMatch = selectedCategory == Category.ALL ||
                     (m.getCategory() != null && m.getCategory().name().equalsIgnoreCase(selectedCategory.name()));
                 return searchMatch && categoryMatch;

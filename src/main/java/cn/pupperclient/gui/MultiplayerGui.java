@@ -24,6 +24,7 @@ import cn.pupperclient.utils.mouse.ScrollHelper;
 
 import com.viaversion.viafabricplus.screen.impl.ProtocolSelectionScreen;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
+import io.github.humbleui.types.Rect;
 import net.minecraft.client.gui.screen.MessageScreen;
 import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
 import net.minecraft.client.network.ServerAddress;
@@ -412,10 +413,11 @@ public class MultiplayerGui extends SimpleSoarGui {
                 Fonts.getRegular(fontSize * 0.8f));
 
             // 绘制ping状态
-            String status = serverInfo.ping > 0 ? "Online" : "Offline";
-            float statusWidth = Skia.getTextWidth(status, Fonts.getRegular(fontSize * 0.8f));
-            Skia.drawText(status,
-                x + width - padding - statusWidth,
+            String statustext = serverInfo.ping > 0 ? "Online" : "Offline";
+            Rect status = Skia.getTextBounds(statustext, Fonts.getRegular(fontSize * 0.8f));
+
+            Skia.drawText(statustext,
+                x + width - padding - status.getWidth(),
                 y + padding,
                 ColorUtils.applyAlpha(textColor, 0.7f),
                 Fonts.getRegular(fontSize * 0.8f));
@@ -423,9 +425,9 @@ public class MultiplayerGui extends SimpleSoarGui {
             // 绘制ping值
             if (serverInfo.ping > 0) {
                 String pingText = serverInfo.ping + "ms";
-                float pingWidth = Skia.getTextWidth(pingText, Fonts.getRegular(fontSize * 0.8f));
+                Rect pingWidth = Skia.getTextBounds(pingText, Fonts.getRegular(fontSize * 0.8f));
                 Skia.drawText(pingText,
-                    x + width - padding - pingWidth,
+                    x + width - padding - pingWidth.getWidth(),
                     y + height - padding - fontSize,
                     ColorUtils.applyAlpha(textColor, 0.7f),
                     Fonts.getRegular(fontSize * 0.8f));

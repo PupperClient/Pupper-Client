@@ -5,6 +5,7 @@ import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.server.PacketHandler;
 import cn.pupperclient.gui.welcomegui.TermsScreen;
 import cn.pupperclient.libraries.browser.JCefBrowser;
+import cn.pupperclient.management.cape.CapeManager;
 import cn.pupperclient.management.color.ColorManager;
 import cn.pupperclient.management.command.SoarCommand;
 import cn.pupperclient.management.config.ConfigManager;
@@ -57,6 +58,7 @@ public class PupperClient implements IMinecraft {
 	private UserManager userManager;
 	private HypixelManager hypixelManager;
     private KeybindManager keybindManager;
+    private CapeManager capeManager;
 
 	public void start() throws IOException {
 		JCefBrowser.download();
@@ -79,6 +81,7 @@ public class PupperClient implements IMinecraft {
         keybindManager.initialize();
         toolManager = new ExternalToolManager();
         SoarCommand.register();
+        capeManager = new CapeManager();
 
         EventBus.getInstance().register(new PupperEventHandle());
 		EventBus.getInstance().register(new PacketHandler());
@@ -198,5 +201,9 @@ public class PupperClient implements IMinecraft {
 
     public enum MusicToolStatus {
         CHECKING, INSTALLED, DOWNLOADING, FAILED, DONE
+    }
+
+    public CapeManager getCapeManager() {
+        return capeManager;
     }
 }

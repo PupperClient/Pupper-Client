@@ -4,8 +4,10 @@ import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.client.EventFallFlying;
 import cn.pupperclient.event.client.EventJump;
 import cn.pupperclient.event.client.EventRotationAnimation;
+import cn.pupperclient.event.client.EventUseTotem;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Vec3d;
@@ -24,6 +26,7 @@ import cn.pupperclient.mixin.interfaces.IMixinLivingEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Hand;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
 public abstract class MixinLivingEntity extends Entity implements IMixinLivingEntity{
@@ -168,5 +171,11 @@ public abstract class MixinLivingEntity extends Entity implements IMixinLivingEn
             return instance.calcGlidingVelocity(velocity);
         }
         return instance.calcGlidingVelocity(velocity);
+    }
+    
+    @Inject(method = "tryUseDeathProtector", at = @At("HEAD"))
+    private void tryUseDeathProtector(DamageSource source, CallbackInfoReturnable<Boolean> cir) {
+        EventUseTotem event = new EventUseTotem(source);
+        EventBus.getInstance().post(event);
     }
 }

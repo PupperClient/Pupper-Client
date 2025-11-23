@@ -1,10 +1,6 @@
 package cn.pupperclient.mixin.mixins.minecraft.client.gui;
 
-import cn.pupperclient.gui.AuthScreen;
 import cn.pupperclient.gui.MainMenuGui;
-import cn.pupperclient.gui.welcomegui.WelcomeGui;
-import cn.pupperclient.management.auth.AuthManager;
-import net.minecraft.data.Main;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

@@ -45,9 +45,9 @@ public class MusicPage extends Page {
 	@Override
 	public void init() {
 		super.init();
-		
+
 		items.clear();
-		
+
 		for (Music m : PupperClient.getInstance().getMusicManager().getMusics()) {
 			items.add(new Item(m));
 		}
@@ -195,13 +195,13 @@ public class MusicPage extends Page {
 			}
 		}
 	}
-	
+
 	@Override
 	public void keyPressed(int keyCode, int scanCode, int modifiers) {
 		super.keyPressed(keyCode, scanCode, modifiers);
 		controlBar.keyPressed(keyCode, scanCode, modifiers);
 	}
-	
+
 	@Override
 	public void charTyped(char chr, int modifiers) {
 		super.charTyped(chr, modifiers);
@@ -212,7 +212,7 @@ public class MusicPage extends Page {
 			float blurRadius) {
 
 		Path path = new Path();
-		path.addRRect(RRect.makeXYWH(x, y, width, height, cornerRadius));
+		Path.makeRRect(RRect.makeXYWH(x, y, width, height, cornerRadius));
 
 		Paint blurPaint = new Paint();
 		blurPaint.setImageFilter(ImageFilter.makeBlur(blurRadius, blurRadius, FilterTileMode.CLAMP));

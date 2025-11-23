@@ -19,6 +19,8 @@ text.name=Name
 text.serveraddress=Server Address
 text.createprofile=Create Profile
 text.icon=Icon
+text.modmenu.cosmetics=Cosmetics
+text.cape=Cape
 
 design.simple=Simple
 design.classic=Classic

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.pupperclient.PupperClient;
+import cn.pupperclient.utils.mouse.ScrollHelper;
 import org.lwjgl.glfw.GLFW;
 
 import cn.pupperclient.animation.Animation;
@@ -32,148 +33,161 @@ import io.github.humbleui.types.Rect;
 
 public class NavigationRail extends Component {
 
-	private List<Navigation> navigations = new ArrayList<>();
-	private Navigation currentNavigation;
-	private IconButton editButton;
+    private final List<Navigation> navigations = new ArrayList<>();
+    private Navigation currentNavigation;
+    private final IconButton editButton;
+    private final ScrollHelper scrollHelper = new ScrollHelper();
 
-	private SoarGui parent;
+    private final SoarGui parent;
 
-	public NavigationRail(SoarGui parent, float x, float y, float width, float height) {
-		super(x, y);
-		this.parent = parent;
-		this.width = width;
-		this.height = height;
+    public NavigationRail(SoarGui parent, float x, float y, float width, float height) {
+        super(x, y);
+        this.parent = parent;
+        this.width = width;
+        this.height = height;
 
-		for (SimplePage p : parent.getPages()) {
+        for (SimplePage p : parent.getPages()) {
+            Navigation n = new Navigation(p);
+            if (p.getTitle().equals(parent.getCurrentPage().getTitle())) {
+                currentNavigation = n;
+                n.animation = new EaseStandard(Duration.MEDIUM_3, 0, 1);
+            }
+            navigations.add(n);
+        }
 
-			Navigation n = new Navigation(p);
+        IconButton.Size buttonSize = IconButton.Size.NORMAL;
+        float buttonY = y + 44;
 
-			if (p.getTitle().equals(parent.getCurrentPage().getTitle())) {
-				currentNavigation = n;
-				n.animation = new EaseStandard(Duration.MEDIUM_3, 0, 1);
-			}
+        editButton = new IconButton(Icon.EDIT, x, buttonY, buttonSize, IconButton.Style.TERTIARY);
+        editButton.setX(x + (width / 2) - (editButton.getWidth() / 2));
+        editButton.setHandler(new ButtonHandler() {
+            @Override
+            public void onAction() {
+                parent.close(new GuiEditHUD(ModMenuSettings.getInstance().getModMenu()).build());
+            }
+        });
+    }
 
-			navigations.add(n);
-		}
+    @Override
+    public void draw(double mouseX, double mouseY) {
+        scrollHelper.onUpdate();
 
-		editButton = new IconButton(Icon.EDIT, x, y + 44, IconButton.Size.NORMAL, IconButton.Style.TERTIARY);
-		editButton.setX(x + (width / 2) - (editButton.getWidth() / 2));
-		editButton.setHandler(new ButtonHandler() {
+        ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
-			@Override
-			public void onAction() {
-				parent.close(new GuiEditHUD(ModMenuSettings.getInstance().getModMenu()).build());
-			}
-		});
-	}
+        float borderRadius = 35;
+        Skia.drawRoundedRectVarying(x, y, width, height, borderRadius, 0, 0, borderRadius, palette.getSurface());
 
-	@Override
-	public void draw(double mouseX, double mouseY) {
+        editButton.draw(mouseX, mouseY);
 
-		ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
+        float offsetY = 140;
+        float itemSpacing = 68;
 
-		Skia.drawRoundedRectVarying(x, y, width, height, 35, 0, 0, 35, palette.getSurface());
+        Skia.save();
+        Skia.translate(0, scrollHelper.getValue());
 
-		editButton.draw(mouseX, mouseY);
+        double translatedMouseY = mouseY - scrollHelper.getValue();
 
-		float offsetY = 140;
+        for (Navigation n : navigations) {
+            drawMd3NavItem(n, mouseX, translatedMouseY, offsetY, palette);
+            offsetY += itemSpacing;
+        }
 
-		for (Navigation n : navigations) {
+        scrollHelper.setMaxScroll(offsetY - 140, height - 140);
+        Skia.restore();
+    }
 
-			SimplePage p = n.page;
-			String title = p.getTitle();
-			String icon = p.getIcon();
-			Font font = currentNavigation.equals(n) ? Fonts.getIconFill(24) : Fonts.getIcon(24);
-			Rect bounds = Skia.getTextBounds(icon, font);
-			float iconWidth = bounds.getWidth();
-			float iconHeight = bounds.getHeight();
+    private void drawMd3NavItem(Navigation n, double mouseX, double mouseY, float offsetY, ColorPalette palette) {
+        SimplePage p = n.page;
+        String title = p.getTitle();
+        String icon = p.getIcon();
+        boolean isSelected = currentNavigation.equals(n);
 
-			Color c0 = currentNavigation.equals(n) ? palette.getOnSecondaryContainer() : palette.getOnSurfaceVariant();
-			Color c1 = currentNavigation.equals(n) ? palette.getOnSurface() : palette.getOnSurfaceVariant();
+        Font font = isSelected ? Fonts.getIconFill(24) : Fonts.getIcon(24);
+        Rect bounds = Skia.getTextBounds(icon, font);
+        float iconWidth = bounds.getWidth();
+        float iconHeight = bounds.getHeight();
 
-			Animation animation = n.animation;
-			float selWidth = 56;
-			float selHeight = 32;
-			boolean focus = MouseUtils.isInside(mouseX, mouseY, x + (width / 2) - (selWidth / 2), y + offsetY, selWidth,
-					selHeight) || n.pressed;
+        Color c0 = isSelected ? palette.getOnSecondaryContainer() : palette.getOnSurfaceVariant();
+        Color c1 = isSelected ? palette.getOnSurface() : palette.getOnSurfaceVariant();
 
-			n.focusAnimation.onTick(focus ? n.pressed ? 0.12F : 0.08F : 0, 8);
+        Animation animation = n.animation;
+        float selWidth = 56;
+        float selHeight = 32;
+        boolean focus = MouseUtils.isInside(mouseX, mouseY, x + (width / 2) - (selWidth / 2), y + offsetY, selWidth, selHeight) || n.pressed;
 
-			Skia.drawRoundedRect(x + (width / 2) - (selWidth / 2), y + offsetY, selWidth, selHeight, 16,
-					ColorUtils.applyAlpha(palette.getOnSurfaceVariant(), n.focusAnimation.getValue()));
+        n.focusAnimation.onTick(focus ? n.pressed ? 0.12F : 0.08F : 0, 8);
 
-			if (animation.getEnd() != 0 || !animation.isFinished()) {
-				Skia.drawRoundedRect(
-						x + (width / 2) - (selWidth / 2) + (selWidth - selWidth * animation.getValue()) / 2,
-						y + offsetY, selWidth * animation.getValue(), selHeight, 16,
-						ColorUtils.applyAlpha(palette.getSecondaryContainer(), animation.getValue()));
-			}
+        Skia.drawRoundedRect(x + (width / 2) - (selWidth / 2), y + offsetY, selWidth, selHeight, 16, ColorUtils.applyAlpha(palette.getOnSurfaceVariant(), n.focusAnimation.getValue()));
 
-			Skia.drawText(icon, x + (width / 2) - (iconWidth / 2), y + (offsetY + (selHeight / 2)) - (iconHeight / 2),
-					c0, font);
-			Skia.drawCenteredText(I18n.get(title), x + (width / 2), y + offsetY + selHeight + 5, c1,
-					Fonts.getMedium(12));
+        if (animation.getEnd() != 0 || !animation.isFinished()) {
+            Skia.drawRoundedRect(x + (width / 2) - (selWidth / 2) + (selWidth - selWidth * animation.getValue()) / 2, y + offsetY, selWidth * animation.getValue(), selHeight, 16, ColorUtils.applyAlpha(palette.getSecondaryContainer(), animation.getValue()));
+        }
 
-			offsetY += 68;
-		}
-	}
+        Skia.drawText(icon, x + (width / 2) - (iconWidth / 2), y + (offsetY + (selHeight / 2)) - (iconHeight / 2), c0, font);
+        Skia.drawCenteredText(I18n.get(title), x + (width / 2), y + offsetY + selHeight + 5, c1, Fonts.getMedium(12));
+    }
 
-	@Override
-	public void mousePressed(double mouseX, double mouseY, int button) {
 
-		float offsetY = 140;
-		float selWidth = 56;
-		float selHeight = 32;
+    @Override
+    public void mousePressed(double mouseX, double mouseY, int button) {
+        editButton.mousePressed(mouseX, mouseY, button);
+        double translatedMouseY = mouseY - scrollHelper.getValue();
+        float offsetY = 140;
+        float itemSpacing = 68;
 
-		editButton.mousePressed(mouseX, mouseY, button);
+        for (Navigation n : navigations) {
+            float selWidth = 56;
+            float selHeight = 32;
+            float itemX = x + width / 2 - selWidth / 2;
+            float itemY = y + offsetY;
 
-		for (Navigation n : navigations) {
+            if (MouseUtils.isInside(mouseX, translatedMouseY, itemX, itemY, selWidth, selHeight) && button == GLFW.GLFW_MOUSE_BUTTON_LEFT && !currentNavigation.equals(n)) {
+                n.pressed = true;
+            }
+            offsetY += itemSpacing;
+        }
+    }
 
-			if (MouseUtils.isInside(mouseX, mouseY, x + (width / 2) - (selWidth / 2), y + offsetY, selWidth, selHeight)
-					&& button == GLFW.GLFW_MOUSE_BUTTON_LEFT && !currentNavigation.equals(n)) {
-				n.pressed = true;
-			}
+    @Override
+    public void mouseReleased(double mouseX, double mouseY, int button) {
+        editButton.mouseReleased(mouseX, mouseY, button);
 
-			offsetY += 68;
-		}
-	}
+        double translatedMouseY = mouseY - scrollHelper.getValue();
 
-	@Override
-	public void mouseReleased(double mouseX, double mouseY, int button) {
+        float offsetY = 140;
+        float itemSpacing = 68;
 
-		float offsetY = 140;
-		float selWidth = 56;
-		float selHeight = 32;
+        for (Navigation n : navigations) {
+            float selWidth = 56;
+            float selHeight = 32;
+            float itemX = x + (width / 2) - (selWidth / 2);
+            float itemY = y + offsetY;
 
-		editButton.mouseReleased(mouseX, mouseY, button);
+            if (MouseUtils.isInside(mouseX, translatedMouseY, itemX, itemY, selWidth, selHeight) && button == GLFW.GLFW_MOUSE_BUTTON_LEFT && !currentNavigation.equals(n)) {
+                currentNavigation.animation = new EaseStandard(Duration.MEDIUM_3, 1, 0);
+                currentNavigation = n;
+                parent.setCurrentPage(n.page);
+                currentNavigation.animation = new EaseStandard(Duration.MEDIUM_3, 0, 1);
+            }
+            n.pressed = false;
+            offsetY += itemSpacing;
+        }
+    }
 
-		for (Navigation n : navigations) {
+    public void mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        scrollHelper.onScroll(verticalAmount);
+    }
 
-			if (MouseUtils.isInside(mouseX, mouseY, x + (width / 2) - (selWidth / 2), y + offsetY, selWidth, selHeight)
-					&& button == GLFW.GLFW_MOUSE_BUTTON_LEFT && !currentNavigation.equals(n)) {
-				currentNavigation.animation = new EaseStandard(Duration.MEDIUM_3, 1, 0);
-				currentNavigation = n;
-				parent.setCurrentPage(n.page);
-				currentNavigation.animation = new EaseStandard(Duration.MEDIUM_3, 0, 1);
-			}
+    private static class Navigation {
+        private final SimpleAnimation focusAnimation = new SimpleAnimation();
+        private Animation animation;
+        private final SimplePage page;
+        private boolean pressed;
 
-			n.pressed = false;
-			offsetY += 68;
-		}
-	}
-
-	private class Navigation {
-
-		private SimpleAnimation focusAnimation = new SimpleAnimation();
-
-		private Animation animation;
-		private SimplePage page;
-		private boolean pressed;
-
-		private Navigation(SimplePage page) {
-			this.page = page;
-			this.animation = new DummyAnimation();
-			this.pressed = false;
-		}
-	}
+        private Navigation(SimplePage page) {
+            this.page = page;
+            this.animation = new DummyAnimation();
+            this.pressed = false;
+        }
+    }
 }

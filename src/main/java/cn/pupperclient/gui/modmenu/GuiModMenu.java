@@ -6,11 +6,7 @@ import java.util.List;
 import cn.pupperclient.gui.api.SoarGui;
 import cn.pupperclient.gui.api.page.SimplePage;
 import cn.pupperclient.gui.modmenu.component.NavigationRail;
-import cn.pupperclient.gui.modmenu.pages.HomePage;
-import cn.pupperclient.gui.modmenu.pages.ModsPage;
-import cn.pupperclient.gui.modmenu.pages.MusicPage;
-import cn.pupperclient.gui.modmenu.pages.ProfilePage;
-import cn.pupperclient.gui.modmenu.pages.SettingsPage;
+import cn.pupperclient.gui.modmenu.pages.*;
 
 public class GuiModMenu extends SoarGui {
 
@@ -44,6 +40,7 @@ public class GuiModMenu extends SoarGui {
 		pages.add(new HomePage(this));
 		pages.add(new ModsPage(this));
 		pages.add(new MusicPage(this));
+        pages.add(new CosmeticsPage(this));
 		pages.add(new ProfilePage(this));
 		pages.add(new SettingsPage(this));
 
