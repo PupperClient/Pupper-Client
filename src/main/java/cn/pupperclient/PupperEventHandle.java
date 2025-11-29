@@ -22,11 +22,6 @@ public class PupperEventHandle {
         }
     }
 
-    @EventListener
-    public void onUseTotem(EventUseTotem e){
-        ChatUtils.addChatMessage("[i] " + Objects.requireNonNull(e.source.getSource()).getName() + " used a totem!");
-    }
-
 	public final EventBus.EventListener<ClientTickEvent> onClientTick = event -> {
 		PupperClient.getInstance().getColorManager().onTick();
 		PupperClient.getInstance().getHypixelManager().update();

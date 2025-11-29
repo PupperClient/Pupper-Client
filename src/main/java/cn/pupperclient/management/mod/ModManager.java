@@ -68,6 +68,7 @@ public class ModManager {
         mods.add(new CloudMusicHudMod());
         mods.add(new CooldownHudMod());
         mods.add(new PotionHudMod());
+        mods.add(new Test());
 
 		// Player
 		mods.add(new AutoGGMod());
@@ -105,14 +106,11 @@ public class ModManager {
 		mods.add(new ModMenuSettings());
 		mods.add(new SystemSettings());
 
-        //Fun
+        // Fun
         mods.add(new FakeFpsMod());
         mods.add(new HeypixelMod());
 
 		sortMods();
-        ClickEffectMod clickEffectMod = new ClickEffectMod();
-        clickEffectMod.setEnabled(true);
-
 	}
 
 	private void initDesigns() {

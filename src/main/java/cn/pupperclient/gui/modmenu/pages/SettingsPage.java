@@ -52,7 +52,7 @@ public class SettingsPage extends Page {
 			SimpleAnimation yAnimation = i.yAnimation;
 			Mod m = i.mod;
 			if (!searchBar.getText().isEmpty() && !SearchUtils
-					.isSimilar(I18n.get(m.getRawName()) + " " + I18n.get(m.getDescription()), searchBar.getText())) {
+					.isSimilar(m.getName() + " " + I18n.get(m.getDescription()), searchBar.getText())) {
 				continue;
 			}
 
@@ -63,12 +63,12 @@ public class SettingsPage extends Page {
 			itemY = yAnimation.getValue();
 
 			Skia.drawRoundedRect(x + 32, itemY, width - 64, 68, 18, palette.getSurface());
-			Skia.drawFullCenteredText(m.getIcon(), x + 32 + 30, itemY + (68 / 2), palette.getOnSurface(),
+			Skia.drawFullCenteredText(m.getIcon(), x + 32 + 30, itemY + ((float) 68 / 2), palette.getOnSurface(),
 					Fonts.getIcon(32));
-			Skia.drawText(I18n.get(m.getName()), x + 32 + 52, itemY + 20, palette.getOnSurface(), Fonts.getRegular(17));
+			Skia.drawText(m.getName(), x + 32 + 52, itemY + 20, palette.getOnSurface(), Fonts.getRegular(17));
 			Skia.drawText(I18n.get(m.getDescription()), x + 32 + 52, itemY + 37, palette.getOnSurfaceVariant(),
 					Fonts.getRegular(14));
-			Skia.drawHeightCenteredText(">", x + width - 54, itemY + (68 / 2), palette.getOnSurface(),
+			Skia.drawHeightCenteredText(">", x + width - 54, itemY + ((float) 68 / 2), palette.getOnSurface(),
 					Fonts.getRegular(20));
 
 			offsetY += 68 + 18;

@@ -2,7 +2,7 @@ package cn.pupperclient.management.mod.impl.hud;
 
 import cn.pupperclient.event.EventListener;
 import cn.pupperclient.event.client.RenderSkiaEvent;
-import cn.pupperclient.management.mod.api.hud.SimpleHUDMod;
+import cn.pupperclient.management.mod.api.hud.SimpleListHUDMod;
 import cn.pupperclient.skia.font.Icon;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.scoreboard.ScoreboardDisplaySlot;
@@ -15,11 +15,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class Scoreboard extends SimpleHUDMod {
+public class Scoreboard extends SimpleListHUDMod {
 
     private static Scoreboard instance;
     private final MinecraftClient client = MinecraftClient.getInstance();
-    private String displayText = "";
+    private List<String> displayLines = new ArrayList<>(); // 改为存储行的列表
 
     public Scoreboard() {
         super("mod.scoreboard.name", "mod.scoreboard.description", Icon.SCOREBOARD);
@@ -43,22 +43,21 @@ public class Scoreboard extends SimpleHUDMod {
 
     @Override
     public void draw() {
-        // 更新显示文本
-        updateDisplayText();
-        super.draw();
+        updateDisplayLines(); // 更新行列表
+        super.draw(); // 调用父类的绘制方法
     }
 
-    private void updateDisplayText() {
+    private void updateDisplayLines() {
+        displayLines.clear(); // 清空之前的行
+
         ScoreboardObjective scoreboardObjective = client.world.getScoreboard().getObjectiveForSlot(ScoreboardDisplaySlot.SIDEBAR);
         if (scoreboardObjective == null) {
-            displayText = "";
             return;
         }
 
         net.minecraft.scoreboard.Scoreboard scoreboard = scoreboardObjective.getScoreboard();
         Collection<ScoreboardEntry> scores = scoreboard.getScoreboardEntries(scoreboardObjective);
         if (scores.isEmpty()) {
-            displayText = "";
             return;
         }
 
@@ -71,28 +70,20 @@ public class Scoreboard extends SimpleHUDMod {
         }
         sortedScores.sort((a, b) -> Integer.compare(b.value(), a.value()));
 
-        // 构建显示文本
-        StringBuilder textBuilder = new StringBuilder();
-
-        // 添加标题（居中显示）
+        // 添加标题
         String title = scoreboardObjective.getDisplayName().getString();
-        textBuilder.append(title).append("\n");
+        displayLines.add(title);
 
         // 添加分隔线
-        textBuilder.append("---").append("\n");
+        displayLines.add("---");
 
         // 添加积分项
-        for (int i = 0; i < Math.min(sortedScores.size(), 199); i++) { // 限制最多199行
+        int maxLines = Math.min(sortedScores.size(), 199);
+        for (int i = 0; i < maxLines; i++) {
             ScoreboardEntry entry = sortedScores.get(i);
             String line = getFormattedScoreText(entry, scoreboard);
-            textBuilder.append(line);
-
-            if (i < Math.min(sortedScores.size(), 10) - 1) {
-                textBuilder.append("\n");
-            }
+            displayLines.add(line);
         }
-
-        displayText = textBuilder.toString();
     }
 
     private String getFormattedScoreText(ScoreboardEntry entry, net.minecraft.scoreboard.Scoreboard scoreboard) {
@@ -113,8 +104,8 @@ public class Scoreboard extends SimpleHUDMod {
     }
 
     @Override
-    public String getText() {
-        return displayText;
+    public List<String> getText() {
+        return displayLines; // 直接返回行列表
     }
 
     @Override

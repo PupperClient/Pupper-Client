@@ -31,3 +31,8 @@ accessible method net/minecraft/entity/LivingEntity calcGlidingVelocity (Lnet/mi
 accessible field net/minecraft/client/gui/hud/InGameHud HOTBAR_SELECTION_TEXTURE Lnet/minecraft/util/Identifier;
 accessible field net/minecraft/client/gui/hud/InGameHud HOTBAR_ATTACK_INDICATOR_BACKGROUND_TEXTURE Lnet/minecraft/util/Identifier;
 accessible field net/minecraft/client/gui/hud/InGameHud HOTBAR_ATTACK_INDICATOR_PROGRESS_TEXTURE Lnet/minecraft/util/Identifier;
+
+accessible method net/minecraft/client/render/entity/LivingEntityRenderer addFeature (Lnet/minecraft/client/render/entity/feature/FeatureRenderer;)Z
+accessible field net/minecraft/client/render/entity/EntityRenderDispatcher renderers Ljava/util/Map;
+accessible field net/minecraft/client/render/entity/LivingEntityRenderer features Ljava/util/List;
+accessible field net/minecraft/client/render/entity/EntityRenderDispatcher modelRenderers Ljava/util/Map;

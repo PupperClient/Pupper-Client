@@ -117,7 +117,7 @@ public class Skia {
 
     public static void drawImage(String path, float x, float y, float width, float height) {
 
-        path = "/assets/soar/" + path;
+        path = "/assets/pupper/" + path;
 
         if (imageHelper.load(path)) {
             getCanvas().drawImageRect(imageHelper.get(path), Rect.makeXYWH(x, y, width, height));

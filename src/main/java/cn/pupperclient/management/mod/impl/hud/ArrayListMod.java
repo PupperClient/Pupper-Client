@@ -4,16 +4,20 @@ import cn.pupperclient.PupperClient;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.EventListener;
 import cn.pupperclient.event.client.RenderSkiaEvent;
+import cn.pupperclient.libraries.material3.hct.Hct;
+import cn.pupperclient.libraries.material3.hct.HctSolver;
 import cn.pupperclient.management.mod.Mod;
 import cn.pupperclient.management.mod.ModCategory;
 import cn.pupperclient.management.mod.api.hud.HUDMod;
 import cn.pupperclient.event.mod.ModStateChangeEvent;
+import cn.pupperclient.management.mod.api.hud.design.HUDDesign;
+import cn.pupperclient.management.mod.impl.settings.HUDModSettings;
+import cn.pupperclient.management.mod.impl.settings.ModMenuSettings;
 import cn.pupperclient.management.mod.settings.impl.BooleanSetting;
 import cn.pupperclient.management.mod.settings.impl.ComboSetting;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.font.Fonts;
 import cn.pupperclient.skia.font.Icon;
-import cn.pupperclient.utils.language.I18n;
 
 import java.awt.*;
 import java.util.*;
@@ -160,7 +164,6 @@ public class ArrayListMod extends HUDMod {
 
         float currentY = 0;
 
-        // Draw title "</> Enable Module" (always visible)
         drawTitleEntry(maxWidth, currentY, isRightAligned);
         currentY += ROW_HEIGHT + ITEM_SPACING;
 
@@ -211,7 +214,7 @@ public class ArrayListMod extends HUDMod {
         float textX = bgX + iconBgWidth + ICON_TEXT_SPACING + HORIZONTAL_PADDING;
         float contentY = bgY + VERTICAL_PADDING;
 
-        Skia.drawText(titleIcon, iconX, contentY, Color.WHITE, Fonts.getIcon(9F));
+        Skia.drawText(titleIcon, iconX + 1, contentY, Color.WHITE, Fonts.getIcon(11F));
         Skia.drawText(titleText, textX, contentY, Color.WHITE, Fonts.getRegular(FONT_SIZE));
     }
 
@@ -269,8 +272,8 @@ public class ArrayListMod extends HUDMod {
 
     private void drawRoundedBackground(float x, float y, float width, int alpha) {
         float radius = ROW_HEIGHT / 2;
-        Skia.drawRoundedRect(x, y, width, ROW_HEIGHT, radius,
-            new Color(255, 255, 255, Math.min(120, alpha)));
+        Hct hctColor = ModMenuSettings.getInstance().getHctColorSetting().getHct();
+        Skia.drawRoundedRect(x, y, width, ROW_HEIGHT, radius, new Color(hctColor.toInt(), true));
     }
 
     private List<ModDisplayInfo> getEnabledMods() {
