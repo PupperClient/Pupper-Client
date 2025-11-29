@@ -90,10 +90,10 @@ public class MainMenuGui extends SimpleSoarGui {
                 if (toolManager != null) {
                     toolManager.checkAndInstallTools(new ToolInstallCallback() {
                         @Override
-                        public void onProgress(PupperClient.MusicToolStatus status, float progress) {
+                        public void onProgress(PupperClient.MusicToolStatus status, float progress, String message) {
                             Multithreading.runMainThread(() -> {
-                                PupperClient.LOGGER.info("工具检查进度: {} - {}%", status, progress * 100);
-                                notificationManager.showToolCheckNotification(status, progress);
+                                PupperClient.LOGGER.info("工具检查进度: {} - {}% - {}", status, progress * 100, message);
+                                notificationManager.showToolCheckNotification(status, progress, message);
                             });
                         }
 
@@ -103,7 +103,8 @@ public class MainMenuGui extends SimpleSoarGui {
                                 PupperClient.LOGGER.info("工具检查完成: {}", success ? "成功" : "失败");
                                 toolsAvailable = success;
                                 PupperClient.MusicToolStatus finalStatus = success ? PupperClient.MusicToolStatus.INSTALLED : PupperClient.MusicToolStatus.FAILED;
-                                notificationManager.showToolCheckNotification(finalStatus, 1f);
+                                notificationManager.showToolCheckNotification(finalStatus, 1f,
+                                    success ? "工具安装完成" : "工具安装失败");
 
                                 updateAllButtonStates();
                             });
@@ -119,7 +120,7 @@ public class MainMenuGui extends SimpleSoarGui {
             } catch (Exception e) {
                 PupperClient.LOGGER.error("工具检查失败: {}", e.getMessage());
                 Multithreading.runMainThread(() -> {
-                    notificationManager.showToolCheckNotification(PupperClient.MusicToolStatus.FAILED, 0f);
+                    notificationManager.showToolCheckNotification(PupperClient.MusicToolStatus.FAILED, 0f, "工具检查失败: " + e.getMessage());
                     toolsAvailable = false;
                     updateAllButtonStates();
                 });

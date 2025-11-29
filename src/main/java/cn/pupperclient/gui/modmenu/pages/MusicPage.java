@@ -39,10 +39,9 @@ public class MusicPage extends Page {
     private MusicControlBar controlBar;
     private final List<Item> items = new ArrayList<>();
 
-    // 刷新按钮相关变量
     private final SimpleAnimation refreshButtonAnimation = new SimpleAnimation();
     private float refreshButtonX, refreshButtonY;
-    private final float refreshButtonSize = 36;
+    private final float refreshButtonSize = 32;
     private boolean isRefreshing = false;
 
     public MusicPage(SoarGui parent) {
@@ -53,8 +52,8 @@ public class MusicPage extends Page {
     public void init() {
         super.init();
 
-        // 初始化刷新按钮位置（在搜索框右侧）
-        refreshButtonX = x + width - 70;
+        // 初始化刷新按钮位置（放在左边，搜索框左侧）
+        refreshButtonX = x + 28;
         refreshButtonY = y + 48;
 
         refreshButtonAnimation.setValue(0);
@@ -162,7 +161,7 @@ public class MusicPage extends Page {
     }
 
     /**
-     * 绘制刷新按钮
+     * 绘制刷新按钮 - 简化版
      */
     private void drawRefreshButton(double mouseX, double mouseY, ColorPalette palette) {
         // 更新按钮悬停动画
@@ -177,35 +176,21 @@ public class MusicPage extends Page {
             hoverValue
         );
 
-        Skia.drawRoundedRect(refreshButtonX, refreshButtonY, refreshButtonSize, refreshButtonSize, 8, backgroundColor);
+        Skia.drawRoundedRect(refreshButtonX, refreshButtonY, refreshButtonSize, refreshButtonSize, 6, backgroundColor);
 
-        // 绘制刷新图标（如果正在刷新则显示旋转动画）
-        String refreshIcon = Icon.REFRESH;
-        Color iconColor = palette.getOnSurface();
-
-        if (isRefreshing) {
-            // 旋转动画
-            long time = System.currentTimeMillis();
-            float rotation = (time % 1000) / 1000f * 360f;
-
-            Skia.save();
-            Skia.rotate(refreshButtonX + refreshButtonSize/2, refreshButtonY + refreshButtonSize/2,
-                refreshButtonSize, refreshButtonSize, rotation);
-        }
+        // 绘制刷新图标
+        String refreshIcon = isRefreshing ? Icon.REFRESH : Icon.REFRESH;
+        Color iconColor = isRefreshing ? palette.getPrimary() : palette.getOnSurface();
 
         Skia.drawFullCenteredText(refreshIcon, refreshButtonX + refreshButtonSize/2,
-            refreshButtonY + refreshButtonSize/2, iconColor, Fonts.getIconFill(20));
-
-        if (isRefreshing) {
-            Skia.restore();
-        }
+            refreshButtonY + refreshButtonSize/2, iconColor, Fonts.getIconFill(18));
 
         // 绘制悬停提示
-        if (isHovered) {
-            String tooltip = isRefreshing ? "刷新中..." : "刷新音乐列表";
+        if (isHovered && !isRefreshing) {
+            String tooltip = "刷新音乐列表";
+            float tooltipWidth = Skia.getTextBounds(tooltip, Fonts.getRegular(12)).getWidth() + 10;
             Skia.drawRoundedRect((float)mouseX + 5, (float)mouseY - 25,
-                Skia.getTextBounds(tooltip, Fonts.getRegular(12)).getWidth() + 10, 20, 4,
-                palette.getSurfaceContainerHigh());
+                tooltipWidth, 20, 4, palette.getSurfaceContainerHigh());
             Skia.drawText(tooltip, (float)mouseX + 10, (float)mouseY - 15, palette.getOnSurface(), Fonts.getRegular(12));
         }
     }
@@ -216,7 +201,8 @@ public class MusicPage extends Page {
 
         // 检查刷新按钮点击
         if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT &&
-            MouseUtils.isInside(mouseX, mouseY, refreshButtonX, refreshButtonY, refreshButtonSize, refreshButtonSize)) {
+            MouseUtils.isInside(mouseX, mouseY, refreshButtonX, refreshButtonY, refreshButtonSize, refreshButtonSize) &&
+            !isRefreshing) {
             refreshMusicList();
             return;
         }
@@ -284,9 +270,6 @@ public class MusicPage extends Page {
                 PupperClient.getInstance().getMusicManager().load();
 
                 // 在主线程中更新UI
-                Thread.sleep(100); // 给一点延迟让刷新动画可见
-
-                // 在主线程中重新初始化页面
                 cn.pupperclient.utils.Multithreading.runMainThread(() -> {
                     this.init();
                     isRefreshing = false;

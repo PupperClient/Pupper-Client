@@ -12,16 +12,21 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
 public class ExternalToolManager {
     private static final String TOOLS_DIR = "pupper/tools";
 
+    // 原始GitHub链接
     private static final String YT_DLP_URL_WINDOWS_RAW = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe";
     private static final String YT_DLP_URL_LINUX_RAW = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp";
     private static final String YT_DLP_URL_MAC_RAW = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_macos";
 
+    // 镜像链接（用于CN地区）
     private static final String YT_DLP_URL_WINDOWS_MIRROR = "https://gh.llkk.cc/https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe";
     private static final String YT_DLP_URL_LINUX_MIRROR = "https://gh.llkk.cc/https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp";
     private static final String YT_DLP_URL_MAC_MIRROR = "https://gh.llkk.cc/https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_macos";
@@ -36,6 +41,16 @@ public class ExternalToolManager {
     private boolean ytDlpAvailable = false;
     private boolean ffmpegAvailable = false;
     private boolean isCNRegion = false;
+
+    // 多线程下载
+    private static final int DOWNLOAD_THREADS = 4;
+    private static final int BUFFER_SIZE = 8192; // 8KB buffer
+    private static final ExecutorService downloadExecutor = Executors.newFixedThreadPool(DOWNLOAD_THREADS);
+
+    // 下载状态
+    private static float ytDlpProgress = 0f;
+    private static float ffmpegProgress = 0f;
+    private static String currentDownload = "";
 
     public ExternalToolManager() {
         init();
@@ -82,32 +97,6 @@ public class ExternalToolManager {
                 PupperClient.LOGGER.info("Detected CN region by timezone, using mirror links");
                 return;
             }
-
-            // 方法3: 通过IP检测（异步执行，不影响主流程）
-            CompletableFuture.runAsync(() -> {
-                try {
-                    // 使用简单的IP检测服务
-                    URL ipApiUrl = new URL("http://ip-api.com/json/?fields=countryCode");
-                    HttpURLConnection conn = (HttpURLConnection) ipApiUrl.openConnection();
-                    conn.setConnectTimeout(5000);
-                    conn.setReadTimeout(5000);
-
-                    try (InputStream is = conn.getInputStream()) {
-                        byte[] buffer = new byte[1024];
-                        int read = is.read(buffer);
-                        if (read > 0) {
-                            String response = new String(buffer, 0, read);
-                            if (response.contains("\"countryCode\":\"CN\"")) {
-                                isCNRegion = true;
-                                PupperClient.LOGGER.info("Detected CN region by IP, using mirror links");
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    // IP检测失败，不影响主要功能
-                    PupperClient.LOGGER.debug("IP region detection failed: {}", e.getMessage());
-                }
-            });
 
             PupperClient.LOGGER.info("Detected non-CN region, using direct GitHub links");
 
@@ -162,34 +151,44 @@ public class ExternalToolManager {
         CompletableFuture.supplyAsync(() -> {
             try {
                 // 步骤1: 检查工具
-                callback.onProgress(PupperClient.MusicToolStatus.CHECKING, 0.1f);
+                callback.onProgress(PupperClient.MusicToolStatus.CHECKING, 0.1f, "检查工具...");
 
                 boolean ytDlpAvailable = checkYtDlp();
                 boolean ffmpegAvailable = checkFfmpeg();
 
                 if (ytDlpAvailable && ffmpegAvailable) {
-                    callback.onProgress(PupperClient.MusicToolStatus.INSTALLED, 1.0f);
+                    callback.onProgress(PupperClient.MusicToolStatus.INSTALLED, 1.0f, "工具已安装");
                     callback.onComplete(true);
                     return true;
                 }
 
-                // 步骤2: 下载缺失的工具
-                callback.onProgress(PupperClient.MusicToolStatus.DOWNLOADING, 0.3f);
+                // 步骤2: 并行下载缺失的工具
+                callback.onProgress(PupperClient.MusicToolStatus.DOWNLOADING, 0.3f, "开始下载工具...");
 
                 List<CompletableFuture<Boolean>> downloads = new ArrayList<>();
 
                 if (!ytDlpAvailable) {
                     downloads.add(downloadYtDlp(progress -> {
+                        ytDlpProgress = progress;
+                        currentDownload = "YT-DLP";
                         float overallProgress = 0.3f + (progress * 0.35f);
-                        callback.onProgress(PupperClient.MusicToolStatus.DOWNLOADING, overallProgress);
+                        callback.onProgress(PupperClient.MusicToolStatus.DOWNLOADING, overallProgress,
+                            String.format("下载 YT-DLP: %.0f%%", progress * 100));
                     }));
+                } else {
+                    ytDlpProgress = 1.0f;
                 }
 
                 if (!ffmpegAvailable) {
                     downloads.add(downloadFfmpeg(progress -> {
+                        ffmpegProgress = progress;
+                        currentDownload = "FFmpeg";
                         float overallProgress = 0.65f + (progress * 0.35f);
-                        callback.onProgress(PupperClient.MusicToolStatus.DOWNLOADING, overallProgress);
+                        callback.onProgress(PupperClient.MusicToolStatus.DOWNLOADING, overallProgress,
+                            String.format("下载 FFmpeg: %.0f%%", progress * 100));
                     }));
+                } else {
+                    ffmpegProgress = 1.0f;
                 }
 
                 CompletableFuture<Void> allDownloads = CompletableFuture.allOf(
@@ -207,10 +206,10 @@ public class ExternalToolManager {
                 ).get();
 
                 if (success) {
-                    callback.onProgress(PupperClient.MusicToolStatus.INSTALLED, 1.0f);
+                    callback.onProgress(PupperClient.MusicToolStatus.INSTALLED, 1.0f, "工具安装完成");
                     callback.onComplete(true);
                 } else {
-                    callback.onProgress(PupperClient.MusicToolStatus.FAILED, 1.0f);
+                    callback.onProgress(PupperClient.MusicToolStatus.FAILED, 1.0f, "工具安装失败");
                     callback.onComplete(false);
                 }
 
@@ -218,13 +217,16 @@ public class ExternalToolManager {
 
             } catch (Exception e) {
                 PupperClient.LOGGER.error("Tool installation failed: {}", e.getMessage());
-                callback.onProgress(PupperClient.MusicToolStatus.FAILED, 1.0f);
+                callback.onProgress(PupperClient.MusicToolStatus.FAILED, 1.0f, "工具安装失败: " + e.getMessage());
                 callback.onComplete(false);
                 return false;
             }
         });
     }
 
+    /**
+     * 优化的多线程下载方法
+     */
     public CompletableFuture<Boolean> downloadFfmpeg(Consumer<Float> progressCallback) {
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -237,29 +239,11 @@ public class ExternalToolManager {
                 String ffmpegUrl = getFfmpegDownloadUrl();
                 File zipFile = new File(toolsDir, "ffmpeg.zip");
 
-                // 下载 ZIP 文件
-                URL url = new URL(ffmpegUrl);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
+                // 使用优化的下载方法
+                boolean downloadSuccess = downloadFileWithProgress(new URL(ffmpegUrl), zipFile, progressCallback);
 
-                int fileSize = connection.getContentLength();
-
-                try (InputStream inputStream = connection.getInputStream();
-                     FileOutputStream outputStream = new FileOutputStream(zipFile)) {
-
-                    byte[] buffer = new byte[4096];
-                    int bytesRead;
-                    long totalBytesRead = 0;
-
-                    while ((bytesRead = inputStream.read(buffer)) != -1) {
-                        outputStream.write(buffer, 0, bytesRead);
-                        totalBytesRead += bytesRead;
-
-                        if (fileSize > 0 && progressCallback != null) {
-                            float progress = (float) totalBytesRead / fileSize * 0.8f; // 下载占80%
-                            progressCallback.accept(progress);
-                        }
-                    }
+                if (!downloadSuccess) {
+                    return false;
                 }
 
                 // 简化的解压逻辑
@@ -278,7 +262,52 @@ public class ExternalToolManager {
                 PupperClient.LOGGER.error("Failed to download ffmpeg: {}", e.getMessage());
                 return false;
             }
-        });
+        }, downloadExecutor);
+    }
+
+    /**
+     * 优化的文件下载方法
+     */
+    private boolean downloadFileWithProgress(URL url, File outputFile, Consumer<Float> progressCallback) {
+        try {
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(15000);
+            connection.setReadTimeout(30000);
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
+
+            // 获取文件大小
+            int fileSize = connection.getContentLength();
+
+            try (InputStream inputStream = connection.getInputStream();
+                 FileOutputStream outputStream = new FileOutputStream(outputFile)) {
+
+                byte[] buffer = new byte[BUFFER_SIZE];
+                int bytesRead;
+                AtomicLong totalRead = new AtomicLong(0);
+                long lastProgressUpdate = 0;
+
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                    totalRead.addAndGet(bytesRead);
+
+                    // 限制进度更新频率（每100ms更新一次）
+                    long currentTime = System.currentTimeMillis();
+                    if (fileSize > 0 && (currentTime - lastProgressUpdate > 100 || totalRead.get() == fileSize)) {
+                        float progress = (float) totalRead.get() / fileSize;
+                        if (progressCallback != null) {
+                            progressCallback.accept(progress);
+                        }
+                        lastProgressUpdate = currentTime;
+                    }
+                }
+            }
+
+            return true;
+        } catch (Exception e) {
+            PupperClient.LOGGER.error("File download failed: {}", e.getMessage(), e);
+            return false;
+        }
     }
 
     private boolean extractFfmpegSimple(File zipFile, Consumer<Float> progressCallback) {
@@ -295,7 +324,7 @@ public class ExternalToolManager {
                     try (InputStream inputStream = zip.getInputStream(entry);
                          FileOutputStream outputStream = new FileOutputStream(new File(toolsDir, "ffmpeg.exe"))) {
 
-                        byte[] buffer = new byte[4096];
+                        byte[] buffer = new byte[BUFFER_SIZE];
                         int bytesRead;
                         while ((bytesRead = inputStream.read(buffer)) != -1) {
                             outputStream.write(buffer, 0, bytesRead);
@@ -332,35 +361,16 @@ public class ExternalToolManager {
                 }
 
                 URL url = getYtDlpDownloadUrl();
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
+                File outputFile = new File(toolsDir, "yt-dlp.exe");
 
-                int fileSize = connection.getContentLength();
+                // 使用优化的下载方法
+                return downloadFileWithProgress(url, outputFile, progressCallback);
 
-                try (InputStream inputStream = connection.getInputStream();
-                     FileOutputStream outputStream = new FileOutputStream(new File(toolsDir, "yt-dlp.exe"))) {
-
-                    byte[] buffer = new byte[4096];
-                    int bytesRead;
-                    long totalBytesRead = 0;
-
-                    while ((bytesRead = inputStream.read(buffer)) != -1) {
-                        outputStream.write(buffer, 0, bytesRead);
-                        totalBytesRead += bytesRead;
-
-                        if (fileSize > 0 && progressCallback != null) {
-                            float progress = (float) totalBytesRead / fileSize;
-                            progressCallback.accept(progress);
-                        }
-                    }
-                }
-
-                return true;
             } catch (Exception e) {
                 PupperClient.LOGGER.error("Failed to download yt-dlp: {}", e.getMessage());
                 return false;
             }
-        });
+        }, downloadExecutor);
     }
 
     private boolean checkYtDlp() {
@@ -434,6 +444,30 @@ public class ExternalToolManager {
      */
     public boolean isCNRegion() {
         return isCNRegion;
+    }
+
+    /**
+     * 获取下载进度信息
+     */
+    public static float getYtDlpProgress() {
+        return ytDlpProgress;
+    }
+
+    public static float getFfmpegProgress() {
+        return ffmpegProgress;
+    }
+
+    public static String getCurrentDownload() {
+        return currentDownload;
+    }
+
+    /**
+     * 重置下载进度
+     */
+    public static void resetProgress() {
+        ytDlpProgress = 0f;
+        ffmpegProgress = 0f;
+        currentDownload = "";
     }
 
     private static void disableSSLCertificateChecking() {

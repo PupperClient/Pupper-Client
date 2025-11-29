@@ -45,7 +45,7 @@ public class PupperClient implements IMinecraft {
     private MusicToolStatus musicToolStatus = MusicToolStatus.CHECKING;
 
 	private final String name = "Pupper";
-	private final String version = "8.6.1";
+	private final String version = "8.6.3";
 
 	private long launchTime;
 

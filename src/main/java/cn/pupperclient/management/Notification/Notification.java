@@ -6,6 +6,7 @@ import cn.pupperclient.management.color.api.ColorPalette;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.font.Fonts;
 import cn.pupperclient.utils.ColorUtils;
+import cn.pupperclient.utils.ExternalToolManager;
 
 public class Notification {
     String message;
@@ -17,6 +18,12 @@ public class Notification {
     long updateTime;
     boolean removing = false;
 
+    // 多进度支持
+    private boolean showMultiProgress = false;
+    private float ytDlpProgress = 0f;
+    private float ffmpegProgress = 0f;
+    private String currentDownload = "";
+
     public Notification(String message, String icon, PupperClient.MusicToolStatus status, float progress) {
         this.message = message;
         this.icon = icon;
@@ -25,6 +32,23 @@ public class Notification {
         this.createTime = System.currentTimeMillis();
         this.updateTime = this.createTime;
         this.animation.setValue(0);
+    }
+
+    /**
+     * 设置多进度显示模式
+     */
+    public void setMultiProgressMode(boolean enabled) {
+        this.showMultiProgress = enabled;
+    }
+
+    /**
+     * 更新多进度信息
+     */
+    public void updateMultiProgress(float ytDlpProgress, float ffmpegProgress, String currentDownload) {
+        this.ytDlpProgress = ytDlpProgress;
+        this.ffmpegProgress = ffmpegProgress;
+        this.currentDownload = currentDownload;
+        this.updateTime = System.currentTimeMillis();
     }
 
     private java.awt.Color getIconColor() {
@@ -72,13 +96,12 @@ public class Notification {
             animation.getValue() * 0.95f);
         Skia.drawRoundedRect(x, y, width, height, 12, bgColor);
 
-        // 图标 - 使用正确的字体渲染
+        // 图标
         float iconSize = 28;
         float iconX = x + 20;
         float iconY = y + (height - iconSize) / 2;
 
         java.awt.Color iconColor = getIconColor();
-        // 使用 Skia 的图标绘制方法
         Skia.drawFullCenteredText(icon, iconX + iconSize/2, iconY + iconSize/2, iconColor, Fonts.getIcon(iconSize));
 
         // 文本
@@ -87,21 +110,110 @@ public class Notification {
         java.awt.Color textColor = ColorUtils.applyAlpha(palette.getOnSurface(), animation.getValue());
         Skia.drawText(message, textX, textY, textColor, Fonts.getRegular(14));
 
+        if (showMultiProgress) {
+            // 多进度显示模式
+            drawMultiProgressBars(x, y, width, height);
+        } else {
+            // 单进度显示模式
+            drawSingleProgress(x, y, width, height);
+        }
+    }
+
+    /**
+     * 绘制单进度条
+     */
+    private void drawSingleProgress(float x, float y, float width, float height) {
+        ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
+
+        float textX = x + 75;
+        float textY = y + 25;
+
         // 进度文本
         if (status == PupperClient.MusicToolStatus.DOWNLOADING) {
             String progressText = String.format("%.0f%%", progress * 100);
-            Skia.drawText(progressText, textX, textY + 18, textColor, Fonts.getRegular(12));
+            Skia.drawText(progressText, textX, textY + 18,
+                ColorUtils.applyAlpha(palette.getOnSurface(), animation.getValue()),
+                Fonts.getRegular(12));
         }
 
         // 进度条
-        drawProgressBar(x, y, width, height, progress);
+        drawProgressBar(x, y, width, height, progress, false);
     }
 
-    private void drawProgressBar(float x, float y, float width, float height, float progress) {
+    /**
+     * 绘制多进度条
+     */
+    private void drawMultiProgressBars(float x, float y, float width, float height) {
+        ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
+        java.awt.Color textColor = ColorUtils.applyAlpha(palette.getOnSurface(), animation.getValue());
+
+        float textX = x + 75;
+        float textY = y + 25;
+
+        // YT-DLP 进度
+        String ytDlpText = String.format("YT-DLP: %.0f%%", ytDlpProgress * 100);
+        Skia.drawText(ytDlpText, textX, textY + 18, textColor, Fonts.getRegular(11));
+
+        // FFmpeg 进度
+        String ffmpegText = String.format("FFmpeg: %.0f%%", ffmpegProgress * 100);
+        Skia.drawText(ffmpegText, textX, textY + 32, textColor, Fonts.getRegular(11));
+
+        // 当前下载项
+        if (!currentDownload.isEmpty()) {
+            String currentText = "当前: " + currentDownload;
+            Skia.drawText(currentText, textX, textY + 46, textColor, Fonts.getRegular(10));
+        }
+
+        // 双进度条
+        drawDoubleProgressBar(x, y, width, height);
+    }
+
+    /**
+     * 绘制双进度条
+     */
+    private void drawDoubleProgressBar(float x, float y, float width, float height) {
         ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
-        float barHeight = 4;
-        float barY = y + height - 15;
+        float barHeight = 3;
+        float barSpacing = 2;
+        float barY = y + height - 20;
+        float barWidth = width - 40;
+        float barX = x + 20;
+
+        // YT-DLP 进度条背景
+        Skia.drawRoundedRect(barX, barY, barWidth, barHeight, 1,
+            ColorUtils.applyAlpha(palette.getSurface(), 0.3f));
+
+        // YT-DLP 进度条
+        if (ytDlpProgress > 0) {
+            float progressWidth = barWidth * ytDlpProgress;
+            java.awt.Color progressColor = getProgressColor();
+            Skia.drawRoundedRect(barX, barY, progressWidth, barHeight, 1, progressColor);
+        }
+
+        // FFmpeg 进度条背景
+        float ffmpegBarY = barY + barHeight + barSpacing;
+        Skia.drawRoundedRect(barX, ffmpegBarY, barWidth, barHeight, 1,
+            ColorUtils.applyAlpha(palette.getSurface(), 0.3f));
+
+        // FFmpeg 进度条
+        if (ffmpegProgress > 0) {
+            float progressWidth = barWidth * ffmpegProgress;
+            java.awt.Color progressColor = new java.awt.Color(33, 150, 243); // 蓝色
+            Skia.drawRoundedRect(barX, ffmpegBarY, progressWidth, barHeight, 1, progressColor);
+        }
+
+        // 加载动画（用于 CHECKING 状态）
+        if (status == PupperClient.MusicToolStatus.CHECKING) {
+            drawLoadingAnimation(barX, barY, barWidth, barHeight * 2 + barSpacing);
+        }
+    }
+
+    private void drawProgressBar(float x, float y, float width, float height, float progress, boolean isMulti) {
+        ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
+
+        float barHeight = isMulti ? 3 : 4;
+        float barY = y + height - (isMulti ? 20 : 15);
         float barWidth = width - 40;
         float barX = x + 20;
 

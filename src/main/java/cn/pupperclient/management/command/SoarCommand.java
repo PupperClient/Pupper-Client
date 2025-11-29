@@ -83,6 +83,14 @@ public class SoarCommand implements IMinecraft {
                 }
                 break;
 
+            case "login":  // 新增登录命令
+                if (args.length >= 2) {
+                    LoginCommand.handleCommand(args);
+                } else {
+                    LoginCommand.handleCommand(new String[]{"login", "help"});
+                }
+                break;
+
             default:
                 ChatUtils.addChatMessage(I18n.get("command.help.unknown"));
                 break;
@@ -138,9 +146,9 @@ public class SoarCommand implements IMinecraft {
                 enabledCount++;
             }
 
-            String modDisplayName = mod.getName() == null || mod.getName().equals("null") ? mod.getRawName() : mod.getName();
+            String modDisplayName = I18n.get(mod.getName());
             boolean isEnabled = mod.isEnabled();
-            String shortModName = getShortModName(mod.getRawName());
+            String shortModName = getShortModName(mod.getName());
 
             MutableText modNameText = Text.literal("• " + modDisplayName)
                 .formatted(Formatting.AQUA);
