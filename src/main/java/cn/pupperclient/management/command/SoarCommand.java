@@ -60,18 +60,22 @@ public class SoarCommand implements IMinecraft {
                 showHelp();
                 break;
 
+            case "l":
             case "list":
                 listMods();
                 break;
 
+            case "b":
             case "bind":
                 BindCommand.handleCommand(args);
                 break;
 
+            case "i":
             case "irc":
                 IRCCommand.handleCommand(args);
                 break;
-            case "music":
+
+            case "music", "m", "163":
                 if (args.length >= 2) {
                     MusicCommand.handleCommand(args);
                 } else {
@@ -134,9 +138,9 @@ public class SoarCommand implements IMinecraft {
                 enabledCount++;
             }
 
-            String modDisplayName = I18n.get(mod.getName());
+            String modDisplayName = mod.getName() == null || mod.getName().equals("null") ? mod.getRawName() : mod.getName();
             boolean isEnabled = mod.isEnabled();
-            String shortModName = getShortModName(mod.getName());
+            String shortModName = getShortModName(mod.getRawName());
 
             MutableText modNameText = Text.literal("• " + modDisplayName)
                 .formatted(Formatting.AQUA);

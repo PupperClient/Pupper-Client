@@ -19,6 +19,7 @@ import cn.pupperclient.management.music.MusicManager;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.font.Fonts;
 import cn.pupperclient.skia.font.Icon;
+import cn.pupperclient.utils.ChatUtils;
 import cn.pupperclient.utils.ColorUtils;
 import cn.pupperclient.utils.SearchUtils;
 import cn.pupperclient.utils.mouse.MouseUtils;
@@ -34,215 +35,321 @@ import io.github.humbleui.types.Rect;
 
 public class MusicPage extends Page {
 
-	private SimpleAnimation controlBarAnimation = new SimpleAnimation();
-	private MusicControlBar controlBar;
-	private List<Item> items = new ArrayList<>();
+    private final SimpleAnimation controlBarAnimation = new SimpleAnimation();
+    private MusicControlBar controlBar;
+    private final List<Item> items = new ArrayList<>();
 
-	public MusicPage(SoarGui parent) {
-		super(parent, "text.music", Icon.MUSIC_NOTE, new RightLeftTransition(true));
-	}
+    // 刷新按钮相关变量
+    private final SimpleAnimation refreshButtonAnimation = new SimpleAnimation();
+    private float refreshButtonX, refreshButtonY;
+    private final float refreshButtonSize = 36;
+    private boolean isRefreshing = false;
 
-	@Override
-	public void init() {
-		super.init();
+    public MusicPage(SoarGui parent) {
+        super(parent, "text.music", Icon.MUSIC_NOTE, new RightLeftTransition(true));
+    }
 
-		items.clear();
+    @Override
+    public void init() {
+        super.init();
 
-		for (Music m : PupperClient.getInstance().getMusicManager().getMusics()) {
-			items.add(new Item(m));
-		}
+        // 初始化刷新按钮位置（在搜索框右侧）
+        refreshButtonX = x + width - 70;
+        refreshButtonY = y + 48;
 
-		controlBar = new MusicControlBar(x + 22, y + height - 60 - 18, width - 44);
+        refreshButtonAnimation.setValue(0);
 
-		for (Item i : items) {
-			i.xAnimation.setFirstTick(true);
-			i.yAnimation.setFirstTick(true);
-		}
-	}
+        items.clear();
 
-	@Override
-	public void draw(double mouseX, double mouseY) {
+        for (Music m : PupperClient.getInstance().getMusicManager().getMusics()) {
+            items.add(new Item(m));
+        }
 
-		super.draw(mouseX, mouseY);
+        controlBar = new MusicControlBar(x + 22, y + height - 60 - 18, width - 44);
 
-		MusicManager musicManager = PupperClient.getInstance().getMusicManager();
-		ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
+        for (Item i : items) {
+            i.xAnimation.setFirstTick(true);
+            i.yAnimation.setFirstTick(true);
+        }
+    }
 
-		int index = 0;
-		float offsetX = 28;
-		float offsetY = 96;
+    @Override
+    public void draw(double mouseX, double mouseY) {
 
-		controlBarAnimation.onTick(MouseUtils.isInside(mouseX, mouseY, controlBar.getX(), controlBar.getY(),
-				controlBar.getWidth(), controlBar.getHeight()) ? 1 : 0, 12);
+        super.draw(mouseX, mouseY);
 
-		mouseY = mouseY - scrollHelper.getValue();
+        MusicManager musicManager = PupperClient.getInstance().getMusicManager();
+        ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
-		Skia.save();
-		Skia.translate(0, scrollHelper.getValue());
+        // 绘制刷新按钮
+        drawRefreshButton(mouseX, mouseY, palette);
 
-		for (Item i : items) {
+        int index = 0;
+        float offsetX = 28;
+        float offsetY = 96;
 
-			Music m = i.music;
-			SimpleAnimation xAnimation = i.xAnimation;
-			SimpleAnimation yAnimation = i.yAnimation;
-			SimpleAnimation focusAnimation = i.focusAnimation;
+        controlBarAnimation.onTick(MouseUtils.isInside(mouseX, mouseY, controlBar.getX(), controlBar.getY(),
+            controlBar.getWidth(), controlBar.getHeight()) ? 1 : 0, 12);
 
-			if (!searchBar.getText().isEmpty()
-					&& !SearchUtils.isSimilar(m.getTitle() + " " + m.getArtist(), searchBar.getText())) {
-				continue;
-			}
+        mouseY = mouseY - scrollHelper.getValue();
 
-			float itemX = x + offsetX;
-			float itemY = y + offsetY;
+        Skia.save();
+        Skia.translate(0, scrollHelper.getValue());
 
-			xAnimation.onTick(itemX, 14);
-			yAnimation.onTick(itemY, 14);
-			focusAnimation.onTick(MouseUtils.isInside(mouseX, mouseY, itemX, itemY, 174, 174) ? 1 : 0, 10);
+        for (Item i : items) {
 
-			itemX = xAnimation.getValue();
-			itemY = yAnimation.getValue();
+            Music m = i.music;
+            SimpleAnimation xAnimation = i.xAnimation;
+            SimpleAnimation yAnimation = i.yAnimation;
+            SimpleAnimation focusAnimation = i.focusAnimation;
 
-			if (m.getAlbum() != null) {
-				drawRoundedImage(m.getAlbum(), itemX, itemY, 174, 174, 26,
-						(Math.abs(focusAnimation.getValue()) + 0.001F) * 6);
-			} else {
-				Skia.drawRoundedRect(itemX, itemY, 174, 174, 26, palette.getSurfaceContainerHigh());
-			}
+            if (!searchBar.getText().isEmpty()
+                && !SearchUtils.isSimilar(m.getTitle() + " " + m.getArtist(), searchBar.getText())) {
+                continue;
+            }
 
-			String limitedTitle = Skia.getLimitText(m.getTitle(), Fonts.getRegular(15), 174);
-			String limitedArtist = Skia.getLimitText(m.getArtist(), Fonts.getRegular(12), 174);
+            float itemX = x + offsetX;
+            float itemY = y + offsetY;
 
-			Skia.drawText(limitedTitle, itemX, itemY + 174 + 6, palette.getOnSurface(), Fonts.getRegular(15));
-			Skia.drawText(limitedArtist, itemX, itemY + 174 + 6 + 15, palette.getOnSurfaceVariant(),
-					Fonts.getRegular(12));
+            xAnimation.onTick(itemX, 14);
+            yAnimation.onTick(itemY, 14);
+            focusAnimation.onTick(MouseUtils.isInside(mouseX, mouseY, itemX, itemY, 174, 174) ? 1 : 0, 10);
 
-			String icon = musicManager.getCurrentMusic() != null && musicManager.getCurrentMusic().equals(m)
-					&& musicManager.isPlaying() ? Icon.PAUSE : Icon.PLAY_ARROW;
+            itemX = xAnimation.getValue();
+            itemY = yAnimation.getValue();
 
-			Skia.save();
-			Skia.translate(0, 15 - (focusAnimation.getValue() * 15));
-			Skia.drawFullCenteredText(icon, itemX + (174 / 2), itemY + (174 / 2),
-					ColorUtils.applyAlpha(Color.WHITE, focusAnimation.getValue()), Fonts.getIconFill(64));
-			Skia.restore();
+            if (m.getAlbum() != null) {
+                drawRoundedImage(m.getAlbum(), itemX, itemY, 174, 174, 26,
+                    (Math.abs(focusAnimation.getValue()) + 0.001F) * 6);
+            } else {
+                Skia.drawRoundedRect(itemX, itemY, 174, 174, 26, palette.getSurfaceContainerHigh());
+            }
 
-			offsetX += 174 + 32;
-			index++;
+            String limitedTitle = Skia.getLimitText(m.getTitle(), Fonts.getRegular(15), 174);
+            String limitedArtist = Skia.getLimitText(m.getArtist(), Fonts.getRegular(12), 174);
 
-			if (index % 4 == 0) {
-				offsetX = 28;
-				offsetY += 206 + 23;
-			}
-		}
+            Skia.drawText(limitedTitle, itemX, itemY + 174 + 6, palette.getOnSurface(), Fonts.getRegular(15));
+            Skia.drawText(limitedArtist, itemX, itemY + 174 + 6 + 15, palette.getOnSurfaceVariant(),
+                Fonts.getRegular(12));
 
-		scrollHelper.setMaxScroll(206, 23, index, 4, height - 96);
-		Skia.restore();
+            String icon = musicManager.getCurrentMusic() != null && musicManager.getCurrentMusic().equals(m)
+                && musicManager.isPlaying() ? Icon.PAUSE : Icon.PLAY_ARROW;
 
-		mouseY = mouseY + scrollHelper.getValue();
+            Skia.save();
+            Skia.translate(0, 15 - (focusAnimation.getValue() * 15));
+            Skia.drawFullCenteredText(icon, itemX + (174 / 2), itemY + (174 / 2),
+                ColorUtils.applyAlpha(Color.WHITE, focusAnimation.getValue()), Fonts.getIconFill(64));
+            Skia.restore();
 
-		Skia.save();
-		Skia.translate(0, 100 - (controlBarAnimation.getValue() * 100));
-		controlBar.draw(mouseX, mouseY);
-		Skia.restore();
-	}
+            offsetX += 174 + 32;
+            index++;
 
-	@Override
-	public void mousePressed(double mouseX, double mouseY, int button) {
-		super.mousePressed(mouseX, mouseY, button);
+            if (index % 4 == 0) {
+                offsetX = 28;
+                offsetY += 206 + 23;
+            }
+        }
 
-		controlBar.mousePressed(mouseX, mouseY, button);
+        scrollHelper.setMaxScroll(206, 23, index, 4, height - 96);
+        Skia.restore();
 
-		if (MouseUtils.isInside(mouseX, mouseY, controlBar.getX(), controlBar.getY(), controlBar.getWidth(),
-				controlBar.getHeight())) {
-			return;
-		}
-	}
+        mouseY = mouseY + scrollHelper.getValue();
 
-	@Override
-	public void mouseReleased(double mouseX, double mouseY, int button) {
-		super.mouseReleased(mouseX, mouseY, button);
+        Skia.save();
+        Skia.translate(0, 100 - (controlBarAnimation.getValue() * 100));
+        controlBar.draw(mouseX, mouseY);
+        Skia.restore();
+    }
 
-		MusicManager musicManager = PupperClient.getInstance().getMusicManager();
+    /**
+     * 绘制刷新按钮
+     */
+    private void drawRefreshButton(double mouseX, double mouseY, ColorPalette palette) {
+        // 更新按钮悬停动画
+        boolean isHovered = MouseUtils.isInside(mouseX, mouseY, refreshButtonX, refreshButtonY, refreshButtonSize, refreshButtonSize);
+        refreshButtonAnimation.onTick(isHovered ? 1 : 0, 12);
 
-		controlBar.mouseReleased(mouseX, mouseY, button);
+        // 绘制按钮背景
+        float hoverValue = refreshButtonAnimation.getValue();
+        Color backgroundColor = ColorUtils.interpolateColor(
+            palette.getSurfaceContainer(),
+            palette.getSurfaceContainerHigh(),
+            hoverValue
+        );
 
-		if (MouseUtils.isInside(mouseX, mouseY, controlBar.getX(), controlBar.getY(), controlBar.getWidth(),
-				controlBar.getHeight())) {
-			return;
-		}
+        Skia.drawRoundedRect(refreshButtonX, refreshButtonY, refreshButtonSize, refreshButtonSize, 8, backgroundColor);
 
-		mouseY = mouseY - scrollHelper.getValue();
+        // 绘制刷新图标（如果正在刷新则显示旋转动画）
+        String refreshIcon = Icon.REFRESH;
+        Color iconColor = palette.getOnSurface();
 
-		for (Item i : items) {
+        if (isRefreshing) {
+            // 旋转动画
+            long time = System.currentTimeMillis();
+            float rotation = (time % 1000) / 1000f * 360f;
 
-			Music m = i.music;
-			float itemX = i.xAnimation.getValue();
-			float itemY = i.yAnimation.getValue();
+            Skia.save();
+            Skia.rotate(refreshButtonX + refreshButtonSize/2, refreshButtonY + refreshButtonSize/2,
+                refreshButtonSize, refreshButtonSize, rotation);
+        }
 
-			if (!searchBar.getText().isEmpty()
-					&& !SearchUtils.isSimilar(m.getTitle() + " " + m.getArtist(), searchBar.getText())) {
-				continue;
-			}
+        Skia.drawFullCenteredText(refreshIcon, refreshButtonX + refreshButtonSize/2,
+            refreshButtonY + refreshButtonSize/2, iconColor, Fonts.getIconFill(20));
 
-			if (MouseUtils.isInside(mouseX, mouseY, itemX, itemY, 174, 174) && button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+        if (isRefreshing) {
+            Skia.restore();
+        }
 
-				if (musicManager.getCurrentMusic() != m) {
-					musicManager.stop();
-					musicManager.setCurrentMusic(m);
-					musicManager.play();
-				} else {
-					musicManager.switchPlayBack();
-				}
-			}
-		}
-	}
+        // 绘制悬停提示
+        if (isHovered) {
+            String tooltip = isRefreshing ? "刷新中..." : "刷新音乐列表";
+            Skia.drawRoundedRect((float)mouseX + 5, (float)mouseY - 25,
+                Skia.getTextBounds(tooltip, Fonts.getRegular(12)).getWidth() + 10, 20, 4,
+                palette.getSurfaceContainerHigh());
+            Skia.drawText(tooltip, (float)mouseX + 10, (float)mouseY - 15, palette.getOnSurface(), Fonts.getRegular(12));
+        }
+    }
 
-	@Override
-	public void keyPressed(int keyCode, int scanCode, int modifiers) {
-		super.keyPressed(keyCode, scanCode, modifiers);
-		controlBar.keyPressed(keyCode, scanCode, modifiers);
-	}
+    @Override
+    public void mousePressed(double mouseX, double mouseY, int button) {
+        super.mousePressed(mouseX, mouseY, button);
 
-	@Override
-	public void charTyped(char chr, int modifiers) {
-		super.charTyped(chr, modifiers);
-		controlBar.charTyped(chr, modifiers);
-	}
+        // 检查刷新按钮点击
+        if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT &&
+            MouseUtils.isInside(mouseX, mouseY, refreshButtonX, refreshButtonY, refreshButtonSize, refreshButtonSize)) {
+            refreshMusicList();
+            return;
+        }
 
-	private void drawRoundedImage(File file, float x, float y, float width, float height, float cornerRadius,
-			float blurRadius) {
+        controlBar.mousePressed(mouseX, mouseY, button);
 
-		Path path = new Path();
-		Path.makeRRect(RRect.makeXYWH(x, y, width, height, cornerRadius));
+        if (MouseUtils.isInside(mouseX, mouseY, controlBar.getX(), controlBar.getY(), controlBar.getWidth(),
+            controlBar.getHeight())) {
+            return;
+        }
+    }
 
-		Paint blurPaint = new Paint();
-		blurPaint.setImageFilter(ImageFilter.makeBlur(blurRadius, blurRadius, FilterTileMode.CLAMP));
+    @Override
+    public void mouseReleased(double mouseX, double mouseY, int button) {
+        super.mouseReleased(mouseX, mouseY, button);
 
-		Skia.save();
+        MusicManager musicManager = PupperClient.getInstance().getMusicManager();
 
-		Skia.getCanvas().clipPath(path, ClipMode.INTERSECT, true);
+        controlBar.mouseReleased(mouseX, mouseY, button);
 
-		Skia.drawImage(file, x, y, width, height);
+        if (MouseUtils.isInside(mouseX, mouseY, controlBar.getX(), controlBar.getY(), controlBar.getWidth(),
+            controlBar.getHeight())) {
+            return;
+        }
 
-		if (Skia.getImageHelper().load(file)) {
-			Image image = Skia.getImageHelper().get(file.getName());
-			if (image != null) {
-				Skia.getCanvas().drawImageRect(image, Rect.makeWH(image.getWidth(), image.getHeight()),
-						Rect.makeXYWH(x, y, width, height), blurPaint, true);
-			}
-		}
+        mouseY = mouseY - scrollHelper.getValue();
 
-		Skia.restore();
-	}
+        for (Item i : items) {
 
-	private class Item {
+            Music m = i.music;
+            float itemX = i.xAnimation.getValue();
+            float itemY = i.yAnimation.getValue();
 
-		private Music music;
-		private SimpleAnimation xAnimation = new SimpleAnimation();
-		private SimpleAnimation yAnimation = new SimpleAnimation();
-		private SimpleAnimation focusAnimation = new SimpleAnimation();
+            if (!searchBar.getText().isEmpty()
+                && !SearchUtils.isSimilar(m.getTitle() + " " + m.getArtist(), searchBar.getText())) {
+                continue;
+            }
 
-		private Item(Music music) {
-			this.music = music;
-		}
-	}
+            if (MouseUtils.isInside(mouseX, mouseY, itemX, itemY, 174, 174) && button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+
+                if (musicManager.getCurrentMusic() != m) {
+                    musicManager.stop();
+                    musicManager.setCurrentMusic(m);
+                    musicManager.play();
+                } else {
+                    musicManager.switchPlayBack();
+                }
+            }
+        }
+    }
+
+    /**
+     * 刷新音乐列表
+     */
+    private void refreshMusicList() {
+        if (isRefreshing) {
+            return; // 防止重复刷新
+        }
+
+        isRefreshing = true;
+
+        // 在后台线程中刷新音乐列表
+        new Thread(() -> {
+            try {
+                PupperClient.getInstance().getMusicManager().load();
+
+                // 在主线程中更新UI
+                Thread.sleep(100); // 给一点延迟让刷新动画可见
+
+                // 在主线程中重新初始化页面
+                cn.pupperclient.utils.Multithreading.runMainThread(() -> {
+                    this.init();
+                    isRefreshing = false;
+                    ChatUtils.addChatMessage("§a音乐列表已刷新！");
+                });
+
+            } catch (Exception e) {
+                cn.pupperclient.utils.Multithreading.runMainThread(() -> {
+                    isRefreshing = false;
+                    ChatUtils.addChatMessage("§c刷新失败: " + e.getMessage());
+                    PupperClient.LOGGER.error("刷新音乐列表失败: {}", e.getMessage(), e);
+                });
+            }
+        }, "Music Refresh Thread").start();
+    }
+
+    @Override
+    public void keyPressed(int keyCode, int scanCode, int modifiers) {
+        super.keyPressed(keyCode, scanCode, modifiers);
+        controlBar.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public void charTyped(char chr, int modifiers) {
+        super.charTyped(chr, modifiers);
+        controlBar.charTyped(chr, modifiers);
+    }
+
+    private void drawRoundedImage(File file, float x, float y, float width, float height, float cornerRadius,
+                                  float blurRadius) {
+
+        Path path = new Path();
+        Path.makeRRect(RRect.makeXYWH(x, y, width, height, cornerRadius));
+
+        Paint blurPaint = new Paint();
+        blurPaint.setImageFilter(ImageFilter.makeBlur(blurRadius, blurRadius, FilterTileMode.CLAMP));
+
+        Skia.save();
+
+        Skia.getCanvas().clipPath(path, ClipMode.INTERSECT, true);
+
+        Skia.drawImage(file, x, y, width, height);
+
+        if (Skia.getImageHelper().load(file)) {
+            Image image = Skia.getImageHelper().get(file.getName());
+            if (image != null) {
+                Skia.getCanvas().drawImageRect(image, Rect.makeWH(image.getWidth(), image.getHeight()),
+                    Rect.makeXYWH(x, y, width, height), blurPaint, true);
+            }
+        }
+
+        Skia.restore();
+    }
+
+    private class Item {
+
+        private Music music;
+        private SimpleAnimation xAnimation = new SimpleAnimation();
+        private SimpleAnimation yAnimation = new SimpleAnimation();
+        private SimpleAnimation focusAnimation = new SimpleAnimation();
+
+        private Item(Music music) {
+            this.music = music;
+        }
+    }
 }

@@ -61,4 +61,8 @@ public class ColorUtils {
 
         return new Color(resultColor.getRed(), resultColor.getGreen(), resultColor.getBlue(), MathUtils.interpolateInt(color1.getAlpha(), color2.getAlpha(), amount));
     }
+
+    public static Color interpolateColor(Color surfaceContainer, Color surfaceContainerHigh, float hoverValue) {
+        return ColorUtils.interpolateColors(200, 0, surfaceContainer, surfaceContainerHigh);
+    }
 }
