@@ -41,8 +41,8 @@ public class HomePage extends Page {
             palette.getSurfaceContainerLow(),
             palette.getSurfaceContainer());
 
-        Skia.drawText("Welcome to", x + 50, y + 80, palette.getOnSurfaceVariant(), Fonts.getMedium(24));
-        Skia.drawText("Pupper Client " + PupperClient.getInstance().getVersion(), x + 50, y + 110, palette.getOnSurface(), Fonts.getRegular(36));
+        Skia.drawText("Welcome to", x + 50, y + 80, palette.getOnSurfaceVariant(), Fonts.getGoogleSansRegular(24));
+        Skia.drawText("Pupper Client " + PupperClient.getInstance().getVersion(), x + 50, y + 110, palette.getOnSurface(), Fonts.getGoogleSansRegular(36));
 
         Skia.drawText(currentTime, x + width - 325, y + 80, palette.getOnSurfaceVariant(),
             Fonts.getMedium(24));

@@ -50,9 +50,9 @@ public class CloudMusicHudMod extends SimpleHUDMod {
         float iconSize = 10.5F;
         float padding = 5;
         boolean hasIcon = getIcon() != null && iconSetting.isEnabled();
-        Rect textBounds = Skia.getTextBounds(getText(), Fonts.getRegular(fontSize));
+        Rect textBounds = Skia.getTextBounds(getText(), Fonts.getGoogleSansRegular(fontSize));
         Rect iconBounds = Skia.getTextBounds(getIcon(), Fonts.getIcon(iconSize));
-        FontMetrics metrics = Fonts.getRegular(fontSize).getMetrics();
+        FontMetrics metrics = Fonts.getGoogleSansRegular(fontSize).getMetrics();
         float width = textBounds.getWidth() + (padding * 2) + (hasIcon ? iconBounds.getWidth() + 4 : 0);
         float height = fontSize + (padding * 2) - 1.5F;
         float textCenterY = (metrics.getAscent() - metrics.getDescent()) / 2 - metrics.getAscent();
@@ -66,7 +66,7 @@ public class CloudMusicHudMod extends SimpleHUDMod {
         }
 
         this.drawText(getText(), getX() + padding + (hasIcon ? iconBounds.getWidth() + 4 : 0),
-            getY() + (height / 2) - textCenterY, Fonts.getRegular(fontSize));
+            getY() + (height / 2) - textCenterY, Fonts.getGoogleSansRegular(fontSize));
         this.finish();
 
         position.setSize(width, height);

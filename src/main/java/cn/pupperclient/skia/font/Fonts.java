@@ -5,6 +5,7 @@ import io.github.humbleui.skija.Font;
 public class Fonts {
 
 	private static final String REGULAR = "Inter-Regular-CJKsc.ttf";
+    private static final String GOOGLE_SANS_REGULAR = "GoogleSans-Regular.ttf";
 	private static final String MEDIUM = "Inter-Medium-CJKsc.ttf";
 	private static final String ICON_FILL = "MaterialSymbolsRounded_Fill.ttf";
 	private static final String ICON = "MaterialSymbolsRounded.ttf";
@@ -19,6 +20,10 @@ public class Fonts {
 
 	public static Font getMedium(float size) {
 		return FontHelper.load(MEDIUM, size);
+	}
+
+    public static Font getGoogleSansRegular(float size) {
+		return FontHelper.load(GOOGLE_SANS_REGULAR, size);
 	}
 
 	public static Font getIconFill(float size) {

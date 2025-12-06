@@ -97,7 +97,7 @@ public class DynamicIsland extends HUDMod implements IMinecraft {
         Rect iconBounds = Skia.getTextBounds(getIcon(), Fonts.getIcon(iconSize));
         float width = textWidth + (padding * 2) + (hasIcon ? iconBounds.getWidth() + 4 : 0);
 
-        FontMetrics metrics = Fonts.getRegular(fontSize).getMetrics();
+        FontMetrics metrics = Fonts.getGoogleSansRegular(fontSize).getMetrics();
         float textCenterY = (metrics.getAscent() - metrics.getDescent()) / 2 - metrics.getAscent();
 
         this.begin();
@@ -172,7 +172,7 @@ public class DynamicIsland extends HUDMod implements IMinecraft {
         currentX += iconBounds.getWidth() + 2;
 
         String autoAgainText = "Send you next game";
-        drawTextWithAlpha(autoAgainText, currentX, normalTextY, Fonts.getRegular(fontSize + 2), alpha);
+        drawTextWithAlpha(autoAgainText, currentX, normalTextY, Fonts.getGoogleSansRegular(fontSize + 2), alpha);
     }
 
     private void drawModStateText(float textX, float textY, float fontSize, float iconSize, ModStateDisplay state) {
@@ -180,7 +180,7 @@ public class DynamicIsland extends HUDMod implements IMinecraft {
 
         // 绘制标题
         drawTextWithAlpha("Module Toggle", textX, textY - fontSize - 2,
-            Fonts.getRegular(fontSize), state.alpha);
+            Fonts.getGoogleSansRegular(fontSize), state.alpha);
 
         // 绘制状态图标和文本
         String stateIcon = state.event.isEnabled() ? Icon.CHECK : Icon.CLOSE;
@@ -188,7 +188,7 @@ public class DynamicIsland extends HUDMod implements IMinecraft {
 
         String modStateText = getModStateText(state.event);
         drawTextWithAlpha(modStateText, textX + Skia.getTextBounds(stateIcon, Fonts.getIcon(iconSize)).getWidth() + 2,
-            textY + 4, Fonts.getRegular(fontSize), state.alpha);
+            textY + 4, Fonts.getGoogleSansRegular(fontSize), state.alpha);
     }
 
     private void drawNormalTextWithIcons(float startX, float startY, float fontSize, float iconSize) {
@@ -197,8 +197,8 @@ public class DynamicIsland extends HUDMod implements IMinecraft {
         Skia.drawImage("logo.png", currentX - 6, startY - 4.5F, iconSize + 6, iconSize + 6);
         currentX += iconSize + 2;
 
-        drawTextWithAlpha(name.getValue() + " · ", currentX, startY, Fonts.getRegular(fontSize), (float) 1.0);
-        currentX += Skia.getTextBounds(name.getValue() + " · ", Fonts.getRegular(fontSize)).getWidth() + 5;
+        drawTextWithAlpha(name.getValue() + " · ", currentX, startY, Fonts.getGoogleSansRegular(fontSize), (float) 1.0);
+        currentX += Skia.getTextBounds(name.getValue() + " · ", Fonts.getGoogleSansRegular(fontSize)).getWidth() + 5;
 
         // 玩家图标和名称
         String playerIcon = Icon.PERSON;
@@ -206,8 +206,8 @@ public class DynamicIsland extends HUDMod implements IMinecraft {
         currentX += Skia.getTextBounds(playerIcon, Fonts.getIcon(iconSize)).getWidth() + 2;
 
         String playerName = mc.player != null ? mc.player.getName().getString() : "NULL";
-        drawTextWithAlpha(playerName + " · ", currentX, startY, Fonts.getRegular(fontSize), (float) 1.0);
-        currentX += Skia.getTextBounds(playerName + " · ", Fonts.getRegular(fontSize)).getWidth() + 5;
+        drawTextWithAlpha(playerName + " · ", currentX, startY, Fonts.getGoogleSansRegular(fontSize), (float) 1.0);
+        currentX += Skia.getTextBounds(playerName + " · ", Fonts.getGoogleSansRegular(fontSize)).getWidth() + 5;
 
         // 服务器信息和延迟
         String linkIcon = Icon.LINK;
@@ -215,8 +215,8 @@ public class DynamicIsland extends HUDMod implements IMinecraft {
         currentX += Skia.getTextBounds(linkIcon, Fonts.getIcon(iconSize)).getWidth() + 2;
 
         String serverInfo = getServerInfo();
-        drawTextWithAlpha(serverInfo + " · ", currentX, startY, Fonts.getRegular(fontSize), (float) 1.0);
-        currentX += Skia.getTextBounds(serverInfo + " · ", Fonts.getRegular(fontSize)).getWidth() + 5;
+        drawTextWithAlpha(serverInfo + " · ", currentX, startY, Fonts.getGoogleSansRegular(fontSize), (float) 1.0);
+        currentX += Skia.getTextBounds(serverInfo + " · ", Fonts.getGoogleSansRegular(fontSize)).getWidth() + 5;
 
         // FPS图标和数值
         String fpsIcon = Icon.DESKTOP_WINDOWS;
@@ -224,32 +224,32 @@ public class DynamicIsland extends HUDMod implements IMinecraft {
         currentX += Skia.getTextBounds(fpsIcon, Fonts.getIcon(iconSize)).getWidth() + 2;
 
         String fpsText = mc.getCurrentFps() + " FPS";
-        drawTextWithAlpha(fpsText, currentX, startY, Fonts.getRegular(fontSize), (float) 1.0);
+        drawTextWithAlpha(fpsText, currentX, startY, Fonts.getGoogleSansRegular(fontSize), (float) 1.0);
     }
 
     private float calculateNormalTextWidth(float fontSize, float iconSize) {
         float totalWidth = 0;
 
         totalWidth += iconSize + 2;
-        totalWidth += Skia.getTextBounds(name.getValue() + " · ", Fonts.getRegular(fontSize)).getWidth() + 5;
+        totalWidth += Skia.getTextBounds(name.getValue() + " · ", Fonts.getGoogleSansRegular(fontSize)).getWidth() + 5;
 
         // 玩家图标和名称
         String playerIcon = Icon.PERSON;
         totalWidth += Skia.getTextBounds(playerIcon, Fonts.getIcon(iconSize)).getWidth() + 2;
         String playerName = mc.player != null ? mc.player.getName().getString() : "NULL";
-        totalWidth += Skia.getTextBounds(playerName + " · ", Fonts.getRegular(fontSize)).getWidth() + 5;
+        totalWidth += Skia.getTextBounds(playerName + " · ", Fonts.getGoogleSansRegular(fontSize)).getWidth() + 5;
 
         // 服务器信息和延迟
         String linkIcon = Icon.LINK;
         totalWidth += Skia.getTextBounds(linkIcon, Fonts.getIcon(iconSize)).getWidth() + 2;
         String serverInfo = getServerInfo();
-        totalWidth += Skia.getTextBounds(serverInfo + " · ", Fonts.getRegular(fontSize)).getWidth() + 5;
+        totalWidth += Skia.getTextBounds(serverInfo + " · ", Fonts.getGoogleSansRegular(fontSize)).getWidth() + 5;
 
         // FPS图标和数值
         String fpsIcon = Icon.DESKTOP_WINDOWS;
         totalWidth += Skia.getTextBounds(fpsIcon, Fonts.getIcon(iconSize)).getWidth() + 2;
         String fpsText = mc.getCurrentFps() + " FPS";
-        totalWidth += Skia.getTextBounds(fpsText, Fonts.getRegular(fontSize)).getWidth() + 5;
+        totalWidth += Skia.getTextBounds(fpsText, Fonts.getGoogleSansRegular(fontSize)).getWidth() + 5;
 
         return totalWidth;
     }

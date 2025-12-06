@@ -88,14 +88,14 @@ public class WatermarkMod extends HUDMod {
         String text = textSetting.getValue();
         if (!text.isEmpty()) {
             float fontSize = 24f;
-            Rect textBounds = Skia.getTextBounds(text, Fonts.getMedium(fontSize));
-            FontMetrics metrics = Fonts.getMedium(fontSize).getMetrics();
+            Rect textBounds = Skia.getTextBounds(text, Fonts.getGoogleSansRegular(fontSize));
+            FontMetrics metrics = Fonts.getGoogleSansRegular(fontSize).getMetrics();
 
             float textCenterY = (metrics.getAscent() - metrics.getDescent()) / 2 - metrics.getAscent();
             float textY = getY() + padding + (contentHeight / 2) - textCenterY;
 
             Color textColor = getSmoothAnimatedColor();
-            Skia.drawText(text, currentX, textY, textColor, Fonts.getMedium(fontSize));
+            Skia.drawText(text, currentX, textY, textColor, Fonts.getGoogleSansRegular(fontSize));
 
             contentHeight = fontSize;
             currentX += textBounds.getWidth() + padding;
