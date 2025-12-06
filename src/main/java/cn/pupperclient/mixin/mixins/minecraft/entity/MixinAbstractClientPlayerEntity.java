@@ -2,7 +2,6 @@ package cn.pupperclient.mixin.mixins.minecraft.entity;
 
 import cn.pupperclient.PupperClient;
 import com.mojang.authlib.GameProfile;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.util.SkinTextures;
 import net.minecraft.client.world.ClientWorld;
@@ -26,23 +25,10 @@ public abstract class MixinAbstractClientPlayerEntity extends PlayerEntity {
     @Shadow @Final public ClientWorld clientWorld;
 
     @Unique
-    private boolean enableCape;
-
-    @Unique
     private boolean shownCape = false;
 
     public MixinAbstractClientPlayerEntity(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
         super(world, pos, yaw, gameProfile);
-    }
-
-    @Override
-    public void tick() {
-        super.tick();
-        if (!isPartVisible(PlayerModelPart.CAPE) && enableCape) {
-            MinecraftClient.getInstance().options.setPlayerModelPart(PlayerModelPart.CAPE, true);
-            MinecraftClient.getInstance().options.sendClientSettings();
-            enableCape = false;
-        }
     }
 
     @Inject(method = "getSkinTextures", at = @At("RETURN"), cancellable = true)
@@ -70,10 +56,5 @@ public abstract class MixinAbstractClientPlayerEntity extends PlayerEntity {
                 shownCape = showCape;
             }
         }
-    }
-
-    @Unique
-    public void enableCapeNextTick() {
-        enableCape = true;
     }
 }
