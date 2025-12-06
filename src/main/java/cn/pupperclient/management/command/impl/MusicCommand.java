@@ -23,9 +23,9 @@ import java.util.List;
 
 public class MusicCommand {
 
-    private static final String SEARCH_API = "https://ncm.zhenxin.me/search";
-    private static final String CHECK_API = "https://ncm.zhenxin.me/check/music";
-    private static final String URL_API = "https://ncm.zhenxin.me/song/url/v1";
+    private static final String SEARCH_API = "https://zm.wwoyun.cn/search";
+    private static final String CHECK_API = "https://zm.wwoyun.cn/check/music";
+    private static final String URL_API = "https://zm.wwoyun.cn/song/url/v1";
 
     private static final File MUSIC_DIR = new File("pupper/music");
 
