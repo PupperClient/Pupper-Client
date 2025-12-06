@@ -1,38 +1,66 @@
 package cn.pupperclient.utils;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import net.minecraft.client.MinecraftClient;
 
 public class Multithreading {
+    private static final ExecutorService virtualThreadExecutor = Executors.newVirtualThreadPerTaskExecutor();
 
-	private static final ExecutorService executorService = Executors
-			.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("PupperClient-%d").build());
-	private static final ScheduledExecutorService runnableExecutor = new ScheduledThreadPoolExecutor(
-			Runtime.getRuntime().availableProcessors() + 1);
+    private static final ExecutorService cachedThreadPool = Executors.newCachedThreadPool(
+        new ThreadFactoryBuilder()
+            .setNameFormat("PupperClient-%d")
+            .setThreadFactory(Thread.ofVirtual().factory())
+            .build()
+    );
 
-	public static void runAsync(Runnable runnable) {
-		submit(runnable);
-	}
+    private static final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(
+        Runtime.getRuntime().availableProcessors(),
+        Thread.ofVirtual().factory()
+    );
+
+    public static void runAsync(Runnable runnable) {
+        submit(runnable);
+    }
 
     public static void runMainThread(Runnable runnable) {
         MinecraftClient.getInstance().execute(runnable);
     }
 
-	public static void submit(Runnable runnable) {
-        executorService.submit(runnable);
+    public static void submit(Runnable runnable) {
+        virtualThreadExecutor.submit(runnable);
     }
 
-	public static void schedule(Runnable runnable, long delay, TimeUnit timeUnit) {
-		submitScheduled(runnable, delay, timeUnit);
-	}
+    public static void schedule(Runnable runnable, long delay, TimeUnit timeUnit) {
+        submitScheduled(runnable, delay, timeUnit);
+    }
 
-	public static void submitScheduled(Runnable runnable, long delay, TimeUnit timeUnit) {
-        runnableExecutor.schedule(runnable, delay, timeUnit);
+    public static void submitScheduled(Runnable runnable, long delay, TimeUnit timeUnit) {
+        scheduledExecutor.schedule(runnable, delay, timeUnit);
+    }
+
+    public static CompletableFuture<Void> runAsyncFuture(Runnable runnable) {
+        return CompletableFuture.runAsync(runnable, virtualThreadExecutor);
+    }
+
+    public static void shutdown() {
+        virtualThreadExecutor.shutdown();
+        cachedThreadPool.shutdown();
+        scheduledExecutor.shutdown();
+
+        try {
+            if (!virtualThreadExecutor.awaitTermination(1, TimeUnit.SECONDS)) {
+                virtualThreadExecutor.shutdownNow();
+            }
+            if (!cachedThreadPool.awaitTermination(1, TimeUnit.SECONDS)) {
+                cachedThreadPool.shutdownNow();
+            }
+            if (!scheduledExecutor.awaitTermination(1, TimeUnit.SECONDS)) {
+                scheduledExecutor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }
