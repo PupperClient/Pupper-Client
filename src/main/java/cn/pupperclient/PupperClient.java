@@ -19,9 +19,9 @@ import cn.pupperclient.management.websocket.WebSocketManager;
 import cn.pupperclient.skia.font.Fonts;
 import cn.pupperclient.utils.ExternalToolManager;
 import cn.pupperclient.utils.IMinecraft;
+import cn.pupperclient.utils.Multithreading;
 import cn.pupperclient.utils.file.FileLocation;
-import cn.pupperclient.utils.language.I18n;
-import cn.pupperclient.utils.language.Language;
+import cn.pupperclient.utils.language.*;
 import com.viaversion.viafabricplus.ViaFabricPlus;
 import com.viaversion.viafabricplus.api.ViaFabricPlusBase;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
@@ -75,6 +75,7 @@ public class PupperClient implements IMinecraft {
         if (keybindManager != null) {
             keybindManager.cleanup();
         }
+        Multithreading.shutdown();
     }
 
     private void initializeResources() {
