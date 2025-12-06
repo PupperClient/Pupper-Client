@@ -28,18 +28,6 @@ public class WatermarkMod extends HUDMod {
     private long lastColorUpdate = 0;
     private Color currentColor = Color.WHITE;
 
-    private static final int ISLAND_WIDTH = 200;
-    private static final int ISLAND_HEIGHT = 40;
-    private static final int ISLAND_CORNER_RADIUS = 20;
-    private static int islandX, islandY;
-
-    private static final int ICON_SIZE = 24;
-    private static final int TEXT_SIZE = 14;
-    private static final int PADDING = 10;
-
-    private static final Color ISLAND_BG_COLOR = new Color(255, 255, 255, 15);
-    private static final Color TEXT_COLOR = Color.BLACK;
-
     // Settings
     private final StringSetting textSetting = new StringSetting("setting.text",
         "setting.text.description", Icon.TEXT_FIELDS, this, "PupperClient Client");
@@ -64,17 +52,7 @@ public class WatermarkMod extends HUDMod {
         return instance;
     }
 
-    public final EventBus.EventListener<RenderSkiaEvent> onRenderSkia = event -> {
-        this.draw();
-    };
-
-    public static void setIslandY(int islandY) {
-        WatermarkMod.islandY = islandY;
-    }
-
-    public static void setIslandX(int islandX) {
-        WatermarkMod.islandX = islandX;
-    }
+    public final EventBus.EventListener<RenderSkiaEvent> onRenderSkia = event -> this.draw();
 
     private void draw() {
         try {
