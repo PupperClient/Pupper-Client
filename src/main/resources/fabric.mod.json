@@ -4,6 +4,7 @@
 	"version": "${version}",
 	"accessWidener": "pupper.accesswidener",
 	"name": "PupperClient",
+	"icon": "assets/pupper/logo.png",
 	"description": "Better, Faster Minecraft Client",
 	"authors": [
 		"EldoDebug",
@@ -25,6 +26,19 @@
 		"ias": "*"
 	},
 	"custom": {
-		"soar:icon": "assets/pupper/logo.png"
+		"pupper:icon": "assets/pupper/logo.png",
+		"modmenu": {
+			"links": {
+				"modmenu.discord": "https://discord.gg/jEGF5fb",
+				"modmenu.source": "https://github.com/PupperClient/Pupper-Client",
+				"modmenu.website": "https://pupperclient.github.io/Pupper-Website/",
+				"modmenu.issues": "https://github.com/PupperClient/Pupper-Client/issues"
+			},
+			"authors": [
+				"oneachina"
+			],
+			"environment": "client",
+			"update_checker": false
+		}
 	}
 }
