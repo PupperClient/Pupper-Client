@@ -427,6 +427,7 @@ setting.mode=mode
 setting.mode.description=set mode
 
 menu.ias=账户
+menu.modmenu=Mod菜单
 
 mod.DynamicIsland.name=Dynamic Island
 mod.DynamicIsland.description=Dynamic Island

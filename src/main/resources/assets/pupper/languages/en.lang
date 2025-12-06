@@ -27,6 +27,8 @@ design.classic=Classic
 design.clear=Clear
 design.materialyou=MaterialYou
 
+menu.modmenu=Mod Menu
+
 mod.cooldown.name=Cooldown Indicator
 mod.cooldown.description=Enhanced attack cooldown visualization
 

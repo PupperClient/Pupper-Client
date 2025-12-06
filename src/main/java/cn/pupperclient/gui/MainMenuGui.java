@@ -34,6 +34,7 @@ import cn.pupperclient.utils.Multithreading;
 import cn.pupperclient.utils.file.dialog.SoarFileDialog;
 import cn.pupperclient.utils.file.FileLocation;
 import cn.pupperclient.utils.mouse.ScrollHelper;
+import com.terraformersmc.modmenu.gui.ModsScreen;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
@@ -199,11 +200,14 @@ public class MainMenuGui extends SimpleSoarGui {
         buttons.add(new MainMenuButton("menu.ias", Icon.ACCOUNT_BALANCE,
             centerX - buttonWidth / 2, centerY + (60 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new AccountScreen(this.build()))));
 
+        buttons.add(new MainMenuButton("menu.modmenu", Icon.LIST,
+            centerX - buttonWidth / 2, centerY + (120 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new ModsScreen(this.build()))));
+
         buttons.add(new MainMenuButton("menu.options", Icon.SETTINGS,
-            centerX - buttonWidth / 2, centerY + (120 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new OptionsScreen(this.build(), client.options))));
+            centerX - buttonWidth / 2, centerY + (180 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new OptionsScreen(this.build(), client.options))));
 
         buttons.add(new MainMenuButton("menu.quit", Icon.CLOSE,
-            centerX - buttonWidth / 2, centerY + (180 * scaleFactor), buttonWidth, scaleFactor, () -> client.scheduleStop()));
+            centerX - buttonWidth / 2, centerY + (240 * scaleFactor), buttonWidth, scaleFactor, () -> client.scheduleStop()));
 
         float buttonSize = 40 * scaleFactor;
         float buttonSpacing = 10 * scaleFactor;
