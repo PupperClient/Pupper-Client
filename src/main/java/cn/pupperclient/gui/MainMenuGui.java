@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
 import cn.pupperclient.PupperClient;
+import cn.pupperclient.management.mod.impl.settings.SystemSettings;
 import com.google.gson.JsonObject;
 import cn.pupperclient.animation.SimpleAnimation;
 import cn.pupperclient.gui.api.SimpleSoarGui;
@@ -82,8 +83,18 @@ public class MainMenuGui extends SimpleSoarGui {
 
     private void checkTools() {
         toolsChecked = true;
-        PupperClient.LOGGER.info("开始检查工具...");
 
+        if (!PupperClient.firstLaunch) {
+            toolsAvailable = true;
+            ExternalToolManager toolManager = PupperClient.getInstance().getToolManager();
+            if (SystemSettings.getInstance().getFFmpegPath() == null || SystemSettings.getInstance().getYtdlpPath() == null) {
+                SystemSettings.getInstance().getFfmpegPathSetting().setFile(toolManager.getFfmpegPath());
+                SystemSettings.getInstance().getYtdlpPathSetting().setFile(toolManager.getYtDlpPath());
+            }
+            updateAllButtonStates();
+        }
+
+        PupperClient.LOGGER.info("开始检查工具...");
         Multithreading.runAsync(() -> {
             try {
                 ExternalToolManager toolManager = PupperClient.getInstance().getToolManager();
@@ -105,6 +116,11 @@ public class MainMenuGui extends SimpleSoarGui {
                                 PupperClient.MusicToolStatus finalStatus = success ? PupperClient.MusicToolStatus.INSTALLED : PupperClient.MusicToolStatus.FAILED;
                                 notificationManager.showToolCheckNotification(finalStatus, 1f,
                                     success ? "工具安装完成" : "工具安装失败");
+
+                                if (success){
+                                    SystemSettings.getInstance().getFfmpegPathSetting().setFile(toolManager.getFfmpegPath());
+                                    SystemSettings.getInstance().getYtdlpPathSetting().setFile(toolManager.getYtDlpPath());
+                                }
 
                                 updateAllButtonStates();
                             });
@@ -129,7 +145,7 @@ public class MainMenuGui extends SimpleSoarGui {
     }
 
     private void updateAllButtonStates() {
-        PupperClient.LOGGER.info("更新按钮状态: toolsAvailable = {}", toolsAvailable);
+        PupperClient.LOGGER.info("update: toolsAvailable = {}", toolsAvailable);
 
         for (MainMenuButton button : buttons) {
             boolean isSettingsOrBackground = button == settingsButton || button == backgroundButton;

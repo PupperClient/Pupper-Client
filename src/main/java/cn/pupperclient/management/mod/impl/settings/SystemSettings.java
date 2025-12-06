@@ -59,7 +59,15 @@ public class SystemSettings extends Mod {
 		return ffmpegPathSetting != null && ffmpegPathSetting.getFile() != null ? ffmpegPathSetting.getFile() : null;
 	}
 
-	public String getYtdlpCommand() {
+    public FileSetting getFfmpegPathSetting() {
+        return ffmpegPathSetting;
+    }
+
+    public FileSetting getYtdlpPathSetting() {
+        return ytdlpPathSetting;
+    }
+
+    public String getYtdlpCommand() {
 		return ytdlpCommandSetting != null ? ytdlpCommandSetting.getValue() : "";
 	}
 }
