@@ -46,7 +46,7 @@ dependencies {
     modImplementation "com.viaversion:viafabricplus:4.0.2"
     modRuntimeOnly "maven.modrinth:immediatelyfast:1.3.3+1.21.4-fabric"
     modRuntimeOnly "maven.modrinth:entityculling:NkBXk0Ye"
-    modRuntimeOnly "maven.modrinth:modmenu:13.0.3"
+    modImplementation "maven.modrinth:modmenu:13.0.3"
 
     jij 'io.github.smartboot.socket:aio-core:1.7.1'
     jij 'com.github.ben-manes.caffeine:caffeine:3.1.8'
