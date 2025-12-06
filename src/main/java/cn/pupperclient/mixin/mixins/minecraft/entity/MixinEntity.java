@@ -27,6 +27,8 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
 
+import java.util.Objects;
+
 @Mixin(Entity.class)
 public abstract class MixinEntity implements IMixinCameraEntity {
     @Unique
@@ -115,53 +117,7 @@ public abstract class MixinEntity implements IMixinCameraEntity {
 
     @Inject(method = "playSound", at = @At("HEAD"))
     private void onPlaySound(SoundEvent sound, float volume, float pitch, CallbackInfo ci) {
-        Entity entity = (Entity) (Object) this;
-        SoundEventHelper.lastSoundSource = entity;
+        SoundEventHelper.lastSoundSource = (Entity) (Object) this;
         SoundEventHelper.lastSoundEvent = sound;
-
-        if (sound.id().toString().equals("minecraft:random.pop") && TotemTracker.getInstance().isEnabled()) {
-            ChatUtils.addChatMessage("玩家 " + entity.getName().getString() + " 触发了不死图腾");
-        }
-    }
-
-    /**
-     * @author a
-     * @reason a
-     */
-    @Overwrite
-    public final Vec3d getRotationVec(float tick) {
-        float pitch = this.getPitch(tick);
-        float yaw = this.getYaw(tick);
-        Entity thisEntity = (Entity)(Object)this;
-
-        if (MinecraftClient.getInstance().player != null && thisEntity.getId() == MinecraftClient.getInstance().player.getId()) {
-            EventRayTrace lookEvent = new EventRayTrace(MinecraftClient.getInstance().player, yaw, pitch);
-            EventBus.getInstance().post(lookEvent);
-            yaw = lookEvent.yaw;
-            pitch = lookEvent.pitch;
-        }
-
-        return this.getRotationVector(pitch, yaw);
-    }
-
-    @ModifyArg(
-        method = {"updateVelocity"},
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/entity/Entity;movementInputToVelocity(Lnet/minecraft/util/math/Vec3d;FF)Lnet/minecraft/util/math/Vec3d;",
-            ordinal = 0
-        ),
-        index = 2
-    )
-    private float modifyYaw(float yaw) {
-        Entity thisEntity = (Entity) (Object) this;
-
-        if (MinecraftClient.getInstance().player != null && thisEntity.getId() == MinecraftClient.getInstance().player.getId()) {
-            EventStrafe strafe = new EventStrafe(yaw);
-            EventBus.getInstance().post(strafe);
-            return strafe.getYaw();
-        }
-
-        return yaw;
     }
 }
