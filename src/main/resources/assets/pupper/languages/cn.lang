@@ -180,6 +180,9 @@ mod.customhand.description=更改手部位置、比例等
 mod.bossbar.name=Boss血条
 mod.bossbar.description=自定义Boss血条
 
+mod.totemtracker.name=图腾计数器
+mod.totemtracker.description=显示玩家弹出的图腾数量
+
 mod.systemsettings.name=系统设置
 mod.systemsettings.description=设置系统细节
 

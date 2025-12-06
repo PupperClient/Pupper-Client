@@ -39,6 +39,9 @@ mod.potionhud.description=Display active potion effects
 mod.hudsettings.name=HUD
 mod.hudsettings.description=Customizing the HUD
 
+mod.totemtracker.name=Totem Tracker
+mod.totemtracker.description=Display the number of totems popped by each player
+
 mod.modmenu.name=Mod Menu
 mod.modmenu.description=Customize Mod Menu related settings
 
