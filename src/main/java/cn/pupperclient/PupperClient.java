@@ -33,158 +33,187 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class PupperClient implements IMinecraft {
+
     private static final String CONFIG_FILE_NAME = "pupper.ok";
+    private static final String ICON_PATH = "assets/pupper/logo.png";
+    private static final String CLIENT_NAME = "Pupper";
+    private static final String CLIENT_VERSION = "8.6.3";
+
+    private static final PupperClient INSTANCE = new PupperClient();
+
     public static boolean hasAcceptedTerms = false;
     public static boolean firstLaunch = false;
-
     public static final Logger LOGGER = PupperLogger.getLogger();
-    private final static PupperClient instance = new PupperClient();
 
-    final ViaFabricPlusBase platform = ViaFabricPlus.getImpl();
+    private final ViaFabricPlusBase viaPlatform = ViaFabricPlus.getImpl();
     private ExternalToolManager toolManager;
     private MusicToolStatus musicToolStatus = MusicToolStatus.CHECKING;
+    private long launchTime;
 
-	private final String name = "Pupper";
-	private final String version = "8.6.3";
-
-	private long launchTime;
-
-	private ModManager modManager;
-	private ColorManager colorManager;
-	private MusicManager musicManager;
-	private ConfigManager configManager;
-	private ProfileManager profileManager;
-	private WebSocketManager webSocketManager;
-	private UserManager userManager;
-	private HypixelManager hypixelManager;
+    private ModManager modManager;
+    private ColorManager colorManager;
+    private MusicManager musicManager;
+    private ConfigManager configManager;
+    private ProfileManager profileManager;
+    private WebSocketManager webSocketManager;
+    private UserManager userManager;
+    private HypixelManager hypixelManager;
     private KeybindManager keybindManager;
     private CapeManager capeManager;
 
-	public void start() throws IOException {
-		JCefBrowser.download();
-		Fonts.loadAll();
-		FileLocation.init();
-		I18n.setLanguage(Language.ENGLISH);
+    private PupperClient() {}
 
-		launchTime = System.currentTimeMillis();
+    public void start() throws IOException {
+        initializeResources();
+        initializeManagers();
+        registerEventHandlers();
+        handleFirstLaunch();
+        checkResources();
+    }
 
-		modManager = new ModManager();
-		modManager.init();
-		colorManager = new ColorManager();
-		musicManager = new MusicManager();
-		configManager = new ConfigManager();
-		profileManager = new ProfileManager();
-		webSocketManager = new WebSocketManager();
-		userManager = new UserManager();
-		hypixelManager = new HypixelManager();
+    public void onShutdown() {
+        if (keybindManager != null) {
+            keybindManager.cleanup();
+        }
+    }
+
+    private void initializeResources() {
+        JCefBrowser.download();
+        Fonts.loadAll();
+        FileLocation.init();
+        I18n.setLanguage(Language.ENGLISH);
+        launchTime = System.currentTimeMillis();
+    }
+
+    private void initializeManagers() {
+        modManager = new ModManager();
+        modManager.init();
+        colorManager = new ColorManager();
+        musicManager = new MusicManager();
+        configManager = new ConfigManager();
+        profileManager = new ProfileManager();
+        webSocketManager = new WebSocketManager();
+        userManager = new UserManager();
+        hypixelManager = new HypixelManager();
         keybindManager = KeybindManager.getInstance();
         keybindManager.initialize();
         toolManager = new ExternalToolManager();
         SoarCommand.register();
         capeManager = new CapeManager();
+    }
 
-        EventBus.getInstance().register(new PupperEventHandle());
-		EventBus.getInstance().register(new PacketHandler());
-		EventBus.getInstance().register(new Delta());
+    private void registerEventHandlers() {
+        EventBus eventBus = EventBus.getInstance();
+        eventBus.register(new PupperEventHandle());
+        eventBus.register(new PacketHandler());
+        eventBus.register(new Delta());
+    }
 
+    private void handleFirstLaunch() throws IOException {
         Path configDir = FileLocation.MAIN_DIR.toPath();
         Path configFile = configDir.resolve(CONFIG_FILE_NAME);
 
         if (!Files.exists(configFile)) {
             firstLaunch = true;
-            try {
-                Files.createFile(configFile);
-                Files.writeString(configFile,
-                    "First launch: " + launchTime + "\n" +
-                        "PupperClient Version: " + version + "\n"
-                );
-            } catch (IOException e) {
-                LOGGER.error("Failed to create first launch detection file: {}", e.getMessage());
-            }
+            createConfigFile(configFile);
         }
 
+        if (!firstLaunch) {
+            setMusicToolStatus(MusicToolStatus.DONE);
+        }
+
+        registerTermsScreenCheck();
+    }
+
+    private void createConfigFile(Path configFile) throws IOException {
+        try {
+            Files.createFile(configFile);
+            var configContent = String.format(
+                "First launch: %d%nPupperClient Version: %s%n",
+                launchTime, CLIENT_VERSION
+            );
+            Files.writeString(configFile, configContent);
+        } catch (IOException e) {
+            LOGGER.error("Failed to create first launch detection file: {}", e.getMessage());
+            throw e;
+        }
+    }
+
+    private void registerTermsScreenCheck() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (firstLaunch && client.world != null && !hasAcceptedTerms) {
                 TermsScreen termsScreen = new TermsScreen();
                 client.setScreen(termsScreen.build());
             }
         });
+    }
 
-        if (!firstLaunch){
-            setMusicToolStatus(MusicToolStatus.DONE);
-        }
-
-        if (getClass().getClassLoader().getResource("assets/pupper/logo.png") == null) {
+    private void checkResources() {
+        if (getClass().getClassLoader().getResource(ICON_PATH) == null) {
             LOGGER.error("PupperClient icon not found in resources!");
         } else {
             LOGGER.info("PupperClient icon found in resources");
         }
-
     }
 
-    public void onShutdown() {
-        keybindManager.cleanup();
+    public static PupperClient getInstance() {
+        return INSTANCE;
     }
 
-	public static PupperClient getInstance() {
-		return instance;
-	}
+    public String getName() {
+        return CLIENT_NAME;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getVersion() {
+        return CLIENT_VERSION;
+    }
 
-	public String getVersion() {
-		return version;
-	}
+    public long getLaunchTime() {
+        return launchTime;
+    }
 
-	public long getLaunchTime() {
-		return launchTime;
-	}
+    public ModManager getModManager() {
+        return modManager;
+    }
 
-	public ModManager getModManager() {
-		return modManager;
-	}
-
-	public ColorManager getColorManager() {
-		return colorManager;
-	}
+    public ColorManager getColorManager() {
+        return colorManager;
+    }
 
     public KeybindManager getKeybindManager() {
         return keybindManager;
     }
 
-	public MusicManager getMusicManager() {
-		return musicManager;
-	}
+    public MusicManager getMusicManager() {
+        return musicManager;
+    }
 
-	public ConfigManager getConfigManager() {
-		return configManager;
-	}
+    public ConfigManager getConfigManager() {
+        return configManager;
+    }
 
-	public ProfileManager getProfileManager() {
-		return profileManager;
-	}
+    public ProfileManager getProfileManager() {
+        return profileManager;
+    }
 
-	public WebSocketManager getWebSocketManager() {
-		return webSocketManager;
-	}
+    public WebSocketManager getWebSocketManager() {
+        return webSocketManager;
+    }
 
-	public UserManager getUserManager() {
-		return userManager;
-	}
+    public UserManager getUserManager() {
+        return userManager;
+    }
 
-	public HypixelManager getHypixelManager() {
-		return hypixelManager;
-	}
+    public HypixelManager getHypixelManager() {
+        return hypixelManager;
+    }
 
     public ProtocolVersion getProtocolVersion() {
-        return ViaFabricPlus.getImpl().getTargetVersion();
+        return viaPlatform.getTargetVersion();
     }
 
     public void setProtocolVersion(ProtocolVersion version) {
-        platform.setTargetVersion(version);
-        this.getProtocolVersion();
+        viaPlatform.setTargetVersion(version);
     }
 
     public ExternalToolManager getToolManager() {
@@ -199,11 +228,15 @@ public class PupperClient implements IMinecraft {
         this.musicToolStatus = status;
     }
 
-    public enum MusicToolStatus {
-        CHECKING, INSTALLED, DOWNLOADING, FAILED, DONE
-    }
-
     public CapeManager getCapeManager() {
         return capeManager;
+    }
+
+    public enum MusicToolStatus {
+        CHECKING,
+        INSTALLED,
+        DOWNLOADING,
+        FAILED,
+        DONE
     }
 }
