@@ -12,6 +12,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 import java.util.HashMap;
 
@@ -47,15 +49,15 @@ public class TotemTracker extends Mod {
         }
         if (l_Count == 1) {
             if (player.equals(mc.player)) {
-                ChatUtils.addChatMessage(String.format("¡ìfYou(%s)¡ìr popped ¡ìf%d¡ìr totem.", player.getName().getString(), l_Count));
+                ChatUtils.addChatMessage(Text.of(String.format(Formatting.WHITE + "You(%s)" + Formatting.RESET + " popped " + Formatting.GRAY + "%d" + Formatting.RESET + " totem.", player.getName().getString(), l_Count)));
             } else {
-                ChatUtils.addChatMessage(String.format("¡ìf%s¡ìr popped ¡ìf%d¡ìr totem.", player.getName().getString(), l_Count));
+                ChatUtils.addChatMessage(Text.of(String.format(Formatting.WHITE + "%s" + Formatting.RESET + " popped " + Formatting.GRAY + "%d" + Formatting.RESET + " totem.", player.getName().getString().isEmpty() ? player.getGameProfile().getName() : player.getName().getString(), l_Count)));
             }
         } else {
             if (player.equals(mc.player)) {
-                ChatUtils.addChatMessage(String.format("¡ìfYou(%s)¡ìr popped ¡ìf%d¡ìr totem.", player.getName().getString(), l_Count));
+                ChatUtils.addChatMessage(Text.of(String.format(Formatting.WHITE + "You(%s)" + Formatting.RESET + " popped " + Formatting.GRAY + "%d" + Formatting.RESET + " totem.", player.getName().getString(), l_Count)));
             } else {
-                ChatUtils.addChatMessage(String.format("¡ìf%s¡ìr has popped ¡ìf%d¡ìr totems.", player.getName().getString(), l_Count));
+                ChatUtils.addChatMessage(Text.of(String.format(Formatting.WHITE + "%s" + Formatting.RESET + " has popped " + Formatting.GRAY + "%d" + Formatting.RESET + " totems.", player.getName().getString().isEmpty() ? player.getGameProfile().getName() : player.getName().getString(), l_Count)));
             }
         }
     }
