@@ -9,7 +9,9 @@ import net.minecraft.scoreboard.ScoreboardDisplaySlot;
 import net.minecraft.scoreboard.ScoreboardEntry;
 import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.scoreboard.Team;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,7 +21,7 @@ public class Scoreboard extends SimpleListHUDMod {
 
     private static Scoreboard instance;
     private final MinecraftClient client = MinecraftClient.getInstance();
-    private List<String> displayLines = new ArrayList<>(); // 改为存储行的列表
+    private List<String> displayLines = new ArrayList<>();
 
     public Scoreboard() {
         super("mod.scoreboard.name", "mod.scoreboard.description", Icon.SCOREBOARD);
@@ -43,12 +45,12 @@ public class Scoreboard extends SimpleListHUDMod {
 
     @Override
     public void draw() {
-        updateDisplayLines(); // 更新行列表
-        super.draw(); // 调用父类的绘制方法
+        updateDisplayLines();
+        super.draw();
     }
 
     private void updateDisplayLines() {
-        displayLines.clear(); // 清空之前的行
+        displayLines.clear();
 
         ScoreboardObjective scoreboardObjective = client.world.getScoreboard().getObjectiveForSlot(ScoreboardDisplaySlot.SIDEBAR);
         if (scoreboardObjective == null) {
@@ -61,6 +63,11 @@ public class Scoreboard extends SimpleListHUDMod {
             return;
         }
 
+        // 添加标题 - 保留格式化字符
+        Text titleText = scoreboardObjective.getDisplayName();
+        String formattedTitle = convertTextToFormattedString(titleText);
+        displayLines.add(formattedTitle);
+
         // 过滤和排序
         List<ScoreboardEntry> sortedScores = new ArrayList<>();
         for (ScoreboardEntry entry : scores) {
@@ -69,13 +76,6 @@ public class Scoreboard extends SimpleListHUDMod {
             }
         }
         sortedScores.sort((a, b) -> Integer.compare(b.value(), a.value()));
-
-        // 添加标题
-        String title = scoreboardObjective.getDisplayName().getString();
-        displayLines.add(title);
-
-        // 添加分隔线
-        displayLines.add("---");
 
         // 添加积分项
         int maxLines = Math.min(sortedScores.size(), 199);
@@ -92,20 +92,84 @@ public class Scoreboard extends SimpleListHUDMod {
 
         String displayName;
         if (team != null) {
-            // 使用团队的格式化名称
             Text formattedName = entry.name();
-            displayName = formattedName.getString();
+            // 使用新的格式化方法
+            displayName = convertTextToFormattedString(formattedName);
         } else {
             displayName = playerName;
         }
 
-        // 返回格式化的文本：玩家名 + 空格 + 分数
         return displayName + " " + entry.value();
+    }
+
+    /**
+     * 将 Minecraft Text 对象转换为包含格式化字符的字符串
+     * 保留颜色代码和格式化信息
+     */
+    private String convertTextToFormattedString(Text text) {
+        StringBuilder result = new StringBuilder();
+        convertTextRecursive(text, result);
+        return result.toString();
+    }
+
+    /**
+     * 递归处理 Text 对象及其子组件
+     */
+    private void convertTextRecursive(Text text, StringBuilder result) {
+        // 处理当前文本的样式
+        if (text.getStyle() != null) {
+            // 添加颜色代码
+            if (text.getStyle().getColor() != null) {
+                Formatting formatting = Formatting.byName(text.getStyle().getColor().getName());
+                if (formatting != null && formatting.isColor()) {
+                    result.append("§").append(formatting.getCode());
+                }
+            }
+
+            // 添加格式化代码（粗体、斜体等）
+            if (text.getStyle().isBold()) {
+                result.append("§l");
+            }
+            if (text.getStyle().isItalic()) {
+                result.append("§o");
+            }
+            if (text.getStyle().isUnderlined()) {
+                result.append("§n");
+            }
+            if (text.getStyle().isStrikethrough()) {
+                result.append("§m");
+            }
+            if (text.getStyle().isObfuscated()) {
+                result.append("§k");
+            }
+        }
+
+        // 添加文本内容
+        String content = text.getString();
+        if (!content.isEmpty()) {
+            result.append(content);
+        }
+
+        // 递归处理子组件
+        for (Text sibling : text.getSiblings()) {
+            convertTextRecursive(sibling, result);
+        }
+
+        // 在必要时重置格式（当有样式变化时）
+        if (text.getStyle() != null && (
+            text.getStyle().getColor() != null ||
+                text.getStyle().isBold() ||
+                text.getStyle().isItalic() ||
+                text.getStyle().isUnderlined() ||
+                text.getStyle().isStrikethrough() ||
+                text.getStyle().isObfuscated())) {
+            result.append("§r");
+        }
     }
 
     @Override
     public List<String> getText() {
-        return displayLines; // 直接返回行列表
+        return displayLines;
     }
 
     @Override
