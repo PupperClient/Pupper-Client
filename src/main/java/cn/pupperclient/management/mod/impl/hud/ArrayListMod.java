@@ -44,7 +44,7 @@ public class ArrayListMod extends HUDMod {
 
     // Design constants
     private static final float FONT_SIZE = 8.5f;
-    private static final float ICON_SIZE = 9f;
+    private static final float ICON_SIZE = 9.5f;
     private static final float ROW_HEIGHT = 14f;
     private static final float HORIZONTAL_PADDING = 6f; // 减少内边距，因为有两个背景
     private static final float VERTICAL_PADDING = 3f;
@@ -214,7 +214,7 @@ public class ArrayListMod extends HUDMod {
         float textX = bgX + iconBgWidth + ICON_TEXT_SPACING + HORIZONTAL_PADDING;
         float contentY = bgY + VERTICAL_PADDING;
 
-        Skia.drawText(titleIcon, iconX + 1, contentY, Color.WHITE, Fonts.getIcon(11F));
+        Skia.drawText(titleIcon, iconX + 1, contentY, Color.WHITE, Fonts.getIcon(9.6F));
         Skia.drawText(titleText, textX, contentY, Color.WHITE, Fonts.getRegular(FONT_SIZE));
     }
 
