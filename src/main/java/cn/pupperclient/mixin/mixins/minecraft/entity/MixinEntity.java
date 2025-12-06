@@ -1,21 +1,14 @@
 package cn.pupperclient.mixin.mixins.minecraft.entity;
 
-import cn.pupperclient.event.client.EventRayTrace;
-import cn.pupperclient.event.client.EventStrafe;
-import cn.pupperclient.management.mod.impl.fun.TotemTracker;
-import cn.pupperclient.utils.ChatUtils;
 import cn.pupperclient.utils.SoundEventHelper;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import cn.pupperclient.event.EventBus;
@@ -26,8 +19,6 @@ import cn.pupperclient.mixin.interfaces.IMixinCameraEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
-
-import java.util.Objects;
 
 @Mixin(Entity.class)
 public abstract class MixinEntity implements IMixinCameraEntity {
