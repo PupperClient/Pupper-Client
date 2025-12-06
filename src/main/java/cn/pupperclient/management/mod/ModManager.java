@@ -29,36 +29,46 @@ public class ModManager {
 	}
 
 	private void initMods() {
+        initHudMods();
+		initPlayerMods();
+        initRenderMods();
+		initMiscMods();
+        initSettings();
+        initFunMods();
 
-		// HUD
+		sortMods();
+	}
+
+    private void initHudMods()
+    {
         mods.add(new Scoreboard());
-		mods.add(new BedwarsStatsOverlayMod());
-		mods.add(new BossBarMod());
-		mods.add(new ClockMod());
-		mods.add(new ComboCounterMod());
-		mods.add(new CoordsMod());
-		mods.add(new DayCounterMod());
-		mods.add(new FPSDisplayMod());
-		mods.add(new GameModeDisplayMod());
-		mods.add(new HealthDisplayMod());
-		mods.add(new JumpResetIndicatorMod());
-		mods.add(new KeystrokesMod());
-		mods.add(new MemoryUsageMod());
-		mods.add(new MouseStrokesMod());
-		mods.add(new MusicInfoMod());
-		mods.add(new NameDisplayMod());
-		mods.add(new PingDisplayMod());
-		mods.add(new PitchDisplayMod());
-		mods.add(new PlayerCounterMod());
-		mods.add(new PlayTimeDisplayMod());
-		mods.add(new ProtocolVersionMod());
-		mods.add(new ReachDisplayMod());
-		mods.add(new ServerIPDisplayMod());
-		mods.add(new SpeedometerMod());
-		mods.add(new StopwatchMod());
-		mods.add(new WebBrowserMod());
-		mods.add(new WeatherDisplayMod());
-		mods.add(new YawDisplayMod());
+        mods.add(new BedwarsStatsOverlayMod());
+        mods.add(new BossBarMod());
+        mods.add(new ClockMod());
+        mods.add(new ComboCounterMod());
+        mods.add(new CoordsMod());
+        mods.add(new DayCounterMod());
+        mods.add(new FPSDisplayMod());
+        mods.add(new GameModeDisplayMod());
+        mods.add(new HealthDisplayMod());
+        mods.add(new JumpResetIndicatorMod());
+        mods.add(new KeystrokesMod());
+        mods.add(new MemoryUsageMod());
+        mods.add(new MouseStrokesMod());
+        mods.add(new MusicInfoMod());
+        mods.add(new NameDisplayMod());
+        mods.add(new PingDisplayMod());
+        mods.add(new PitchDisplayMod());
+        mods.add(new PlayerCounterMod());
+        mods.add(new PlayTimeDisplayMod());
+        mods.add(new ProtocolVersionMod());
+        mods.add(new ReachDisplayMod());
+        mods.add(new ServerIPDisplayMod());
+        mods.add(new SpeedometerMod());
+        mods.add(new StopwatchMod());
+        mods.add(new WebBrowserMod());
+        mods.add(new WeatherDisplayMod());
+        mods.add(new YawDisplayMod());
         mods.add(new WatermarkMod());
         mods.add(new CPSDisplayMod());
         mods.add(new TargetHUDMod());
@@ -69,49 +79,53 @@ public class ModManager {
         mods.add(new CooldownHudMod());
         mods.add(new PotionHudMod());
         mods.add(new Test());
+    }
 
-		// Player
-		mods.add(new AutoGGMod());
-		mods.add(new ForceMainHandMod());
-		mods.add(new FreelookMod());
-		mods.add(new HitDelayFixMod());
-		mods.add(new NoJumpDelayMod());
-		mods.add(new OldAnimationsMod());
-		mods.add(new SnapTapMod());
-		mods.add(new TaplookMod());
-		mods.add(new ZoomMod());
+    private void initPlayerMods(){
+        mods.add(new AutoGGMod());
+        mods.add(new ForceMainHandMod());
+        mods.add(new FreelookMod());
+        mods.add(new HitDelayFixMod());
+        mods.add(new NoJumpDelayMod());
+        mods.add(new OldAnimationsMod());
+        mods.add(new SnapTapMod());
+        mods.add(new TaplookMod());
+        mods.add(new ZoomMod());
         mods.add(new AutoTextMod());
         mods.add(new Sprint());
+    }
 
-		// Render
-		mods.add(new BloodParticleMod());
-		mods.add(new CustomHandMod());
-		mods.add(new FullbrightMod());
-		mods.add(new MusicWaveformMod());
-		mods.add(new OverlayEditorMod());
-		mods.add(new ParticlesMod());
-		mods.add(new ProjectileTrailMod());
+    private void initRenderMods(){
+        mods.add(new BloodParticleMod());
+        mods.add(new CustomHandMod());
+        mods.add(new FullbrightMod());
+        mods.add(new MusicWaveformMod());
+        mods.add(new OverlayEditorMod());
+        mods.add(new ParticlesMod());
+        mods.add(new ProjectileTrailMod());
         mods.add(new ClickEffectMod());
         mods.add(new NoHurtFov());
+    }
 
-		// Misc
-		mods.add(new DiscordRPCMod());
-		mods.add(new HypixelMod());
-		mods.add(new TimeChangerMod());
-		mods.add(new WeatherChangerMod());
+    private void initMiscMods() {
+        mods.add(new DiscordRPCMod());
+        mods.add(new HypixelMod());
+        mods.add(new TimeChangerMod());
+        mods.add(new WeatherChangerMod());
         mods.add(new IRCChatMod());
-		
-		// Settings
-		mods.add(new HUDModSettings());
-		mods.add(new ModMenuSettings());
-		mods.add(new SystemSettings());
+    }
 
-        // Fun
+    private void initFunMods() {
         mods.add(new FakeFpsMod());
         mods.add(new HeypixelMod());
+        mods.add(new TotemTracker());
+    }
 
-		sortMods();
-	}
+    private void initSettings() {
+        mods.add(new HUDModSettings());
+        mods.add(new ModMenuSettings());
+        mods.add(new SystemSettings());
+    }
 
 	private void initDesigns() {
 		designs.add(new ClassicDesign());
@@ -160,7 +174,7 @@ public class ModManager {
 	}
 
 	private void sortMods() {
-		mods.sort(Comparator.comparing(Mod::getName));
+		mods.sort(Comparator.comparing(Mod::getRawName));
 	}
 
     public void setModEnabledByName(boolean enabled, String modName) {
