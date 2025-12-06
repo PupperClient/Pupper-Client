@@ -14,11 +14,13 @@ import cn.pupperclient.skia.font.Icon;
 import cn.pupperclient.ui.component.Component;
 import cn.pupperclient.ui.component.handler.impl.ButtonHandler;
 import cn.pupperclient.ui.component.impl.IconButton;
+import cn.pupperclient.utils.ColorUtils;
 import cn.pupperclient.utils.Multithreading;
 import cn.pupperclient.utils.file.FileLocation;
 import cn.pupperclient.utils.file.dialog.SoarFileDialog;
 import cn.pupperclient.utils.language.I18n;
 import cn.pupperclient.utils.mouse.MouseUtils;
+import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 import javax.imageio.ImageIO;
@@ -222,8 +224,20 @@ public class CosmeticsPage extends Page {
             }
 
             if (item.capeFile.exists()) {
-                CapeRenderer.renderRoundedCapePreview(PupperClient.getInstance().getCapeManager().getLoadedCape(item.capeId),
-                    itemX + 5, itemY + 5, itemWidth - 10, itemHeight - 10, 8);
+                Identifier capeTexture = PupperClient.getInstance().getCapeManager().getLoadedCape(item.capeId);
+                if (capeTexture != null) {
+                    CapeRenderer.renderRoundedCapePreview(capeTexture,
+                        itemX + 5, itemY + 5, itemWidth - 10, itemHeight - 10, 8);
+                } else {
+                    // 如果纹理尚未加载，显示加载状态或占位符
+                    Skia.drawRoundedRect(itemX + 5, itemY + 5, itemWidth - 10, itemHeight - 10, 8, 
+                        ColorUtils.withAlpha(palette.getSurfaceVariant(), 0.5f));
+                    // 可以添加加载中的文字提示
+                    String loadingText = "Loading...";
+                    float textWidth = Skia.getTextBounds(loadingText, Fonts.getRegular(12)).getWidth();
+                    Skia.drawText(loadingText, itemX + itemWidth / 2 - textWidth / 2, 
+                        itemY + itemHeight / 2, palette.getOnSurfaceVariant(), Fonts.getRegular(12));
+                }
             }
         }
 

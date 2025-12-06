@@ -65,4 +65,8 @@ public class ColorUtils {
     public static Color interpolateColor(Color surfaceContainer, Color surfaceContainerHigh, float hoverValue) {
         return ColorUtils.interpolateColors(200, 0, surfaceContainer, surfaceContainerHigh);
     }
+
+    public static Color withAlpha(Color surfaceVariant, float v) {
+        return ColorUtils.applyAlpha(surfaceVariant, v);
+    }
 }
