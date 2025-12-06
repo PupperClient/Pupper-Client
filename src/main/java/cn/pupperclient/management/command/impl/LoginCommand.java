@@ -4,24 +4,17 @@ import cn.pupperclient.PupperClient;
 import cn.pupperclient.PupperLogger;
 import cn.pupperclient.utils.ChatUtils;
 import cn.pupperclient.utils.Multithreading;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.util.HashMap;
-import java.util.Map;
 
 public class LoginCommand {
 
