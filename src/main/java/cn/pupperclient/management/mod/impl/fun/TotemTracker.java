@@ -43,6 +43,7 @@ public class TotemTracker extends Mod {
     @EventListener
     public void onTotem(TotemEvent event) {
         PlayerEntity player = event.getPlayer();
+        char ch = 0;
         int l_Count = 1;
         if (popContainer.containsKey(player.getName().getString())) {
             l_Count = popContainer.get(player.getName().getString());
@@ -51,13 +52,13 @@ public class TotemTracker extends Mod {
             if (player.equals(mc.player)) {
                 ChatUtils.addChatMessage(Text.of(String.format(Formatting.WHITE + "You(%s)" + Formatting.RESET + " popped " + Formatting.GRAY + "%d" + Formatting.RESET + " totem.", player.getName().getString(), l_Count)));
             } else {
-                ChatUtils.addChatMessage(Text.of(String.format(Formatting.WHITE + "%s" + Formatting.RESET + " popped " + Formatting.GRAY + "%d" + Formatting.RESET + " totem.", player.getName().getString().isEmpty() ? player.getGameProfile().getName() : player.getName().getString(), l_Count)));
+                ChatUtils.addChatMessage(Text.of(String.format(Formatting.WHITE + "%s" + Formatting.RESET + " popped " + Formatting.GRAY + "%d" + Formatting.RESET + " totem.", player.getName().getString().replace(String.valueOf(Formatting.FORMATTING_CODE_PREFIX), ""), l_Count)));
             }
         } else {
             if (player.equals(mc.player)) {
-                ChatUtils.addChatMessage(Text.of(String.format(Formatting.WHITE + "You(%s)" + Formatting.RESET + " popped " + Formatting.GRAY + "%d" + Formatting.RESET + " totem.", player.getName().getString(), l_Count)));
+                ChatUtils.addChatMessage(Text.of(String.format(Formatting.WHITE + "You(%s)" + Formatting.RESET + " popped " + Formatting.GRAY + "%d" + Formatting.RESET + " totem.", player.getName().getString().replace(String.valueOf(Formatting.FORMATTING_CODE_PREFIX), ""), l_Count)));
             } else {
-                ChatUtils.addChatMessage(Text.of(String.format(Formatting.WHITE + "%s" + Formatting.RESET + " has popped " + Formatting.GRAY + "%d" + Formatting.RESET + " totems.", player.getName().getString().isEmpty() ? player.getGameProfile().getName() : player.getName().getString(), l_Count)));
+                ChatUtils.addChatMessage(Text.of(String.format(Formatting.WHITE + "%s" + Formatting.RESET + " has popped " + Formatting.GRAY + "%d" + Formatting.RESET + " totems.", player.getName().getString(), l_Count)));
             }
         }
     }
