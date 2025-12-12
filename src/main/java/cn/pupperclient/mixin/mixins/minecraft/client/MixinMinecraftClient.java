@@ -167,12 +167,4 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
     private void hookWorldChangeEvent(ClientWorld world, CallbackInfo ci) {
         EventBus.getInstance().post(new WorldChangeEvent(world));
     }
-
-//    @Inject(
-//        method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V",
-//        at = @At("HEAD")
-//    )
-//    private void onDisconnect(Screen screen, CallbackInfo ci) {
-//        setScreen(new MainMenuGui().build());
-//    }
 }
