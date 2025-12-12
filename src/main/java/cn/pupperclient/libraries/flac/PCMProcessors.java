@@ -18,7 +18,7 @@ import cn.pupperclient.libraries.flac.util.ByteData;
  * @author kc7bfi
  */
 class PCMProcessors implements PCMProcessor {
-	private HashSet<PCMProcessor> pcmProcessors = new HashSet<PCMProcessor>();
+	private final HashSet<PCMProcessor> pcmProcessors = new HashSet<PCMProcessor>();
 
 	/**
 	 * Add a PCM processor.
@@ -75,7 +75,7 @@ class PCMProcessors implements PCMProcessor {
 	}
 
 	public boolean isCanceled() {
-		return pcmProcessors.size() == 0;
+		return pcmProcessors.isEmpty();
 	}
 
 }
