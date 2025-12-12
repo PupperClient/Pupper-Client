@@ -74,7 +74,7 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 	public ClientPlayerEntity player;
 
 	@Shadow
-	public abstract String getWindowTitle();
+    protected abstract String getWindowTitle();
 
     @Shadow
     public abstract void setScreen(@Nullable Screen screen);
@@ -127,7 +127,7 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 	 */
 	@Overwrite
 	public void updateWindowTitle() {
-		this.window.setTitle(PupperClient.getInstance().getName() + " Client v" + PupperClient.getInstance().getVersion() + " for "
+		this.window.setTitle(PupperClient.getInstance().getName() + " | " + PupperClient.getInstance().getVersion() + " for "
 				+ getWindowTitle());
 	}
 

@@ -42,7 +42,7 @@ public class HomePage extends Page {
             palette.getSurfaceContainer());
 
         Skia.drawText("Welcome to", x + 50, y + 80, palette.getOnSurfaceVariant(), Fonts.getGoogleSansRegular(24));
-        Skia.drawText("Pupper Client " + PupperClient.getInstance().getVersion(), x + 50, y + 110, palette.getOnSurface(), Fonts.getGoogleSansRegular(36));
+        Skia.drawText(PupperClient.getInstance().getName() + " " + PupperClient.getInstance().getVersion(), x + 50, y + 110, palette.getOnSurface(), Fonts.getGoogleSansRegular(36));
 
         Skia.drawText(currentTime, x + width - 325, y + 80, palette.getOnSurfaceVariant(),
             Fonts.getMedium(24));
