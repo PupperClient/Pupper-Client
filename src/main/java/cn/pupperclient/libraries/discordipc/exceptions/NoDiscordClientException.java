@@ -19,6 +19,8 @@ package cn.pupperclient.libraries.discordipc.exceptions;
 import cn.pupperclient.libraries.discordipc.IPCClient;
 import cn.pupperclient.libraries.discordipc.entities.DiscordBuild;
 
+import java.io.Serial;
+
 /**
  * An exception thrown when the {@link IPCClient IPCClient}
  * cannot find the proper application to use for RichPresence when
@@ -33,6 +35,7 @@ public class NoDiscordClientException extends Exception {
     /**
      * The serialized unique version identifier
      */
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public NoDiscordClientException() {
