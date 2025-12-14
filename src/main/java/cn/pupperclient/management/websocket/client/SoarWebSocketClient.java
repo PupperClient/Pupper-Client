@@ -13,7 +13,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import cn.pupperclient.management.websocket.handler.WebSocketHandler;
 import cn.pupperclient.management.websocket.handler.impl.HypixelStatsHandler;
-import cn.pupperclient.management.websocket.handler.impl.SoarUserHandler;
 import cn.pupperclient.utils.JsonUtils;
 
 public class SoarWebSocketClient extends WebSocketClient {
@@ -30,7 +29,6 @@ public class SoarWebSocketClient extends WebSocketClient {
 
     private void initializeHandlers() {
     	register("sc-hypixel-stats", new HypixelStatsHandler());
-    	register("sc-soar-user", new SoarUserHandler());
     }
     
 	@Override
