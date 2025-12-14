@@ -273,7 +273,13 @@ public class ArrayListMod extends HUDMod {
     private void drawRoundedBackground(float x, float y, float width, int alpha) {
         float radius = ROW_HEIGHT / 2;
         Hct hctColor = ModMenuSettings.getInstance().getHctColorSetting().getHct();
-        Skia.drawRoundedRect(x, y, width, ROW_HEIGHT, radius, new Color(hctColor.toInt(), false));
+        int argb = hctColor.toInt();
+
+        int r = (argb >> 16) & 0xFF;
+        int g = (argb >> 8) & 0xFF;
+        int b = argb & 0xFF;
+
+        Skia.drawRoundedRect(x, y, width, ROW_HEIGHT, radius, new Color(r, b, g, 120));
     }
 
     private List<ModDisplayInfo> getEnabledMods() {
