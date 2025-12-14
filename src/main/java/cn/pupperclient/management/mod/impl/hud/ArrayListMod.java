@@ -214,7 +214,7 @@ public class ArrayListMod extends HUDMod {
         float textX = bgX + iconBgWidth + ICON_TEXT_SPACING + HORIZONTAL_PADDING;
         float contentY = bgY + VERTICAL_PADDING;
 
-        Skia.drawText(titleIcon, iconX + 1, contentY, Color.WHITE, Fonts.getIcon(9.6F));
+        Skia.drawText(titleIcon, iconX + 0.5F, contentY + 1.2F , Color.WHITE, Fonts.getIcon(9.7F));
         Skia.drawText(titleText, textX, contentY, Color.WHITE, Fonts.getRegular(FONT_SIZE));
     }
 
@@ -266,7 +266,7 @@ public class ArrayListMod extends HUDMod {
         float textX = bgX + modInfo.iconBgWidth + ICON_TEXT_SPACING + HORIZONTAL_PADDING;
         float contentY = bgY + VERTICAL_PADDING;
 
-        Skia.drawText(Icon.CHECK, iconX, contentY, contentColor, Fonts.getIcon(ICON_SIZE));
+        Skia.drawText(Icon.CHECK, iconX, contentY + 2, contentColor, Fonts.getIcon(ICON_SIZE));
         Skia.drawText(modInfo.displayName, textX, contentY, contentColor, Fonts.getRegular(FONT_SIZE));
     }
 
