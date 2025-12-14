@@ -16,7 +16,7 @@ import net.minecraft.util.Formatting;
 
 import java.io.IOException;
 
-public class SoarCommand implements IMinecraft {
+public class PupperCommand implements IMinecraft {
     private static final String PREFIX = ".";
     private static final ModManager modManager = PupperClient.getInstance().getModManager();
 
