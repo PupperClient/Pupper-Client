@@ -7,14 +7,13 @@ import cn.pupperclient.gui.welcomegui.TermsScreen;
 import cn.pupperclient.libraries.browser.JCefBrowser;
 import cn.pupperclient.management.cape.CapeManager;
 import cn.pupperclient.management.color.ColorManager;
-import cn.pupperclient.management.command.SoarCommand;
+import cn.pupperclient.management.command.PupperCommand;
 import cn.pupperclient.management.config.ConfigManager;
 import cn.pupperclient.management.hypixel.HypixelManager;
 import cn.pupperclient.management.keybind.KeybindManager;
 import cn.pupperclient.management.mod.ModManager;
 import cn.pupperclient.management.music.MusicManager;
 import cn.pupperclient.management.profile.ProfileManager;
-import cn.pupperclient.management.user.UserManager;
 import cn.pupperclient.management.websocket.WebSocketManager;
 import cn.pupperclient.skia.font.Fonts;
 import cn.pupperclient.utils.ExternalToolManager;
@@ -26,11 +25,13 @@ import com.viaversion.viafabricplus.ViaFabricPlus;
 import com.viaversion.viafabricplus.api.ViaFabricPlusBase;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.minecraft.client.ClientBrandRetriever;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 
 public class PupperClient implements IMinecraft {
 
@@ -56,7 +57,6 @@ public class PupperClient implements IMinecraft {
     private ConfigManager configManager;
     private ProfileManager profileManager;
     private WebSocketManager webSocketManager;
-    private UserManager userManager;
     private HypixelManager hypixelManager;
     private KeybindManager keybindManager;
     private CapeManager capeManager;
@@ -94,12 +94,11 @@ public class PupperClient implements IMinecraft {
         configManager = new ConfigManager();
         profileManager = new ProfileManager();
         webSocketManager = new WebSocketManager();
-        userManager = new UserManager();
         hypixelManager = new HypixelManager();
         keybindManager = KeybindManager.getInstance();
         keybindManager.initialize();
         toolManager = new ExternalToolManager();
-        SoarCommand.register();
+        PupperCommand.register();
         capeManager = new CapeManager();
     }
 
@@ -199,10 +198,6 @@ public class PupperClient implements IMinecraft {
 
     public WebSocketManager getWebSocketManager() {
         return webSocketManager;
-    }
-
-    public UserManager getUserManager() {
-        return userManager;
     }
 
     public HypixelManager getHypixelManager() {

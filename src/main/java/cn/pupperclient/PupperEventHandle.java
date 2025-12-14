@@ -25,12 +25,10 @@ public class PupperEventHandle {
 	public final EventBus.EventListener<ClientTickEvent> onClientTick = event -> {
 		PupperClient.getInstance().getColorManager().onTick();
 		PupperClient.getInstance().getHypixelManager().update();
-		PupperClient.getInstance().getUserManager().update();
 	};
 
 	public final EventBus.EventListener<GameJoinEvent> onGameJoin = event -> {
 		PupperClient.getInstance().getHypixelManager().clear();
-		PupperClient.getInstance().getUserManager().clear();
 	};
 
 	public final EventBus.EventListener<ServerJoinEvent> onServerJoin = event -> {
