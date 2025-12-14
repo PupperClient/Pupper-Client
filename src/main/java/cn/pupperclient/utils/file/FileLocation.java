@@ -12,7 +12,6 @@ public class FileLocation {
 	public static final File CONFIG_DIR = new File(MAIN_DIR, "config");
 	public static final File PROFILE_DIR = new File(MAIN_DIR, "profile");
     public static final File BACKGROUND_DIR = new File(MAIN_DIR, "background");
-    public static final File USER_DATA_DIR = new File(MAIN_DIR, "user.json");
     public static final File CAPES_DIR = new File(MAIN_DIR, "capes");
 
     public static void init() {
