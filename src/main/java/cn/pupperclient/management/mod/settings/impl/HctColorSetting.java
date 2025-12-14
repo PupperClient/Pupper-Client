@@ -8,7 +8,7 @@ import cn.pupperclient.management.mod.settings.Setting;
 public class HctColorSetting extends Setting {
 
 	private Hct hct;
-	private Hct defaultHct;
+	private final Hct defaultHct;
 
 	public HctColorSetting(String name, String description, String icon, Mod parent, Hct hct) {
 		super(name, description, icon, parent);
