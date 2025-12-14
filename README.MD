@@ -11,23 +11,19 @@ A Better, Faster Minecraft Client for 1.21.4
 
 ## Installation
 
-### Method 1: Direct Installation
-1. Download the mod file from our official sources
-2. Drag and drop the mod file into PCL or HMCL launcher
-
-### Method 2: Modpack Installation
-1. Download the complete modpack from our official sources
-2. Drag and drop the modpack into PCL or HMCL launcher
+1. Download the mod from modrinth
+2. Download the modpack from modrinth
 
 ## Requirements
 - **Minecraft**: 1.21.4
 - **Required Mods**:
     - [IAS] In-Game Account Switcher
     - ViaFabricPlus
+    - ModMenu
 
 ## Download & Support
 
-**Official QQ Group & Download**: 1023334402
+**Official QQ Group**: 1023334402
 
 **Developer Contacts**:
 - oneachina
@@ -46,4 +42,4 @@ All resources are available in our official group files. Please download and use
 ---
 
 Pupper Client Official  
-2025/11/23 19:04
+2025/12/13 18:28 (Beijing time)
