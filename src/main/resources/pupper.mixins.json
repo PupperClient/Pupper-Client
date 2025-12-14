@@ -3,6 +3,7 @@
   "package": "cn.pupperclient.mixin.mixins",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "minecraft.client.MixinClientBrandRetriever",
     "minecraft.client.MixinKeyboard",
     "minecraft.client.MixinMinecraftClient",
     "minecraft.client.MixinMouse",
