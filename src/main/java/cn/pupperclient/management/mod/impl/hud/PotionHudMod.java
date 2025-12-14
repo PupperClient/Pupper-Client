@@ -9,8 +9,8 @@ import cn.pupperclient.management.mod.settings.impl.ComboSetting;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.font.Fonts;
 import cn.pupperclient.skia.font.Icon;
+import cn.pupperclient.utils.RomanConverter;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.resource.language.I18n;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static cn.pupperclient.management.mod.impl.hud.ArrayListMod.ICON_TEXT_SPACING;
 
+@SuppressWarnings("unused")
 public class PotionHudMod extends HUDMod {
     private static PotionHudMod instance;
 
@@ -43,7 +44,6 @@ public class PotionHudMod extends HUDMod {
     // Animation states
     private final Map<String, PotionAnimationState> animationStates = new ConcurrentHashMap<>();
     private final List<PotionDisplayInfo> sortedDisplayPotions = new ArrayList<>();
-    private long lastUpdateTime = System.currentTimeMillis();
 
     public PotionHudMod() {
         super("mod.potionhud.name", "mod.potionhud.description", Icon.LIST);
@@ -54,9 +54,7 @@ public class PotionHudMod extends HUDMod {
         return instance;
     }
 
-    private final EventBus.EventListener<RenderSkiaEvent> onRenderSkia = event -> {
-        draw();
-    };
+    private final EventBus.EventListener<RenderSkiaEvent> onRenderSkia = event -> draw();
 
     private void draw() {
         try {
@@ -122,8 +120,6 @@ public class PotionHudMod extends HUDMod {
 
         // Update sorted display potions
         updateSortedDisplayPotions();
-
-        lastUpdateTime = currentTime;
     }
 
     private void updateSortedDisplayPotions() {
@@ -278,7 +274,9 @@ public class PotionHudMod extends HUDMod {
         for (StatusEffectInstance effect : effects) {
             RegistryEntry <StatusEffect> statusEffect = effect.getEffectType();
             String effectkey = statusEffect.value().getTranslationKey();
-            String effectName = statusEffect.value().getName().getString();
+            String roman_converter = RomanConverter.intToRomanByPlace(effect.getAmplifier());
+            String amplifier = roman_converter.equals("0") ? " " : " " + roman_converter;
+            String effectName = statusEffect.value().getName().getString() + amplifier;
             String timeText = formatDuration(effect);
 
             // Calculate widths for layout
@@ -289,8 +287,6 @@ public class PotionHudMod extends HUDMod {
             float effectBgWidth = effectWidth + HORIZONTAL_PADDING * 2;
             float timeBgWidth = timeWidth + HORIZONTAL_PADDING * 2;
             float totalWidth = effectBgWidth + EFFECT_TIME_SPACING + timeBgWidth;
-
-            // String effectId = Registries.STATUS_EFFECT.getId(statusEffect.value()).toString();
 
             activePotions.add(new PotionDisplayInfo(effectkey, effectName, timeText,
                 totalWidth, effectBgWidth, timeBgWidth));
