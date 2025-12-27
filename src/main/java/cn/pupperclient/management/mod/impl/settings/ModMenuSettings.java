@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import cn.pupperclient.PupperClient;
+import cn.pupperclient.gui.MusicPlayGui;
 import org.lwjgl.glfw.GLFW;
 
 import cn.pupperclient.event.EventBus;
@@ -33,6 +34,8 @@ public class ModMenuSettings extends Mod {
 
 	private KeybindSetting keybindSetting = new KeybindSetting("setting.keybind", "setting.keybind.description",
 			Icon.KEYBOARD, this, InputUtil.fromKeyCode(GLFW.GLFW_KEY_RIGHT_SHIFT, 0));
+    private KeybindSetting keybindSetting_music = new KeybindSetting("setting.keybind_music", "setting.keybind_music.description",
+        Icon.KEYBOARD, this, InputUtil.fromKeyCode(GLFW.GLFW_KEY_M, 0));
 	private BooleanSetting darkModeSetting = new BooleanSetting("setting.darkmode", "setting.darkmode.description",
 			Icon.DARK_MODE, this, false);
 	private HctColorSetting hctColorSetting = new HctColorSetting("setting.color", "setting.color.description",
@@ -96,6 +99,9 @@ public class ModMenuSettings extends Mod {
 		if (keybindSetting.isPressed()) {
 			mc.setScreen(new GuiModMenu().build());
 		}
+        if (keybindSetting_music.isPressed()) {
+            mc.setScreen(new MusicPlayGui().build());
+        }
 
 		handleLanguageChange();
 	};
@@ -157,4 +163,12 @@ public class ModMenuSettings extends Mod {
 	public Screen getModMenu() {
 		return modMenu;
 	}
+
+    public KeybindSetting getKeybindSetting_music() {
+        return keybindSetting_music;
+    }
+
+    public void setKeybindSetting_music(KeybindSetting keybindSetting_music) {
+        this.keybindSetting_music = keybindSetting_music;
+    }
 }
