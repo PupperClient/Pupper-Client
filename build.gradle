@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.14-SNAPSHOT'
+    id 'fabric-loom' version ${project.loom_version}
 }
 
 project.ext.lwjglVersion = "3.3.3"
@@ -35,18 +35,18 @@ dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
-    modImplementation "com.viaversion:viafabricplus-api:4.0.2"
-    modRuntimeOnly "maven.modrinth:sodium:mc1.21.4-0.6.6-fabric"
-    modRuntimeOnly "maven.modrinth:iris:1.8.5+1.21.4-fabric"
-    modRuntimeOnly "maven.modrinth:sodium-extra:mc1.21.4-0.6.1+fabric"
-    modRuntimeOnly "maven.modrinth:lithium:mc1.21.4-0.14.7-fabric"
-    modImplementation "maven.modrinth:in-game-account-switcher:WBbjirJP"
-    modImplementation "com.viaversion:viafabricplus:4.0.2"
-    modRuntimeOnly "maven.modrinth:immediatelyfast:1.3.3+1.21.4-fabric"
-    modRuntimeOnly "maven.modrinth:entityculling:NkBXk0Ye"
-    modImplementation "maven.modrinth:modmenu:13.0.3"
+    modImplementation "com.viaversion:viafabricplus-api:4.4.1"
+    modRuntimeOnly "maven.modrinth:sodium:mc1.21.5-0.6.13-fabric"
+    modRuntimeOnly "maven.modrinth:iris:1.8.11+1.21.5-fabric"
+    modRuntimeOnly "maven.modrinth:sodium-extra:mc1.21.5-0.6.3+fabric"
+    modRuntimeOnly "maven.modrinth:lithium:mc1.21.5-0.16.3-fabric"
+    modImplementation "maven.modrinth:in-game-account-switcher:Rqmwlwr6"
+    modImplementation "com.viaversion:viafabricplus:4.4.1"
+    modRuntimeOnly "maven.modrinth:immediatelyfast:1.9.7+1.21.5-fabric"
+    modRuntimeOnly "maven.modrinth:entityculling:ldvBBWG2"
+    modImplementation "maven.modrinth:modmenu:14.0.0"
 
     jij 'io.github.smartboot.socket:aio-core:1.7.1'
     jij 'com.github.ben-manes.caffeine:caffeine:3.1.8'
@@ -64,10 +64,10 @@ dependencies {
     jij 'com.googlecode.soundlibs:jlayer:1.0.1.4'
     jij "net.lenni0451:MCPing:1.4.2"
     jij "net.lenni0451:Reflect:1.4.0"
-    modImplementation 'net.java.dev.jna:jna:5.12.1'
-    modImplementation 'net.java.dev.jna:jna-platform:5.12.1'
+    modImplementation 'net.java.dev.jna:jna:5.18.1'
+    modImplementation 'net.java.dev.jna:jna-platform:5.18.1'
 
-    modJij 'com.github.CCBlueX:mcef:3.0.0-1.21.4'
+    modJij 'com.github.CCBlueX:mcef:3.1.3-1.21.5'
 
     def lwjglNfdDeps = [
             "org.lwjgl:lwjgl-nfd:$lwjglVersion",
