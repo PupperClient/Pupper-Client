@@ -26,22 +26,30 @@ public abstract class MixinHeldItemRenderer {
 	@Shadow
 	protected abstract void applySwingOffset(MatrixStack matrices, Arm arm, float swingProgress);
 
-	@Inject(method = "renderFirstPersonItem", at = @At(value = "INVOKE", target = ("Lnet/minecraft/client/render/item/HeldItemRenderer;renderItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/item/ModelTransformationMode;ZLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V"), ordinal = 1))
-	private void renderFirstPersonItem(AbstractClientPlayerEntity player, float tickDelta, float pitch, Hand hand,
-			float swingProgress, ItemStack item, float equipProgress, MatrixStack matrices,
-			VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
+    @Inject(method = "renderFirstPersonItem",
+        at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/render/item/HeldItemRenderer;" +
+                "renderItem(Lnet/minecraft/entity/LivingEntity;" +
+                "Lnet/minecraft/item/ItemStack;" +
+                "Lnet/minecraft/item/ItemDisplayContext;" +
+                "Lnet/minecraft/client/util/math/MatrixStack;" +
+                "Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
+            ordinal = 1))
+    private void onRenderFirstPersonItem(AbstractClientPlayerEntity player, float tickProgress, float pitch,
+                                         Hand hand, float swingProgress, ItemStack item, float equipProgress,
+                                         MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light,
+                                         CallbackInfo ci) {
+        OldAnimationsMod mod = OldAnimationsMod.getInstance();
 
-		OldAnimationsMod mod = OldAnimationsMod.getInstance();
+        if (item.getItem() instanceof BowItem && mod.isEnabled() && mod.isOldBow()) {
+            matrices.translate(0f, 0.05f, 0.04f);
+            matrices.scale(0.93f, 1f, 1f);
+        } else if (item.getItem() instanceof FishingRodItem && mod.isEnabled() && mod.isOldRod()) {
+            matrices.translate(0.08f, -0.027f, -0.33f);
+            matrices.scale(0.93f, 1f, 1f);
+        }
+    }
 
-		if (item.getItem() instanceof BowItem && mod.isEnabled() && mod.isOldBow()) {
-			matrices.translate(0f, 0.05f, 0.04f);
-			matrices.scale(0.93f, 1f, 1f);
-		} else if (item.getItem() instanceof FishingRodItem && mod.isEnabled() && mod.isOldRod()) {
-			matrices.translate(0.08f, -0.027f, -0.33f);
-			matrices.scale(0.93f, 1f, 1f);
-		}
-	}
-	
 	@Inject(method = "renderFirstPersonItem", at = @At("HEAD"))
 	private void applyCustomHand(AbstractClientPlayerEntity player, float tickDelta, float pitch, Hand hand,
 			float swingProgress, ItemStack item, float equipProgress, MatrixStack matrices,
