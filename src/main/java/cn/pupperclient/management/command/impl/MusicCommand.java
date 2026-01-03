@@ -159,8 +159,8 @@ public class MusicCommand {
                         // 格式化显示
                         MutableText songText = Text.literal("§b" + (i + 1) + ". §f" + songName)
                             .styled(style -> style
-                                .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, ".music download " + songId))
-                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                .withClickEvent(new ClickEvent.SuggestCommand( ".music download " + songId))
+                                .withHoverEvent(new HoverEvent.ShowText(
                                     Text.literal("§6点击快速下载\n§7歌手: " + artistsStr + "\n§7专辑: " + albumName))));
 
                         MutableText artistText = Text.literal(" §7- " + artistsStr);
@@ -350,8 +350,7 @@ public class MusicCommand {
 
             MutableText fileText = Text.literal("§b" + (i + 1) + ". §f" + displayName)
                 .styled(style -> style
-                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                        Text.literal("§6文件: " + fileName + "\n§7大小: " + formatFileSize(musicFile.length())))));
+                    .withHoverEvent(new HoverEvent.ShowText(Text.literal("§6文件: " + fileName + "\n§7大小: " + formatFileSize(musicFile.length())))));
 
             ChatUtils.addChatMessage(fileText);
         }
@@ -485,8 +484,9 @@ public class MusicCommand {
         return Text.literal(" [下载]")
             .formatted(Formatting.GREEN)
             .styled(style -> style
-                .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command))
-                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                    Text.literal(hoverText).formatted(Formatting.GRAY))));
+                .withClickEvent(new ClickEvent.SuggestCommand(command))
+                .withHoverEvent(new HoverEvent.ShowText(
+                    Text.literal(hoverText).formatted(Formatting.GRAY)
+                )));
     }
 }

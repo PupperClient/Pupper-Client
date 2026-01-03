@@ -264,12 +264,10 @@ public class MusicPage extends Page {
 
         isRefreshing = true;
 
-        // 在后台线程中刷新音乐列表
         new Thread(() -> {
             try {
                 PupperClient.getInstance().getMusicManager().load();
 
-                // 在主线程中更新UI
                 cn.pupperclient.utils.Multithreading.runMainThread(() -> {
                     this.init();
                     isRefreshing = false;
@@ -313,7 +311,7 @@ public class MusicPage extends Page {
 
         Skia.drawImage(file, x, y, width, height);
 
-        if (Skia.getImageHelper().load(file)) {
+        if (Skia.getImageHelper().load(file) != null) {
             Image image = Skia.getImageHelper().get(file.getName());
             if (image != null) {
                 Skia.getCanvas().drawImageRect(image, Rect.makeWH(image.getWidth(), image.getHeight()),
@@ -324,12 +322,12 @@ public class MusicPage extends Page {
         Skia.restore();
     }
 
-    private class Item {
+    private static class Item {
 
-        private Music music;
-        private SimpleAnimation xAnimation = new SimpleAnimation();
-        private SimpleAnimation yAnimation = new SimpleAnimation();
-        private SimpleAnimation focusAnimation = new SimpleAnimation();
+        private final Music music;
+        private final SimpleAnimation xAnimation = new SimpleAnimation();
+        private final SimpleAnimation yAnimation = new SimpleAnimation();
+        private final SimpleAnimation focusAnimation = new SimpleAnimation();
 
         private Item(Music music) {
             this.music = music;

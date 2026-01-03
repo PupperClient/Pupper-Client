@@ -141,8 +141,8 @@ public class LoginCommand {
                         // 提供重新发送验证码的快捷方式
                         MutableText retryText = Text.literal("§7[重新发送验证码]")
                             .styled(style -> style
-                                .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, ".login send " + phone))
-                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                .withClickEvent(new ClickEvent.SuggestCommand( ".login send " + phone))
+                                .withHoverEvent(new HoverEvent.ShowText(
                                     Text.literal("点击重新发送验证码"))));
                         ChatUtils.addChatMessage(retryText);
                     });

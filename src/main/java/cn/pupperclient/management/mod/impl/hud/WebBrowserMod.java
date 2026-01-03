@@ -34,7 +34,7 @@ public class WebBrowserMod extends HUDMod {
 		if (MCEF.INSTANCE.isInitialized() && JCefBrowser.getBrowser() != null) {
 			MCEF.INSTANCE.getApp().getHandle().N_DoMessageLoopWork();
 			this.drawBlurBackground(getX(), getY(), currentWidth, currentHeight);
-			Skia.drawRoundedImage(JCefBrowser.getBrowser().getRenderer().getTextureID(), getX(), getY(), currentWidth, currentHeight,
+			Skia.drawRoundedImage(JCefBrowser.getBrowser().getRenderer().getTexture(), getX(), getY(), currentWidth, currentHeight,
 					getRadius(), opacitySetting.getValue());
 		}
 

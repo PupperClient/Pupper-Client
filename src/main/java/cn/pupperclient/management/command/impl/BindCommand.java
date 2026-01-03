@@ -140,8 +140,8 @@ public class BindCommand {
             for (Mod mod : mods) {
                 MutableText message = Text.literal("§b• " + mod.getName() + " §7→ §a" + keyName + " §7(keycode: " + keyCode + ")")
                     .styled(style -> style
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, ".bind " + mod.getName() + " none"))
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                        .withClickEvent(new ClickEvent.SuggestCommand( ".bind " + mod.getName() + " none"))
+                        .withHoverEvent(new HoverEvent.ShowText(
                             Text.literal("Click to clear this keybind").formatted(Formatting.GRAY))));
 
                 ChatUtils.addChatMessage(message);

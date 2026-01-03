@@ -47,7 +47,7 @@ public class ProjectileTrailMod extends Mod {
 				ParticleType<?> type = getCurrentType();
 
 				if (type != null && type instanceof ParticleEffect) {
-					mc.world.addParticle((ParticleEffect) type, projectile.getX(), projectile.getY(),
+					mc.world.addParticleClient((ParticleEffect) type, projectile.getX(), projectile.getY(),
 							projectile.getZ(), 0.0, 0.0, 0.0);
 				}
 			}

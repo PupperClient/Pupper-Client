@@ -185,9 +185,10 @@ public class SoarCommand implements IMinecraft {
         return Text.literal(displayText)
             .formatted(color)
             .styled(style -> style
-                .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command))
-                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                    Text.literal(hoverText).formatted(Formatting.GRAY))));
+                .withClickEvent(new ClickEvent.SuggestCommand(command))
+                .withHoverEvent(new HoverEvent.ShowText(
+                    Text.literal(hoverText).formatted(Formatting.GRAY)
+                )));
     }
 
     private static String getShortModName(String fullName) {

@@ -133,7 +133,7 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 
 	@Inject(method = "<init>", at = @At("TAIL"))
 	public void init(CallbackInfo ci) throws IOException {
-		SkiaContext.createSurface(window.getWidth(), window.getHeight());
+		SkiaContext.createSimpleSurface(window.getWidth(), window.getHeight());
 		PupperClient.getInstance().start();
 	}
 

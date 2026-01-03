@@ -74,7 +74,7 @@ public abstract class MixinSplashScreen {
 
         // Recreate surface if window size changed
         if (lastWindowWidth != width || lastWindowHeight != height) {
-            SkiaContext.createSurface(width, height);
+            SkiaContext.createSimpleSurface(width, height);
             lastWindowWidth = width;
             lastWindowHeight = height;
         }

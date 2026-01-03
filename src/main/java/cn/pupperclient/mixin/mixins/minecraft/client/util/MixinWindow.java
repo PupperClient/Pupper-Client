@@ -24,7 +24,7 @@ public class MixinWindow {
 
 	@Inject(method = "onFramebufferSizeChanged", at = @At("RETURN"))
 	private void onFramebufferSizeChanged(long window, int width, int height, CallbackInfo ci) {
-		SkiaContext.createSurface(width, height);
+		SkiaContext.createSimpleSurface(width, height);
 	}
 
     @Inject(method = "<init>", at = @At("RETURN"))
