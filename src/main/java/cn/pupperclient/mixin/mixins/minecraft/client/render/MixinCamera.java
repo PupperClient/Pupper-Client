@@ -34,11 +34,11 @@ public abstract class MixinCamera {
         	IMixinCameraEntity cameraOverriddenEntity = (IMixinCameraEntity) cameraEntity;
 
             if (firstTime && MinecraftClient.getInstance().player != null) {
-                cameraOverriddenEntity.soarClient_CN$setCameraPitch(client.player.getPitch());
-                cameraOverriddenEntity.soarClient_CN$setCameraYaw(client.player.getYaw());
+                cameraOverriddenEntity.pupper$setCameraPitch(client.player.getPitch());
+                cameraOverriddenEntity.pupper$setCameraYaw(client.player.getYaw());
                 firstTime = false;
             }
-            this.setRotation(cameraOverriddenEntity.soarClient_CN$getCameraYaw(), cameraOverriddenEntity.soarClient_CN$getCameraPitch());
+            this.setRotation(cameraOverriddenEntity.pupper$getCameraYaw(), cameraOverriddenEntity.pupper$getCameraPitch());
 
         }
         if (FreelookMod.getInstance().isEnabled() && !FreelookMod.getInstance().isActive() && cameraEntity instanceof ClientPlayerEntity) {

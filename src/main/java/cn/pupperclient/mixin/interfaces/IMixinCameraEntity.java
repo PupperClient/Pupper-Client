@@ -1,9 +1,9 @@
 package cn.pupperclient.mixin.interfaces;
 
 public interface IMixinCameraEntity {
-	float soarClient_CN$getCameraPitch();
-	float soarClient_CN$getCameraYaw();
+	float pupper$getCameraPitch();
+	float pupper$getCameraYaw();
 
-	void soarClient_CN$setCameraPitch(float pitch);
-	void soarClient_CN$setCameraYaw(float yaw);
+	void pupper$setCameraPitch(float pitch);
+	void pupper$setCameraYaw(float yaw);
 }

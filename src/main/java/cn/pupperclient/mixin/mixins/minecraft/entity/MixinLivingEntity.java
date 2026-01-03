@@ -80,7 +80,7 @@ public abstract class MixinLivingEntity extends Entity implements IMixinLivingEn
 	}
 
 	@Override
-	public void soarClient_CN$fakeSwingHand(Hand hand) {
+	public void pupper$fakeSwingHand(Hand hand) {
 		if (!this.handSwinging || this.handSwingTicks >= this.getHandSwingDuration() / 2 || this.handSwingTicks < 0) {
 			this.handSwingTicks = -1;
 			this.handSwinging = true;
