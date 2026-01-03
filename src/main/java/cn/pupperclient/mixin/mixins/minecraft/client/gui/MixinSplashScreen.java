@@ -3,6 +3,7 @@ package cn.pupperclient.mixin.mixins.minecraft.client.gui;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.context.SkiaContext;
 import cn.pupperclient.skia.font.Fonts;
+import com.mojang.blaze3d.textures.GpuTexture;
 import io.github.humbleui.skija.Canvas;
 import io.github.humbleui.skija.Font;
 import io.github.humbleui.types.Rect;
@@ -248,7 +249,7 @@ public abstract class MixinSplashScreen {
     @Unique
     private void drawLogo(int x, int y, int size, float alpha) {
         // Draw logo using Skia
-        int textureId = MinecraftClient.getInstance().getTextureManager().getTexture(CUSTOM_LOGO).getGlId();
+        GpuTexture textureId = MinecraftClient.getInstance().getTextureManager().getTexture(CUSTOM_LOGO).getGlTexture();
         Skia.drawImage(textureId, x, y, size, size, alpha);
     }
 
