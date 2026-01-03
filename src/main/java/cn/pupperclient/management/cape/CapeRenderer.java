@@ -20,8 +20,8 @@ public class CapeRenderer {
             var textureId = MinecraftClient.getInstance().getTextureManager().getTexture(capeTexture).getGlTexture();
 
             // 尝试不同的纹理尺寸
-            boolean loaded = Skia.getImageHelper().load(textureId, 64, 32, SurfaceOrigin.TOP_LEFT) ||
-                           Skia.getImageHelper().load(textureId, 128, 64, SurfaceOrigin.TOP_LEFT);
+            boolean loaded = Skia.getImageHelper().load(textureId, 64, 32) != null ||
+                           Skia.getImageHelper().load(textureId, 128, 64) != null;
 
             if (loaded) {
                 Skia.save();
@@ -57,8 +57,8 @@ public class CapeRenderer {
             var textureId = MinecraftClient.getInstance().getTextureManager().getTexture(capeTexture).getGlTexture();
 
             // 尝试不同的纹理尺寸
-            boolean loaded = Skia.getImageHelper().load(textureId, 64, 32, SurfaceOrigin.TOP_LEFT) ||
-                           Skia.getImageHelper().load(textureId, 128, 64, SurfaceOrigin.TOP_LEFT);
+            boolean loaded = Skia.getImageHelper().load(textureId, 64, 32) != null ||
+                           Skia.getImageHelper().load(textureId, 128, 64) != null;
 
             if (loaded) {
                 Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, radius));
