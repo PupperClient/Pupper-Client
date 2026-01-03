@@ -2,9 +2,11 @@ package cn.pupperclient.utils.server;
 
 import net.minecraft.client.MinecraftClient;
 
+import java.util.Objects;
+
 public class ServerUtils {
 
-	private static MinecraftClient client = MinecraftClient.getInstance();
+	private static final MinecraftClient client = MinecraftClient.getInstance();
 
 	public static boolean isJoin(Server server) {
 		return isMultiplayer() && getAddress().contains(server.getAddress());
@@ -19,6 +21,6 @@ public class ServerUtils {
 	}
 
 	public static String getAddress() {
-		return isMultiplayer() ? client.getCurrentServerEntry().address : "null";
+		return isMultiplayer() ? Objects.requireNonNull(client.getCurrentServerEntry()).address : "null";
 	}
 }

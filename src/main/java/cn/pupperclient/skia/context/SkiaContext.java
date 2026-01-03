@@ -6,7 +6,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL33;
 
-import com.mojang.blaze3d.platform.GlConst;
+import com.mojang.blaze3d.opengl.GlConst;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.humbleui.skija.BackendRenderTarget;
@@ -17,7 +17,6 @@ import io.github.humbleui.skija.Surface;
 import io.github.humbleui.skija.SurfaceColorFormat;
 import io.github.humbleui.skija.SurfaceOrigin;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.BufferRenderer;
 
 public class SkiaContext {
 
@@ -65,26 +64,26 @@ public class SkiaContext {
 
 		context.flush();
 
-		BufferRenderer.reset();
+		// BufferRenderer.reset();
 		GL33.glBindSampler(0, 0);
-		RenderSystem.disableBlend();
+		// RenderSystem.disableBlend();
 		GL11.glDisable(GL11.GL_BLEND);
-		RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+		// RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
-		RenderSystem.blendEquation(GL33.GL_FUNC_ADD);
+		// RenderSystem.blendEquation(GL33.GL_FUNC_ADD);
 		GL33.glBlendEquation(GL33.GL_FUNC_ADD);
-		RenderSystem.colorMask(true, true, true, true);
+		// RenderSystem.colorMask(true, true, true, true);
 		GL11.glColorMask(true, true, true, true);
-		RenderSystem.depthMask(true);
+		// RenderSystem.depthMask(true);
 		GL11.glDepthMask(true);
-		RenderSystem.disableScissor();
+		//RenderSystem.disableScissor();
 		GL11.glDisable(GL11.GL_SCISSOR_TEST);
 		GL11.glDisable(GL11.GL_STENCIL_TEST);
-		RenderSystem.disableDepthTest();
+		// RenderSystem.disableDepthTest();
 		GL11.glDisable(GL11.GL_DEPTH_TEST);
 		GL13.glActiveTexture(GL13.GL_TEXTURE0);
-		RenderSystem.activeTexture(GL13.GL_TEXTURE0);
-		RenderSystem.disableCull();
+		//RenderSystem.activeTexture(GL13.GL_TEXTURE0);
+		//RenderSystem.disableCull();
 	}
 
 	public static DirectContext getContext() {

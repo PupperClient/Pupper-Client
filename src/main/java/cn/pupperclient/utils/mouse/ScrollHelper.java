@@ -13,7 +13,7 @@ public class ScrollHelper {
 	}
 
 	public void onScroll(double amount) {
-		scroll += amount * 60;
+		scroll += (float) (amount * 60);
 	}
 
 	public void onUpdate() {
