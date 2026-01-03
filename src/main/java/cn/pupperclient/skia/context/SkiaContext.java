@@ -66,6 +66,11 @@ public class SkiaContext {
      * 创建 GPU 表面（使用 OpenGL 纹理）
      */
     private static void createGpuSurface(int width, int height) {
+        if (width <= 0 || height <= 0) {
+            PupperLogger.warn("SkiaContext", "Attempted to create GPU surface with invalid dimensions: " + width + "x" + height);
+            return;
+        }
+
         // 生成一个临时的 OpenGL 纹理供 Skia 使用
         int glTextureId = generateGlTexture(width, height);
 
@@ -87,16 +92,23 @@ public class SkiaContext {
             SurfaceColorFormat.RGBA_8888,
             ColorSpace.getSRGB()
         );
-
     }
 
     /**
      * 创建 CPU 表面（纯软件渲染）
      */
     private static void createCpuSurface(int width, int height) {
-        ImageInfo imageInfo = ImageInfo.makeS32(width, height, ColorAlphaType.PREMUL);
-        skiaSurface = Surface.makeRaster(imageInfo);
+        if (width <= 0 || height <= 0) {
+            PupperLogger.warn("SkiaContext", "Attempted to create CPU surface with invalid dimensions: " + width + "x" + height);
+            return;
+        }
 
+        try {
+            ImageInfo imageInfo = ImageInfo.makeS32(width, height, ColorAlphaType.PREMUL);
+            skiaSurface = Surface.makeRaster(imageInfo);
+        } catch (Exception e) {
+            PupperLogger.error("SkiaContext", "Failed to create CPU surface: " + e);
+        }
     }
 
     /**
@@ -173,7 +185,7 @@ public class SkiaContext {
             }
 
         } catch (Exception e) {
-            PupperLogger.error("SkiaContext", "image error:" + e);
+            PupperLogger.error("SkiaContext", "loadTextureToSurface error:" + e);
         }
     }
 
@@ -182,10 +194,10 @@ public class SkiaContext {
      */
     public static void draw(Consumer<Canvas> drawingLogic) {
         if (skiaSurface == null) {
-            throw new IllegalStateException("Skia surface not initialized. Call createSurfaceFromGpuTexture() first.");
+            PupperLogger.warn("SkiaContext", "Skia surface not initialized. Drawing skipped.");
+            return;
         }
 
-        // 保存当前 OpenGL 状态
         saveGlState();
 
         try {
@@ -237,7 +249,7 @@ public class SkiaContext {
             }
 
         } catch (Exception e) {
-            PupperLogger.error("SkiaContext", "image error:" + e);
+            PupperLogger.error("SkiaContext", "saveSurfaceToTexture error:" + e);
         }
     }
 
@@ -246,7 +258,7 @@ public class SkiaContext {
      */
     @Unstable
     private static NativeImage convertSkiaImageToNativeImage(Image skiaImage) {
-       return convertToNativeImageOptimized(skiaImage);
+       return convertToNativeImage(skiaImage);
     }
 
     /**
@@ -364,6 +376,12 @@ public class SkiaContext {
      * 创建一个简单的表面（用于独立的 Skia 绘制）
      */
     public static void createSimpleSurface(int width, int height) {
+        if (width <= 0 || height <= 0) {
+            PupperLogger.warn("SkiaContext", "Attempted to create simple surface with invalid dimensions: " + width + "x" + height);
+            cleanup(); // 清理旧资源
+            return;
+        }
+
         cleanup();
 
         surfaceWidth = width;
@@ -436,85 +454,97 @@ public class SkiaContext {
         int viewportHeight = 0;
     }
 
-    private static NativeImage convertToNativeImageOptimized(Image skiaImage) {
+    private static NativeImage convertToNativeImage(Image skiaImage) {
         int width = skiaImage.getWidth();
         int height = skiaImage.getHeight();
 
-        NativeImage nativeImage = new NativeImage(
-            net.minecraft.client.texture.NativeImage.Format.RGBA,
-            width,
-            height,
-            false
-        );
-
         try {
-            // 创建临时 Bitmap
+            // 创建 Bitmap
             Bitmap bitmap = new Bitmap();
             ImageInfo bitmapInfo = ImageInfo.makeS32(width, height, ColorAlphaType.UNPREMUL);
 
             if (!bitmap.allocPixels(bitmapInfo)) {
-                System.err.println("无法分配 Bitmap 内存");
-                bitmap.close();
-                return nativeImage;
+                PupperLogger.error("convertToNativeImage","无法分配 Bitmap 像素");
+                return null;
             }
 
             // 读取像素
             if (!skiaImage.readPixels(bitmap, 0, 0)) {
-                System.err.println("无法读取像素");
+                PupperLogger.error("convertToNativeImage","无法读取像素到 Bitmap");
                 bitmap.close();
-                return nativeImage;
+                return null;
             }
 
-            // 获取像素缓冲区
+            // 创建 NativeImage
+            NativeImage nativeImage = new NativeImage(
+                net.minecraft.client.texture.NativeImage.Format.RGBA,
+                width,
+                height,
+                false
+            );
+
+            // 获取 Bitmap 的像素数据
             ByteBuffer pixelBuffer = bitmap.peekPixels();
             if (pixelBuffer == null) {
-                System.err.println("无法获取像素缓冲区");
+                PupperLogger.error("convertToNativeImage","无法获取 Bitmap 像素缓冲区");
                 bitmap.close();
-                return nativeImage;
+                nativeImage.close();
+                return null;
             }
 
-            // 使用更高效的转换方法
-            if (pixelBuffer.hasArray()) {
-                // 使用数组访问（最快）
-                byte[] pixelArray = pixelBuffer.array();
-                int offset = pixelBuffer.arrayOffset();
-
-                for (int y = 0; y < height; y++) {
-                    for (int x = 0; x < width; x++) {
-                        int idx = offset + (y * width + x) * 4;
-
-                        int r = pixelArray[idx] & 0xFF;
-                        int g = pixelArray[idx + 1] & 0xFF;
-                        int b = pixelArray[idx + 2] & 0xFF;
-                        int a = pixelArray[idx + 3] & 0xFF;
-
-                        int abgrColor = (a << 24) | (b << 16) | (g << 8) | r;
-                        nativeImage.setColor(x, y, abgrColor);
-                    }
-                }
-            } else {
-                // 使用 ByteBuffer 访问
-                pixelBuffer.rewind();
-
-                for (int y = 0; y < height; y++) {
-                    for (int x = 0; x < width; x++) {
-                        int r = pixelBuffer.get() & 0xFF;
-                        int g = pixelBuffer.get() & 0xFF;
-                        int b = pixelBuffer.get() & 0xFF;
-                        int a = pixelBuffer.get() & 0xFF;
-
-                        int abgrColor = (a << 24) | (b << 16) | (g << 8) | r;
-                        nativeImage.setColor(x, y, abgrColor);
-                    }
-                }
-            }
+            // 批量转换像素（更高效）
+            convertPixelBufferBatch(pixelBuffer, nativeImage, width, height);
 
             bitmap.close();
+            return nativeImage;
 
         } catch (Exception e) {
-            e.printStackTrace();
-            nativeImage.close();
+            PupperLogger.error("convertToNativeImage","error: " + e);
+            return null;
         }
-        return nativeImage;
     }
+
+    private static void convertPixelBufferBatch(
+        ByteBuffer pixelBuffer,
+        NativeImage nativeImage,
+        int width,
+        int height) {
+
+        // 重置缓冲区位置
+        pixelBuffer.rewind();
+
+        // 直接操作底层字节数组（如果可能）
+        if (pixelBuffer.hasArray()) {
+            byte[] pixelArray = pixelBuffer.array();
+            int arrayOffset = pixelBuffer.arrayOffset();
+
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    int baseIndex = (y * width + x) * 4 + arrayOffset;
+
+                    int r = pixelArray[baseIndex] & 0xFF;
+                    int g = pixelArray[baseIndex + 1] & 0xFF;
+                    int b = pixelArray[baseIndex + 2] & 0xFF;
+                    int a = pixelArray[baseIndex + 3] & 0xFF;
+
+                    int nativeColor = (a << 24) | (b << 16) | (g << 8) | r;
+                    nativeImage.setColor(x, y, nativeColor);
+                }
+            }
+        } else {
+            // 如果没有数组，使用 ByteBuffer 操作
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    int r = pixelBuffer.get() & 0xFF;
+                    int g = pixelBuffer.get() & 0xFF;
+                    int b = pixelBuffer.get() & 0xFF;
+                    int a = pixelBuffer.get() & 0xFF;
+
+                    int nativeColor = (a << 24) | (b << 16) | (g << 8) | r;
+                    nativeImage.setColor(x, y, nativeColor);
+                }
+            }
+        }
+    }
+
 }

@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import cn.pupperclient.event.client.WorldChangeEvent;
 import cn.pupperclient.shader.impl.Kawaseblur;
+import cn.pupperclient.skia.Skia;
 import net.minecraft.client.gui.screen.Screen;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -133,8 +134,14 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 
 	@Inject(method = "<init>", at = @At("TAIL"))
 	public void init(CallbackInfo ci) throws IOException {
-		SkiaContext.createSimpleSurface(window.getWidth(), window.getHeight());
-		PupperClient.getInstance().start();
+        int width = window.getWidth();
+        int height = window.getHeight();
+        if (width > 0 && height > 0) {
+            SkiaContext.createSimpleSurface(width, height);
+        } else {
+            PupperClient.LOGGER.warn("Window size during init is invalid: {}x{}", width, height);
+        }
+        PupperClient.getInstance().start();
 	}
 
     @Inject(method = "stop", at = @At("HEAD"))

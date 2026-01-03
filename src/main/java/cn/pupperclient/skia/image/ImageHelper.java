@@ -13,7 +13,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.Blocking;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 
@@ -78,7 +78,7 @@ public class ImageHelper {
                 return image;
 
             } catch (Exception e) {
-                PupperLogger.error("ImageHelper", "image error:" + e);
+                PupperLogger.error("ImageHelper/loadAsync(GpuTexture)", "CompletableFuture error:" + e);
                 return null;
             }
         }, LOADER_EXECUTOR);
@@ -129,7 +129,7 @@ public class ImageHelper {
             return image;
 
         } catch (Exception e) {
-            PupperLogger.error("ImageHelper", "image error:" + e);
+            PupperLogger.error("ImageHelper/load(GpuTexture)", " error:" + e);
             return null;
         }
     }
@@ -164,7 +164,7 @@ public class ImageHelper {
                 return image;
 
             } catch (Exception e) {
-                PupperLogger.error("ImageHelper", "image error:" + e);
+                PupperLogger.error("ImageHelper/loadAsync(filePath)", "loadAsync CompletableFuture error:" + e);
                 return null;
             }
         }, LOADER_EXECUTOR);
@@ -229,7 +229,7 @@ public class ImageHelper {
                 }
 
             } catch (IOException e) {
-                PupperLogger.error("ImageHelper", "image error:" + e);
+                PupperLogger.error("ImageHelper/loadAsync(identifier)", "error:" + e);
                 return null;
             }
         }, LOADER_EXECUTOR);
@@ -257,7 +257,7 @@ public class ImageHelper {
             return image;
 
         } catch (Exception e) {
-            PupperLogger.error("ImageHelper", "image error:" + e);
+            PupperLogger.error("ImageHelper/load(filePath)", "error:" + e);
             return null;
         }
     }
@@ -280,7 +280,7 @@ public class ImageHelper {
             return image;
 
         } catch (IOException e) {
-            PupperLogger.error("ImageHelper", "image error:" + e);
+            PupperLogger.error("ImageHelper/load(file)", "error:" + e);
             return null;
         }
     }
@@ -316,7 +316,7 @@ public class ImageHelper {
             }
 
         } catch (IOException e) {
-            PupperLogger.error("ImageHelper", "image error:" + e);
+            PupperLogger.error("ImageHelper/load(identifier)", "error:" + e);
             return null;
         }
     }
@@ -363,14 +363,13 @@ public class ImageHelper {
             CountDownLatch latch = new CountDownLatch(1);
 
             // 创建 GPU 缓冲区用于读取
-            GpuBuffer readBuffer = RenderSystem.getDevice().createBuffer(
+
+            try (GpuBuffer readBuffer = RenderSystem.getDevice().createBuffer(
                 () -> "TextureReadBuffer",
                 BufferType.PIXEL_PACK,
                 BufferUsage.STREAM_READ,
                 bufferSize
-            );
-
-            try {
+            )) {
                 // 创建命令编码器
                 var commandEncoder = RenderSystem.getDevice().createCommandEncoder();
 
@@ -393,9 +392,9 @@ public class ImageHelper {
                                 result.set(pixelData);
                             }
                         } catch (Exception e) {
-                            PupperLogger.error("ImageHelper", "image error:" + e);
+                            PupperLogger.error("ImageHelper/readGpuTextureData", "copyTextureToBuffer error:" + e);
                         } finally {
-                            latch.countDown(); // 通知主线程数据已读取完成
+                            latch.countDown();
                         }
                     },
                     0 // mipLevel
@@ -404,18 +403,16 @@ public class ImageHelper {
                 // 等待数据读取完成
                 boolean success = latch.await(5, TimeUnit.SECONDS);
                 if (!success) {
-                    System.err.println("读取纹理数据超时");
+                    PupperLogger.error("ImageHelper/readGpuTextureData", "读取纹理数据超时");
                     return null;
                 }
 
                 return result.get();
 
-            } finally {
-                readBuffer.close();
             }
 
         } catch (Exception e) {
-            PupperLogger.error("ImageHelper", "image error:" + e);
+            PupperLogger.error("ImageHelper/readGpuTextureData", "error:" + e);
             return null;
         }
     }
@@ -452,7 +449,7 @@ public class ImageHelper {
             return texture;
 
         } catch (Exception e) {
-            PupperLogger.error("ImageHelper", "image error:" + e);
+            PupperLogger.error("ImageHelper/convertToGpuTexture", "error:" + e);
             return null;
         }
     }
@@ -545,10 +542,6 @@ public class ImageHelper {
             int pixelSize = texture.getFormat().pixelSize(); // 每个像素的字节数
             int bufferSize = width * height * pixelSize;
 
-            // 创建缓冲区
-
-            // 使用 CountDownLatch 等待异步操作完成
-
             try (GpuBuffer readBuffer = RenderSystem.getDevice().createBuffer(
                 () -> "GpuTextureReadBuffer",
                 BufferType.PIXEL_PACK,
@@ -578,7 +571,7 @@ public class ImageHelper {
                                 }
                             }
                         } catch (Exception e) {
-                            PupperLogger.error("ImageHelper", "image error:" + e);
+                            PupperLogger.error("ImageHelper/readGpuTextureDataCorrect", "copyTextureToBuffer error:" + e);
                         } finally {
                             latch.countDown();
                         }
@@ -589,7 +582,7 @@ public class ImageHelper {
                 // 等待操作完成（最大等待5秒）
                 boolean success = latch.await(5, TimeUnit.SECONDS);
                 if (!success) {
-                    System.err.println("读取纹理数据超时");
+                    PupperLogger.error("ImageHelper/readGpuTextureDataCorrect", "读取纹理数据超时");
                     return null;
                 }
 
@@ -598,7 +591,7 @@ public class ImageHelper {
             }
 
         } catch (Exception e) {
-            PupperLogger.error("ImageHelper", "image error:" + e);
+            PupperLogger.error("ImageHelper/readGpuTextureDataCorrect", "error:" + e);
             return null;
         }
     }
@@ -611,7 +604,7 @@ public class ImageHelper {
     public record CacheStats(int fileImages, int resourceImages, int gpuTextureImages, int loadingTasks) {
 
         @Override
-            public String toString() {
+            public @NotNull String toString() {
                 return String.format(
                     "CacheStats{文件图像=%d, 资源图像=%d, GPU纹理=%d, 加载任务=%d}",
                     fileImages, resourceImages, gpuTextureImages, loadingTasks

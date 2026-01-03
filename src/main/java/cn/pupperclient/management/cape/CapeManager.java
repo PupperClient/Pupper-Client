@@ -1,5 +1,6 @@
 package cn.pupperclient.management.cape;
 
+import cn.pupperclient.utils.Multithreading;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
@@ -52,19 +53,16 @@ public class CapeManager implements Closeable {
         if (id == null || textureData == null) return;
 
         executorService.submit(() -> {
-            // 在后台线程加载纹理数据
             NativeImageBackedTexture nativeImage = createNativeTexture(textureData);
             if (nativeImage != null) {
-                // 获取Minecraft客户端实例
-                MinecraftClient client = MinecraftClient.getInstance();
-
-                // 将纹理注册提交到渲染线程
-                client.execute(() -> {
-                    Identifier identifier = Identifier.of("pupper", namespace + "/" + id);
-                    client.getTextureManager().registerTexture(identifier, nativeImage);
-                    loadedCapes.put(id, identifier);
-                    loadedCapeTextures.put(identifier, nativeImage);
-                });
+                Multithreading.runMainThread(
+                    () -> {
+                        Identifier identifier = Identifier.of("pupper", namespace + "/" + id);
+                        MinecraftClient.getInstance().getTextureManager().registerTexture(identifier, nativeImage);
+                        loadedCapes.put(id, identifier);
+                        loadedCapeTextures.put(identifier, nativeImage);
+                    }
+                );
             }
         });
     }
