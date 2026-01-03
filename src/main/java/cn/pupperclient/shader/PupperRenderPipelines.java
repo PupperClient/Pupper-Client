@@ -1,5 +1,6 @@
 package cn.pupperclient.shader;
 
+import cn.pupperclient.PupperClient;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.platform.DepthTestFunction;
@@ -9,6 +10,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.UniformType;
+import net.minecraft.client.render.VertexFormats;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.SynchronousResourceReloader;
 import net.minecraft.util.Identifier;
@@ -22,20 +24,18 @@ import java.util.List;
 public class PupperRenderPipelines {
     private static final List<RenderPipeline> PIPELINES = new ArrayList<>();
 
-    public static final VertexFormat POS2 = VertexFormat.builder()
-        .add("POS2", VertexFormatElement.POSITION)
-        .build();
-
-    public static final VertexFormat POS2_TEXTURE = VertexFormat.builder()
-        .add("POS2_TEXTURE", VertexFormatElement.POSITION)
-        .add("UV0", VertexFormatElement.UV0)
-        .build();
+    // 着色器代码缓存
+    private static final Identifier BLUR_VERT = PupperClient.identifier("shaders/blur.vert");
+    private static final Identifier BLUR_DOWN_FRAG = PupperClient.identifier("shaders/blur_down.frag");
+    private static final Identifier BLUR_UP_FRAG = PupperClient.identifier("shaders/blur_up.frag");
+    private static final Identifier PASSTHROUGH_VERT = PupperClient.identifier("shaders/passthrough.vert");
+    private static final Identifier PASSTHROUGH_FRAG = PupperClient.identifier("shaders/passthrough.frag");
 
     // 着色器管线定义
     public static final RenderPipeline BLUR_DOWN = register(new RenderPipeline.Builder()
-        .withVertexShader(read("blur.vert"))
-        .withFragmentShader(read("blur_down.frag"))
-        .withVertexFormat(POS2_TEXTURE, VertexFormat.DrawMode.TRIANGLES)
+        .withVertexShader(BLUR_VERT)
+        .withFragmentShader(BLUR_DOWN_FRAG)
+        .withVertexFormat(VertexFormats.POSITION_TEXTURE, VertexFormat.DrawMode.TRIANGLES)
         .withSampler("uTexture")
         .withUniform("uHalfTexelSize", UniformType.VEC2)
         .withUniform("uOffset", UniformType.FLOAT)
@@ -46,9 +46,9 @@ public class PupperRenderPipelines {
         .build());
 
     public static final RenderPipeline BLUR_UP = register(new RenderPipeline.Builder()
-        .withVertexShader(read("blur.vert"))
-        .withFragmentShader(read("blur_up.frag"))
-        .withVertexFormat(POS2_TEXTURE, VertexFormat.DrawMode.TRIANGLES)
+        .withVertexShader(BLUR_VERT)
+        .withFragmentShader(BLUR_UP_FRAG)
+        .withVertexFormat(VertexFormats.POSITION_TEXTURE, VertexFormat.DrawMode.TRIANGLES)
         .withSampler("uTexture")
         .withUniform("uHalfTexelSize", UniformType.VEC2)
         .withUniform("uOffset", UniformType.FLOAT)
@@ -59,9 +59,9 @@ public class PupperRenderPipelines {
         .build());
 
     public static final RenderPipeline PASSTHROUGH = register(new RenderPipeline.Builder()
-        .withVertexShader(read("passthrough.vert"))
-        .withFragmentShader(read("passthrough.frag"))
-        .withVertexFormat(POS2_TEXTURE, VertexFormat.DrawMode.TRIANGLES)
+        .withVertexShader(PASSTHROUGH_VERT)
+        .withFragmentShader(PASSTHROUGH_FRAG)
+        .withVertexFormat(VertexFormats.POSITION_TEXTURE, VertexFormat.DrawMode.TRIANGLES)
         .withSampler("uTexture")
         .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
         .withDepthWrite(false)
@@ -74,7 +74,7 @@ public class PupperRenderPipelines {
         return pipeline;
     }
 
-    public class Reloader implements SynchronousResourceReloader {
+    public static class Reloader implements SynchronousResourceReloader {
         @Override
         public void reload(ResourceManager manager) {
             GpuDevice device = RenderSystem.getDevice();
@@ -89,17 +89,6 @@ public class PupperRenderPipelines {
                     }
                 });
             }
-        }
-    }
-
-    private static String read(String path) {
-        try {
-            return IOUtils.toString(
-                MinecraftClient.getInstance().getResourceManager()
-                    .getResource(Identifier.of("pupper", "shaders/" + path)).get().getInputStream(),
-                StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new IllegalStateException("Could not read shader '" + path + "'", e);
         }
     }
 }

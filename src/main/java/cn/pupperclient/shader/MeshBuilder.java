@@ -14,11 +14,12 @@ public class MeshBuilder {
     private final VertexFormat format;
     private final VertexFormat.DrawMode drawMode;
 
-    private ByteBuffer vertices;
-    private long verticesPointerStart, verticesPointer;
+    private final ByteBuffer vertices;
+    private final long verticesPointerStart;
+    private long verticesPointer;
 
-    private ByteBuffer indices;
-    private long indicesPointer;
+    private final ByteBuffer indices;
+    private final long indicesPointer;
 
     private int vertexI, indicesCount;
     private boolean building;
@@ -31,7 +32,7 @@ public class MeshBuilder {
         vertices = BufferUtils.createByteBuffer(vertexSize * 256 * 4);
         verticesPointerStart = memAddress0(vertices);
 
-        indices = BufferUtils.createByteBuffer(6 * 512 * 4); // 假设四边形
+        indices = BufferUtils.createByteBuffer(6 * 512 * 4);
         indicesPointer = memAddress0(indices);
     }
 
@@ -44,10 +45,21 @@ public class MeshBuilder {
         building = true;
     }
 
-    public MeshBuilder vec2(float x, float y) {
+    // 添加位置 (x, y, z)
+    public MeshBuilder vec3(float x, float y, float z) {
         long p = verticesPointer;
         memPutFloat(p, x);
         memPutFloat(p + 4, y);
+        memPutFloat(p + 8, z);
+        verticesPointer += 12;
+        return this;
+    }
+
+    // 添加纹理坐标 (u, v)
+    public MeshBuilder vec2(float u, float v) {
+        long p = verticesPointer;
+        memPutFloat(p, u);
+        memPutFloat(p + 4, v);
         verticesPointer += 8;
         return this;
     }

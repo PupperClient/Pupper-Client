@@ -26,6 +26,7 @@ import com.viaversion.viafabricplus.ViaFabricPlus;
 import com.viaversion.viafabricplus.api.ViaFabricPlusBase;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
@@ -239,5 +240,9 @@ public class PupperClient implements IMinecraft {
         DOWNLOADING,
         FAILED,
         DONE
+    }
+
+    public static Identifier identifier(String path) {
+        return Identifier.of("pupper", path);
     }
 }

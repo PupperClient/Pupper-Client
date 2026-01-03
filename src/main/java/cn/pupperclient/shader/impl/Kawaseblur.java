@@ -11,6 +11,7 @@ import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import it.unimi.dsi.fastutil.ints.IntDoubleImmutablePair;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.VertexFormats;
 
 import java.util.OptionalInt;
 
@@ -49,13 +50,22 @@ public class Kawaseblur {
                 }
             }
 
-            // 创建全屏四边形网格
-            mesh = new MeshBuilder(PupperRenderPipelines.POS2_TEXTURE, VertexFormat.DrawMode.TRIANGLES);
+            // 创建全屏四边形网格，使用正确的顶点数据
+            mesh = new MeshBuilder(VertexFormats.POSITION_TEXTURE, VertexFormat.DrawMode.TRIANGLES);
             mesh.begin();
-            mesh.vec2(-1, -1).next();
-            mesh.vec2(-1, 1).next();
-            mesh.vec2(1, 1).next();
-            mesh.vec2(1, -1).next();
+
+            // 顶点1: (-1, -1, 0) 纹理坐标: (0, 0)
+            mesh.vec3(-1, -1, 0).vec2(0, 0).next();
+
+            // 顶点2: (-1, 1, 0) 纹理坐标: (0, 1)
+            mesh.vec3(-1, 1, 0).vec2(0, 1).next();
+
+            // 顶点3: (1, 1, 0) 纹理坐标: (1, 1)
+            mesh.vec3(1, 1, 0).vec2(1, 1).next();
+
+            // 顶点4: (1, -1, 0) 纹理坐标: (1, 0)
+            mesh.vec3(1, -1, 0).vec2(1, 0).next();
+
             mesh.quad(0, 1, 2, 3);
             mesh.end();
 
@@ -66,10 +76,7 @@ public class Kawaseblur {
         int iterations = strength.leftInt();
         double offset = strength.rightDouble();
 
-        GpuBuffer vertexBuffer = mesh.createVertexBuffer();
-        GpuBuffer indexBuffer = mesh.createIndexBuffer();
-
-        try {
+        try (GpuBuffer vertexBuffer = mesh.createVertexBuffer(); GpuBuffer indexBuffer = mesh.createIndexBuffer()) {
             // 第一遍：降采样
             renderToFbo(fbos[0],
                 MinecraftClient.getInstance().getFramebuffer().getColorAttachment(),
@@ -103,9 +110,6 @@ public class Kawaseblur {
             pass.drawIndexed(0, mesh.getIndicesCount());
             pass.close();
 
-        } finally {
-            vertexBuffer.close();
-            indexBuffer.close();
         }
     }
 
