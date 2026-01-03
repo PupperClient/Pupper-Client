@@ -11,6 +11,7 @@ import net.ccbluex.liquidbounce.mcef.MCEF;
 import net.ccbluex.liquidbounce.mcef.MCEFDownloadManager;
 import net.ccbluex.liquidbounce.mcef.MCEFPlatform;
 import net.ccbluex.liquidbounce.mcef.cef.MCEFBrowser;
+import net.ccbluex.liquidbounce.mcef.cef.MCEFBrowserSettings;
 
 public class JCefBrowser {
 
@@ -24,7 +25,7 @@ public class JCefBrowser {
 		if(browser == null) {
             String url = "https://cn.bing.com";
             boolean transparent = true;
-			browser = MCEF.INSTANCE.createBrowser(url, transparent, 60);
+			browser = MCEF.INSTANCE.createBrowser(url, transparent, null);
 			browser.resize(1280, 720);
 		}
 	}
