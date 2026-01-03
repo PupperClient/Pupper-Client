@@ -55,7 +55,7 @@ public class PupperInGameHud {
         int centerX = context.getScaledWindowWidth() / 2;
         int hotbarY = context.getScaledWindowHeight() - 22;
 
-        int selectedSlot = playerEntity.getInventory().selectedSlot;
+        int selectedSlot = playerEntity.getInventory().getSelectedSlot();
         updateSlotAnimation(selectedSlot);
         updateOffhandAlpha(playerEntity);
 
@@ -90,7 +90,7 @@ public class PupperInGameHud {
             }
 
             this.renderHotbarItem(context, slotX, (int)(slotY + slotOffset), tickCounter, playerEntity,
-                playerEntity.getInventory().main.get(i), i + 1);
+                playerEntity.getInventory().getMainStacks().get(i), i + 1);
         }
 
         // 绘制副手物品（带透明度）
