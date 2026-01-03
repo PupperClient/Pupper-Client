@@ -15,7 +15,6 @@
     "minecraft.client.gui.MixinSplashScreen",
     "minecraft.client.gui.MixinTitleScreen",
     "minecraft.client.option.MixinKeyBinding",
-    "minecraft.client.render.BufferRendererAccessor",
     "minecraft.client.render.MixinCamera",
     "minecraft.client.render.MixinEntityRenderer",
     "minecraft.client.render.MixinGameRenderer",
