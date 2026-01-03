@@ -531,6 +531,78 @@ public class ImageHelper {
 
     }
 
+    @Unstable
+    public static ByteBuffer readGpuTextureDataCorrect(GpuTexture texture) {
+        if (texture == null) {
+            return null;
+        }
+
+        RenderSystem.assertOnRenderThread();
+
+        try {
+            int width = texture.getWidth(0);
+            int height = texture.getHeight(0);
+            int pixelSize = texture.getFormat().pixelSize(); // 每个像素的字节数
+            int bufferSize = width * height * pixelSize;
+
+            // 创建缓冲区
+
+            // 使用 CountDownLatch 等待异步操作完成
+
+            try (GpuBuffer readBuffer = RenderSystem.getDevice().createBuffer(
+                () -> "GpuTextureReadBuffer",
+                BufferType.PIXEL_PACK,
+                BufferUsage.STREAM_READ,
+                bufferSize
+            )) {
+                CountDownLatch latch = new CountDownLatch(1);
+                ByteBuffer[] resultHolder = new ByteBuffer[1];
+                // 创建命令编码器
+                var commandEncoder = RenderSystem.getDevice().createCommandEncoder();
+
+                commandEncoder.copyTextureToBuffer(
+                    texture,
+                    readBuffer,
+                    0,
+                    () -> {
+                        try {
+                            try (GpuBuffer.ReadView readView = commandEncoder.readBuffer(readBuffer)) {
+
+                                ByteBuffer pixelData = BufferUtils.createByteBuffer(bufferSize);
+                                ByteBuffer sourceData = readView.data();
+                                if (sourceData != null) {
+                                    sourceData.rewind();
+                                    pixelData.put(sourceData);
+                                    pixelData.flip();
+                                    resultHolder[0] = pixelData;
+                                }
+                            }
+                        } catch (Exception e) {
+                            PupperLogger.error("ImageHelper", "image error:" + e);
+                        } finally {
+                            latch.countDown();
+                        }
+                    },
+                    0 // mipLevel
+                );
+
+                // 等待操作完成（最大等待5秒）
+                boolean success = latch.await(5, TimeUnit.SECONDS);
+                if (!success) {
+                    System.err.println("读取纹理数据超时");
+                    return null;
+                }
+
+                return resultHolder[0];
+
+            }
+
+        } catch (Exception e) {
+            PupperLogger.error("ImageHelper", "image error:" + e);
+            return null;
+        }
+    }
+
     public void close() {
         clearCache();
         LOADER_EXECUTOR.shutdown();
@@ -545,7 +617,7 @@ public class ImageHelper {
                     fileImages, resourceImages, gpuTextureImages, loadingTasks
                 );
             }
-        }
+    }
 
     private static final ImageHelper INSTANCE = new ImageHelper();
 

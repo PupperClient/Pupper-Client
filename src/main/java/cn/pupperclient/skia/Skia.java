@@ -122,7 +122,7 @@ public class Skia {
         path = "/assets/pupper/" + path;
 
         if (imageHelper.load(path) != null) {
-            getCanvas().drawImageRect(imageHelper.get(path), Rect.makeXYWH(x, y, width, height));
+            getCanvas().drawImageRect(Objects.requireNonNull(imageHelper.get(path)), Rect.makeXYWH(x, y, width, height));
         }
     }
 
@@ -132,7 +132,7 @@ public class Skia {
         if (imageHelper.load(Gputexture, width, height) != null) {
             Paint paint = new Paint();
             paint.setAlpha((int) (255 * alpha));
-            getCanvas().drawImageRect(imageHelper.get(Gputexture), Rect.makeXYWH(x, y, width, height), paint);
+            getCanvas().drawImageRect(Objects.requireNonNull(imageHelper.get(Gputexture)), Rect.makeXYWH(x, y, width, height), paint);
         }
     }
 
@@ -142,14 +142,14 @@ public class Skia {
 
     public static void drawImage(File file, float x, float y, float width, float height) {
         if (imageHelper.load(file) != null) {
-            getCanvas().drawImageRect(Objects.requireNonNull(imageHelper.get(file.getName())), Rect.makeXYWH(x, y, width, height));
+            getCanvas().drawImageRect(Objects.requireNonNull(Objects.requireNonNull(imageHelper.get(file.getName()))), Rect.makeXYWH(x, y, width, height));
         }
     }
 
     public static void drawImage(GpuTexture Gputexture, float x, float y, float width, float height, SurfaceOrigin origin) {
 
         if (imageHelper.load(Gputexture, width, height) != null) {
-            getCanvas().drawImageRect(imageHelper.get(Gputexture), Rect.makeXYWH(x, y, width, height));
+            getCanvas().drawImageRect(Objects.requireNonNull(imageHelper.get(Gputexture)), Rect.makeXYWH(x, y, width, height));
         }
     }
 
@@ -213,8 +213,8 @@ public class Skia {
 
             save();
             getCanvas().clipPath(path, ClipMode.INTERSECT, true);
-            getCanvas().drawImageRect(imageHelper.get(file.getName()), srcRect, dstRect, null, false);
-            getCanvas().drawImageRect(imageHelper.get(file.getName()), srcRect1, dstRect, null, false);
+            getCanvas().drawImageRect(Objects.requireNonNull(imageHelper.get(file.getName())), srcRect, dstRect, null, false);
+            getCanvas().drawImageRect(Objects.requireNonNull(imageHelper.get(file.getName())), srcRect1, dstRect, null, false);
             restore();
         }
     }
@@ -237,42 +237,42 @@ public class Skia {
 
             save();
             scale(x, y, scale);
-            getCanvas().drawImageRect(imageHelper.get(file.getName()), head,
+            getCanvas().drawImageRect(Objects.requireNonNull(imageHelper.get(file.getName())), head,
                 Rect.makeXYWH(x + leftArm.getWidth(), y, head.getWidth(), head.getHeight()), null, false);
-            getCanvas().drawImageRect(imageHelper.get(file.getName()), headLayer,
+            getCanvas().drawImageRect(Objects.requireNonNull(imageHelper.get(file.getName())), headLayer,
                 Rect.makeXYWH(x + leftArm.getWidth(), y, headLayer.getWidth(), headLayer.getHeight()), null, false);
-            getCanvas().drawImageRect(imageHelper.get(file.getName()), body,
+            getCanvas().drawImageRect(Objects.requireNonNull(imageHelper.get(file.getName())), body,
                 Rect.makeXYWH(x + leftArm.getWidth(), y + head.getHeight(), body.getWidth(), body.getHeight()),
                 null, false);
-            getCanvas().drawImageRect(imageHelper.get(file.getName()), bodyLayer, Rect.makeXYWH(x + leftArm.getWidth(),
+            getCanvas().drawImageRect(Objects.requireNonNull(imageHelper.get(file.getName())), bodyLayer, Rect.makeXYWH(x + leftArm.getWidth(),
                 y + headLayer.getHeight(), bodyLayer.getWidth(), bodyLayer.getHeight()), null, false);
-            getCanvas().drawImageRect(imageHelper.get(file.getName()), leftArm,
+            getCanvas().drawImageRect(Objects.requireNonNull(imageHelper.get(file.getName())), leftArm,
                 Rect.makeXYWH(x, y + head.getHeight(), leftArm.getWidth(), leftArm.getHeight()), null, false);
-            getCanvas().drawImageRect(imageHelper.get(file.getName()), leftArmLayer,
+            getCanvas().drawImageRect(Objects.requireNonNull(imageHelper.get(file.getName())), leftArmLayer,
                 Rect.makeXYWH(x, y + headLayer.getHeight(), leftArmLayer.getWidth(), leftArmLayer.getHeight()),
                 null, false);
-            getCanvas().drawImageRect(imageHelper.get(file.getName()), rightArm,
+            getCanvas().drawImageRect(Objects.requireNonNull(imageHelper.get(file.getName())), rightArm,
                 Rect.makeXYWH(x + leftArm.getWidth() + body.getWidth(), y + head.getHeight(), rightArm.getWidth(),
                     rightArm.getHeight()),
                 null, false);
-            getCanvas().drawImageRect(imageHelper.get(file.getName()), rightArmLayer,
+            getCanvas().drawImageRect(Objects.requireNonNull(Objects.requireNonNull(imageHelper.get(file.getName()))), rightArmLayer,
                 Rect.makeXYWH(x + leftArmLayer.getWidth() + bodyLayer.getWidth(), y + headLayer.getHeight(),
                     rightArmLayer.getWidth(), rightArmLayer.getHeight()),
                 null, false);
             getCanvas().drawImageRect(
-                imageHelper.get(file.getName()), leftLeg, Rect.makeXYWH(x + leftArm.getWidth(),
+                Objects.requireNonNull(imageHelper.get(file.getName())), leftLeg, Rect.makeXYWH(x + leftArm.getWidth(),
                     y + head.getHeight() + body.getHeight(), leftLeg.getWidth(), leftLeg.getHeight()),
                 null, false);
-            getCanvas().drawImageRect(imageHelper.get(file.getName()), leftLegLayer,
+            getCanvas().drawImageRect(Objects.requireNonNull(imageHelper.get(file.getName())), leftLegLayer,
                 Rect.makeXYWH(x + leftArmLayer.getWidth(), y + headLayer.getHeight() + bodyLayer.getHeight(),
                     leftLegLayer.getWidth(), leftLegLayer.getHeight()),
                 null, false);
             getCanvas()
-                .drawImageRect(imageHelper.get(file.getName()), rightLeg,
+                .drawImageRect(Objects.requireNonNull(imageHelper.get(file.getName())), rightLeg,
                     Rect.makeXYWH(x + leftArm.getWidth() + leftLeg.getWidth(),
                         y + head.getHeight() + body.getHeight(), rightLeg.getWidth(), rightLeg.getHeight()),
                     null, false);
-            getCanvas().drawImageRect(imageHelper.get(file.getName()), rightLegLayer,
+            getCanvas().drawImageRect(Objects.requireNonNull(imageHelper.get(file.getName())), rightLegLayer,
                 Rect.makeXYWH(x + leftArmLayer.getWidth() + leftLegLayer.getWidth(),
                     y + headLayer.getHeight() + bodyLayer.getHeight(), rightLegLayer.getWidth(),
                     rightLegLayer.getHeight()),
