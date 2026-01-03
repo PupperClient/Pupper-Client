@@ -52,15 +52,20 @@ public class CapeManager implements Closeable {
         if (id == null || textureData == null) return;
 
         executorService.submit(() -> {
-            RenderSystem.recordRenderCall(() -> {
-                NativeImageBackedTexture nativeImage = createNativeTexture(textureData);
-                if (nativeImage != null) {
+            // 在后台线程加载纹理数据
+            NativeImageBackedTexture nativeImage = createNativeTexture(textureData);
+            if (nativeImage != null) {
+                // 获取Minecraft客户端实例
+                MinecraftClient client = MinecraftClient.getInstance();
+
+                // 将纹理注册提交到渲染线程
+                client.execute(() -> {
                     Identifier identifier = Identifier.of("pupper", namespace + "/" + id);
-                    MinecraftClient.getInstance().getTextureManager().registerTexture(identifier, nativeImage);
+                    client.getTextureManager().registerTexture(identifier, nativeImage);
                     loadedCapes.put(id, identifier);
                     loadedCapeTextures.put(identifier, nativeImage);
-                }
-            });
+                });
+            }
         });
     }
 
@@ -92,7 +97,7 @@ public class CapeManager implements Closeable {
     private static NativeImageBackedTexture createNativeTexture(byte[] bytes) {
         if (bytes == null) return null;
         try {
-            return new NativeImageBackedTexture(NativeImage.read(bytes));
+            return new NativeImageBackedTexture(() -> "Native_Texture",NativeImage.read(bytes));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
