@@ -11,11 +11,11 @@ uniform float uOffset;
 
 void main() {
     color = (
-        texture(uTexture, uv) * 4.0 +
+        texture(uTexture, uv) * 4 +
         texture(uTexture, uv - uHalfTexelSize.xy * uOffset) +
         texture(uTexture, uv + uHalfTexelSize.xy * uOffset) +
         texture(uTexture, uv + vec2(uHalfTexelSize.x, -uHalfTexelSize.y) * uOffset) +
         texture(uTexture, uv - vec2(uHalfTexelSize.x, -uHalfTexelSize.y) * uOffset)
-    ) / 8.0;
-    color.a = 1.0;
+    ) / 8;
+    color.a = 1;
 }

@@ -137,7 +137,7 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
         int width = window.getWidth();
         int height = window.getHeight();
         if (width > 0 && height > 0) {
-            SkiaContext.createSimpleSurface(width, height);
+            SkiaContext.createSurface(width, height);
         } else {
             PupperClient.LOGGER.warn("Window size during init is invalid: {}x{}", width, height);
         }

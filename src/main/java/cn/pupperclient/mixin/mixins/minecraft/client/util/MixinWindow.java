@@ -25,7 +25,7 @@ public class MixinWindow {
 	@Inject(method = "onFramebufferSizeChanged", at = @At("RETURN"))
 	private void onFramebufferSizeChanged(long window, int width, int height, CallbackInfo ci) {
         if (width > 0 && height > 0) {
-            SkiaContext.createSimpleSurface(width, height);
+            SkiaContext.createSurface(width, height);
         } else {
             PupperClient.LOGGER.warn("Window size is invalid: {}x{}, skipping surface creation", width, height);
         }
