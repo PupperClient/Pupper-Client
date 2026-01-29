@@ -1,17 +1,22 @@
 package cn.pupperclient.shader;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.AddressMode;
-import com.mojang.blaze3d.textures.FilterMode;
-import com.mojang.blaze3d.textures.GpuTexture;
-import com.mojang.blaze3d.textures.TextureFormat;
+import com.mojang.blaze3d.opengl.GlStateManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.Window;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL30C;
+
+import static org.lwjgl.opengl.GL11C.*;
+import static org.lwjgl.opengl.GL12C.GL_CLAMP_TO_EDGE;
+import static org.lwjgl.opengl.GL30C.*;
 
 public class Framebuffer {
-    private GpuTexture texture;
+
+    private int id;
+    public int texture;
     public double sizeMulti = 1;
-    private FilterMode filterMode = FilterMode.LINEAR;
+    public int width, height;
     private boolean mipmapEnabled = false;
 
     public Framebuffer(double sizeMulti) {
@@ -26,46 +31,79 @@ public class Framebuffer {
     private void init() {
         Window window = MinecraftClient.getInstance().getWindow();
 
-        int width = Math.max(1, (int) (window.getFramebufferWidth() * sizeMulti));
-        int height = Math.max(1, (int) (window.getFramebufferHeight() * sizeMulti));
+        id = GlStateManager.glGenFramebuffers();
+        bind();
 
-        texture = RenderSystem.getDevice().createTexture(
-            () -> "PupperFramebuffer",
-            TextureFormat.RGBA8,
-            width,
-            height,
-            1
-        );
+        texture = GlStateManager._genTexture();
+        ShaderHelper.bindTexture(texture);
+        ShaderHelper.defaultPixelStore();
 
-        texture.setTextureFilter(filterMode, false);
-        texture.setAddressMode(AddressMode.CLAMP_TO_EDGE);
+        ShaderHelper.textureParam(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        ShaderHelper.textureParam(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        ShaderHelper.textureParam(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        ShaderHelper.textureParam(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        width = Math.max(1, (int) (window.getFramebufferWidth() * sizeMulti));
+        height = Math.max(1, (int) (window.getFramebufferHeight() * sizeMulti));
+
+        ShaderHelper.textureImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null);
+        ShaderHelper.framebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+
+        unbind();
     }
 
     public void enableMipmap() {
         if (sizeMulti < 1.0) {
             mipmapEnabled = true;
-            texture.setTextureFilter(FilterMode.LINEAR, true);
-            texture.setAddressMode(AddressMode.CLAMP_TO_EDGE);
+            bind();
+            ShaderHelper.bindTexture(texture);
+
+            ShaderHelper.textureParam(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            ShaderHelper.textureParam(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+            ShaderHelper.textureParam(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            ShaderHelper.textureParam(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+            unbind();
         }
     }
 
-    public GpuTexture getTexture() {
-        return texture;
+    public void generateMipmap() {
+        if (mipmapEnabled && sizeMulti < 1.0) {
+            bind();
+            ShaderHelper.bindTexture(texture);
+            glGenerateMipmap(GL_TEXTURE_2D);
+            unbind();
+        }
     }
 
+    public void bind() {
+        GlStateManager._glBindFramebuffer(GL30C.GL_FRAMEBUFFER, id);
+    }
+
+    public void setViewport() {
+        ShaderHelper.viewport(0, 0, width, height);
+    }
     public void resize() {
-        if (texture != null) {
-            texture.close();
-        }
+        GlStateManager._glDeleteFramebuffers(id);
+        GlStateManager._deleteTexture(texture);
         init();
         if (mipmapEnabled) {
             enableMipmap();
         }
     }
 
-    public void close() {
-        if (texture != null) {
-            texture.close();
+    public void unbind() {
+        int currentFbo = GL11.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING);
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, currentFbo);
+    }
+
+    public void delete() {
+        if (id != 0) {
+            GlStateManager._glDeleteFramebuffers(id);
+            GlStateManager._deleteTexture(texture);
+            id = 0;
         }
     }
 }

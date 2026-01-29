@@ -6,9 +6,11 @@ import cn.pupperclient.PupperLogger;
 import com.mojang.blaze3d.opengl.GlConst;
 import com.mojang.blaze3d.opengl.GlStateManager;
 import io.github.humbleui.skija.*;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL33;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -29,26 +31,26 @@ public class SkiaContext {
             context = DirectContext.makeGL();
         }
 
-        if (surface != null) {
-            surface.close();
-            surface = null;
-        }
+        if (surface != null) surface.close();
+        if (renderTarget != null) renderTarget.close();
 
-        if (renderTarget != null) {
-            renderTarget.close();
-            renderTarget = null;
-        }
+        int activeFboId = GL11.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING);
 
         renderTarget = BackendRenderTarget.makeGL(
             width,
             height,
             0,
             8,
-            net.minecraft.client.gl.Framebuffer.index,
+            activeFboId,
             GL11.GL_RGBA8
         );
-        surface = Surface.wrapBackendRenderTarget(context, renderTarget, SurfaceOrigin.BOTTOM_LEFT,
-            SurfaceColorFormat.BGRA_8888, ColorSpace.getSRGB());
+        surface = Surface.wrapBackendRenderTarget(
+            context,
+            renderTarget,
+            SurfaceOrigin.BOTTOM_LEFT,
+            SurfaceColorFormat.BGRA_8888,
+            ColorSpace.getSRGB()
+        );
     }
 
     public static void draw(Consumer<Canvas> drawingLogic) {
@@ -77,18 +79,17 @@ public class SkiaContext {
         GlStateManager._glBindVertexArray(0);
         GlStateManager._glUseProgram(0);
 
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 12; i++) {
             GL33.glBindSampler(i, 0);
         }
 
-        GlStateManager._disableBlend();
+        GlStateManager._activeTexture(GL13.GL_TEXTURE0);
         GlStateManager._enableDepthTest();
         GlStateManager._depthMask(true);
         GlStateManager._colorMask(true, true, true, true);
+        GlStateManager._disableBlend();
 
-        RenderSystem.disableScissor();
-
-        GlStateManager._activeTexture(GL13.GL_TEXTURE0);
+        // RenderSystem.disableScissor();
     }
 
     public static DirectContext getContext() {

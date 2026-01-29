@@ -16,7 +16,6 @@ import cn.pupperclient.management.music.MusicManager;
 import cn.pupperclient.management.profile.ProfileManager;
 import cn.pupperclient.management.user.UserManager;
 import cn.pupperclient.management.websocket.WebSocketManager;
-import cn.pupperclient.shader.PupperRenderPipelines;
 import cn.pupperclient.skia.font.Fonts;
 import cn.pupperclient.utils.ExternalToolManager;
 import cn.pupperclient.utils.IMinecraft;
@@ -88,7 +87,6 @@ public class PupperClient implements IMinecraft {
         FileLocation.init();
         I18n.setLanguage(Language.ENGLISH);
         launchTime = System.currentTimeMillis();
-        ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new PupperRenderPipelines.Reloader());
     }
 
     private void initializeManagers() {

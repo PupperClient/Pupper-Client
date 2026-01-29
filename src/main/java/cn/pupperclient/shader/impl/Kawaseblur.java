@@ -1,22 +1,21 @@
 package cn.pupperclient.shader.impl;
 
-import cn.pupperclient.shader.Framebuffer;
-import cn.pupperclient.shader.MeshBuilder;
-import cn.pupperclient.shader.PupperRenderPipelines;
-import cn.pupperclient.shader.PupperVertexFormats;
-import com.mojang.blaze3d.buffers.GpuBuffer;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.systems.RenderPass;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.GpuTexture;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import cn.pupperclient.management.mod.impl.settings.SystemSettings;
+import cn.pupperclient.shader.*;
+
+import cn.pupperclient.utils.TimerUtils;
+import com.mojang.blaze3d.opengl.GlStateManager;
 import it.unimi.dsi.fastutil.ints.IntDoubleImmutablePair;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.texture.GlTexture;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL33;
 
-import java.util.OptionalInt;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 
 public class Kawaseblur {
+
     public static final Kawaseblur GUI_BLUR = new Kawaseblur();
     public static final Kawaseblur INGAME_BLUR = new Kawaseblur();
 
@@ -29,9 +28,10 @@ public class Kawaseblur {
         IntDoubleImmutablePair.of(5, 4.5), IntDoubleImmutablePair.of(5, 5.25), IntDoubleImmutablePair.of(5, 6.25),
         IntDoubleImmutablePair.of(5, 7.25), IntDoubleImmutablePair.of(5, 8.5) };
 
+    private static Shader shaderDown, shaderUp, shaderPassthrough;
     private final Framebuffer[] fbos = new Framebuffer[6];
+    private final TimerUtils timer = new TimerUtils();
     private boolean firstTick = true;
-    private MeshBuilder mesh;
 
     public void resize() {
         for (int i = 0; i < fbos.length; i++) {
@@ -44,86 +44,85 @@ public class Kawaseblur {
     }
 
     public void draw(int radius) {
+
+        if (shaderDown == null) {
+            shaderDown = new Shader("blur.vert", "blur_down.frag");
+            shaderUp = new Shader("blur.vert", "blur_up.frag");
+            shaderPassthrough = new Shader("passthrough.vert", "passthrough.frag");
+        }
+
         if (firstTick) {
             for (int i = 0; i < fbos.length; i++) {
                 if (fbos[i] == null) {
                     fbos[i] = new Framebuffer(1 / Math.pow(2, i));
                 }
             }
-
-            mesh = new MeshBuilder(PupperVertexFormats.POS2, VertexFormat.DrawMode.TRIANGLES);
-            mesh.begin();
-
-            mesh.vec2(-1, -1).next();
-            mesh.vec2(-1, 1);
-            mesh.vec2(1, 1);
-            mesh.vec2(1, -1);
-
-            mesh.quad(0, 1, 2, 3);
-            mesh.end();
-
             firstTick = false;
         }
 
-        IntDoubleImmutablePair strength = STRENGTHS[Math.min(radius - 1, STRENGTHS.length - 1)];
+        SystemSettings setting = SystemSettings.getInstance();
+
+        if(setting.isFastBlur()) {
+            if (timer.delay(16)) {
+                timer.reset();
+            } else {
+                return;
+            }
+        }
+
+        IntDoubleImmutablePair strength = STRENGTHS[(int) ((radius - 1))];
         int iterations = strength.leftInt();
         double offset = strength.rightDouble();
 
-        try (GpuBuffer vertexBuffer = mesh.createVertexBuffer(); GpuBuffer indexBuffer = mesh.createIndexBuffer()) {
-            // 第一遍：降采样
-            renderToFbo(fbos[0],
-                MinecraftClient.getInstance().getFramebuffer().getColorAttachment(),
-                PupperRenderPipelines.BLUR_DOWN,
-                vertexBuffer, indexBuffer, offset);
+        int backupFbo = GL11.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING);
 
-            // 多次降采样
-            for (int i = 0; i < iterations; i++) {
-                renderToFbo(fbos[i + 1],
-                    fbos[i].getTexture(),
-                    PupperRenderPipelines.BLUR_DOWN,
-                    vertexBuffer, indexBuffer, offset);
-            }
+        PostProcessRenderer.beginRender();
 
-            // 多次上采样
-            for (int i = iterations; i >= 1; i--) {
-                renderToFbo(fbos[i - 1],
-                    fbos[i].getTexture(),
-                    PupperRenderPipelines.BLUR_UP,
-                    vertexBuffer, indexBuffer, offset);
-            }
-
-            // 最终绘制到屏幕
-            RenderPass pass = RenderSystem.getDevice().createCommandEncoder()
-                .createRenderPass(MinecraftClient.getInstance().getFramebuffer().getColorAttachment(), OptionalInt.empty());
-
-            pass.setPipeline(PupperRenderPipelines.PASSTHROUGH);
-            pass.bindSampler("uTexture", fbos[0].getTexture());
-            pass.setVertexBuffer(0, vertexBuffer);
-            pass.setIndexBuffer(indexBuffer, VertexFormat.IndexType.INT);
-            pass.drawIndexed(0, mesh.getIndicesCount());
-            pass.close();
-
+        int mainTexId = 0;
+        if (MinecraftClient.getInstance().getFramebuffer().getColorAttachment() instanceof GlTexture glTexture) {
+            mainTexId = glTexture.getGlId();
+        } else {
+            throw new IllegalStateException("当前渲染后端不是 OpenGL，无法获取纹理 ID！");
         }
+
+        renderToFbo(fbos[0], mainTexId, shaderDown,
+            offset);
+
+        for (int i = 0; i < iterations; i++) {
+            renderToFbo(fbos[i + 1], fbos[i].texture, shaderDown, offset);
+        }
+
+        for (int i = iterations; i >= 1; i--) {
+            renderToFbo(fbos[i - 1], fbos[i].texture, shaderUp, offset);
+        }
+
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, backupFbo);
+        var mcFbo = MinecraftClient.getInstance().getFramebuffer();
+        GlStateManager._viewport(0, 0, mcFbo.viewportWidth, mcFbo.viewportHeight);
+        shaderPassthrough.bind();
+        ShaderHelper.bindTexture(fbos[0].texture);
+        shaderPassthrough.set("uTexture", 0);
+        PostProcessRenderer.endRender();
+
+        for (int i = 0; i < 12; i++) {
+            GL33.glBindSampler(i, 0);
+        }
+
+        GlStateManager._activeTexture(GL_TEXTURE0);
     }
 
-    private void renderToFbo(Framebuffer target, GpuTexture source,
-                             RenderPipeline pipeline,
-                             GpuBuffer vertexBuffer, GpuBuffer indexBuffer,
-                             double offset) {
-        RenderPass pass = RenderSystem.getDevice().createCommandEncoder()
-            .createRenderPass(target.getTexture(), OptionalInt.empty());
-
-        pass.setPipeline(pipeline);
-        pass.bindSampler("uTexture", source);
-        pass.setUniform("uHalfTexelSize", 0.5f / target.getTexture().getWidth(0), 0.5f / target.getTexture().getHeight(0));
-        pass.setUniform("uOffset", (float) offset);
-        pass.setVertexBuffer(0, vertexBuffer);
-        pass.setIndexBuffer(indexBuffer, VertexFormat.IndexType.INT);
-        pass.drawIndexed(0, mesh.getIndicesCount());
-        pass.close();
+    public int getTexture() {
+        return fbos[0].texture;
     }
 
-    public GpuTexture getTexture() {
-        return fbos[0].getTexture();
+    private void renderToFbo(Framebuffer targetFbo, int sourceText, Shader shader, double offset) {
+        targetFbo.bind();
+        targetFbo.setViewport();
+        shader.bind();
+        ShaderHelper.bindTexture(sourceText);
+        shader.set("uTexture", 0);
+        shader.set("uHalfTexelSize", .5 / targetFbo.width, .5 / targetFbo.height);
+        shader.set("uOffset", offset);
+        PostProcessRenderer.render();
     }
 }
