@@ -17,7 +17,7 @@ public class HUDModSettings extends Mod {
 	private static HUDModSettings instance;
 
 	private BooleanSetting blurSetting = new BooleanSetting("setting.blur", "setting.blur.description", Icon.LENS_BLUR,
-			this, true);
+			this, false);
 	private ComboSetting designSetting = new ComboSetting("setting.design", "setting.design.description", Icon.PALETTE,
 			this, Arrays.asList("design.simple", "design.classic", "design.clear", "design.materialyou"),
 			"design.simple");

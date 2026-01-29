@@ -245,7 +245,7 @@ public class PupperClient implements IMinecraft {
     }
 
     public static Identifier identifier(String path) {
-        Identifier id = Identifier.of("pupper", path);
+        var id = Identifier.of("pupper", path);
         if (path.contains("vert") || path.contains("frag")) {
             PupperLogger.info("ResourceID", "Generated Shader Path: " + id.getPath());
         }

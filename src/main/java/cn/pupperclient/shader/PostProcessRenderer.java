@@ -1,178 +1,46 @@
 package cn.pupperclient.shader;
 
-import com.mojang.blaze3d.opengl.GlStateManager;
-import net.minecraft.client.util.math.MatrixStack;
+import com.mojang.blaze3d.buffers.BufferType;
+import com.mojang.blaze3d.buffers.BufferUsage;
+import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.systems.RenderSystem;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL15C;
-import org.lwjgl.opengl.GL32C;
-
 import java.nio.ByteBuffer;
-
-import static org.lwjgl.opengl.GL11C.GL_FLOAT;
-import static org.lwjgl.opengl.GL11C.GL_UNSIGNED_INT;
-import static org.lwjgl.opengl.GL15C.*;
-import static org.lwjgl.system.MemoryUtil.*;
 
 public class PostProcessRenderer {
 
-	private static final Mesh mesh = new Mesh();
-	private static final MatrixStack matrices = new MatrixStack();
+    private static GpuBuffer vertexBuffer;
+    private static GpuBuffer indexBuffer;
 
-	static {
-		mesh.begin();
-		mesh.quad(mesh.vec2(-1, -1).next(), mesh.vec2(-1, 1).next(), mesh.vec2(1, 1).next(), mesh.vec2(1, -1).next());
-		mesh.end();
-	}
+    public static void init() {
+        if (vertexBuffer != null) return;
 
-	public static void beginRender() {
-		mesh.beginRender(matrices);
-	}
+        ByteBuffer vData = BufferUtils.createByteBuffer(4 * 2 * 4);
+        vData.putFloat(-1f).putFloat(-1f);
+        vData.putFloat(-1f).putFloat(1f);
+        vData.putFloat(1f).putFloat(1f);
+        vData.putFloat(1f).putFloat(-1f);
+        vData.flip();
 
-	public static void render() {
-		mesh.render(matrices);
-	}
+        ByteBuffer iData = BufferUtils.createByteBuffer(6 * 4);
+        iData.putInt(0).putInt(1).putInt(2);
+        iData.putInt(2).putInt(3).putInt(0);
+        iData.flip();
 
-	public static void endRender() {
-		mesh.endRender();
-	}
+        var device = RenderSystem.getDevice();
+        vertexBuffer = device.createBuffer(() -> "PostProcessVBO", BufferType.VERTICES, BufferUsage.STATIC_WRITE, vData);
+        indexBuffer = device.createBuffer(() -> "PostProcessIBO", BufferType.INDICES, BufferUsage.STATIC_WRITE, iData);
+    }
 
-	private static class Mesh {
+    public static GpuBuffer getVertices() {
+        return vertexBuffer;
+    }
 
-        private final int vao, vbo, ibo;
+    public static GpuBuffer getIndices() {
+        return indexBuffer;
+    }
 
-		private final ByteBuffer vertices;
-		private final long verticesPointerStart;
-        private long verticesPointer;
-
-		private final ByteBuffer indices;
-		private final long indicesPointer;
-
-		private int vertexI, indicesCount;
-
-		private boolean building;
-		private boolean beganRendering;
-
-		public Mesh() {
-			int drawMode = 3;
-			int stride = 8;
-
-            int primitiveVerticesSize = stride * drawMode;
-
-			vertices = BufferUtils.createByteBuffer(primitiveVerticesSize * 256 * 4);
-			verticesPointerStart = memAddress0(vertices);
-
-			indices = BufferUtils.createByteBuffer(drawMode * 512 * 4);
-			indicesPointer = memAddress0(indices);
-
-			vao = GlStateManager._glGenVertexArrays();
-			ShaderHelper.bindVertexArray(vao);
-
-			vbo = GlStateManager._glGenBuffers();
-			GlStateManager._glBindBuffer(GL15C.GL_ARRAY_BUFFER, vbo);
-
-			ibo = GlStateManager._glGenBuffers();
-			ShaderHelper.bindIndexBuffer(ibo);
-			GlStateManager._enableVertexAttribArray(0);
-			GlStateManager._vertexAttribPointer(0, 2, GL_FLOAT, false, stride, 0);
-
-			ShaderHelper.bindVertexArray(0);
-			GlStateManager._glBindBuffer(GL15C.GL_ARRAY_BUFFER, 0);
-			ShaderHelper.bindIndexBuffer(0);
-		}
-
-		public void begin() {
-
-			if (building) {
-				return;
-			}
-
-			verticesPointer = verticesPointerStart;
-			vertexI = 0;
-			indicesCount = 0;
-
-			building = true;
-		}
-
-		public Mesh vec2(double x, double y) {
-			long p = verticesPointer;
-
-			memPutFloat(p, (float) x);
-			memPutFloat(p + 4, (float) y);
-
-			verticesPointer += 8;
-			return this;
-		}
-
-		public int next() {
-			return vertexI++;
-		}
-
-		public void quad(int i1, int i2, int i3, int i4) {
-			long p = indicesPointer + indicesCount * 4L;
-
-			memPutInt(p, i1);
-			memPutInt(p + 4, i2);
-			memPutInt(p + 8, i3);
-
-			memPutInt(p + 12, i3);
-			memPutInt(p + 16, i4);
-			memPutInt(p + 20, i1);
-
-			indicesCount += 6;
-		}
-
-		public void end() {
-
-			if (!building) {
-				return;
-			}
-
-			if (indicesCount > 0) {
-				GlStateManager._glBindBuffer(GL15C.GL_ARRAY_BUFFER, vbo);
-				GlStateManager._glBufferData(GL_ARRAY_BUFFER, vertices.limit(getVerticesOffset()), GL_DYNAMIC_DRAW);
-				GlStateManager._glBindBuffer(GL15C.GL_ARRAY_BUFFER, 0);
-
-				ShaderHelper.bindIndexBuffer(ibo);
-				GlStateManager._glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.limit(indicesCount * 4), GL_DYNAMIC_DRAW);
-				ShaderHelper.bindIndexBuffer(0);
-			}
-
-			building = false;
-		}
-
-		public void beginRender(MatrixStack matrices) {
-			ShaderHelper.disableCull();
-
-			beganRendering = true;
-		}
-
-		public void render(MatrixStack matrices) {
-			if (building)
-				end();
-
-			if (indicesCount > 0) {
-				boolean wasBeganRendering = beganRendering;
-				if (!wasBeganRendering)
-					beginRender(matrices);
-
-				Shader.BOUND.setDefaults();
-
-				ShaderHelper.bindVertexArray(vao);
-				GlStateManager._drawElements(GL32C.GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0);
-
-				ShaderHelper.bindVertexArray(0);
-
-				if (!wasBeganRendering)
-					endRender();
-			}
-		}
-
-		public void endRender() {
-			beganRendering = false;
-		}
-
-		private int getVerticesOffset() {
-			return (int) (verticesPointer - verticesPointerStart);
-		}
-	}
+    public static void beginRender() {}
+    public static void render() {}
+    public static void endRender() {}
 }
