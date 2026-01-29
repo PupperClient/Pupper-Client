@@ -1,15 +1,13 @@
 package cn.pupperclient.skia.context;
 
 import java.util.function.Consumer;
+
+import io.github.humbleui.skija.*;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL33;
 import com.mojang.blaze3d.opengl.GlConst;
 import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.humbleui.skija.BackendRenderTarget;
-import io.github.humbleui.skija.Canvas;
-import io.github.humbleui.skija.DirectContext;
-import io.github.humbleui.skija.Surface;
 
 public class SkiaContext {
 
@@ -46,12 +44,12 @@ public class SkiaContext {
             0x8058
         );
 
-        surface = Surface.makeFromBackendRenderTarget(
+        surface = Surface.wrapBackendRenderTarget(
             context,
             renderTarget,
-            io.github.humbleui.skija.SurfaceOrigin.BOTTOM_LEFT,
-            io.github.humbleui.skija.SurfaceColorFormat.RGBA_8888,
-            io.github.humbleui.skija.ColorSpace.getSRGB()
+            SurfaceOrigin.BOTTOM_LEFT,
+            SurfaceColorFormat.RGBA_8888,
+            ColorSpace.getSRGB()
         );
     }
 
