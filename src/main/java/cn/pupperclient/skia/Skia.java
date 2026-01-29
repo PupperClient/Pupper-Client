@@ -2,6 +2,7 @@ package cn.pupperclient.skia;
 
 import java.awt.Color;
 import java.io.File;
+import java.util.function.Consumer;
 
 import cn.pupperclient.management.mod.impl.settings.HUDModSettings;
 import cn.pupperclient.shader.impl.Kawaseblur;
@@ -492,6 +493,14 @@ public class Skia {
         paint.setAlpha(alpha);
 
         getCanvas().saveLayer(null, paint);
+    }
+
+    public static void draw(Consumer<Canvas> drawingLogic) {
+        SkiaContext.draw(canvas -> {
+            float scale = (float) MinecraftClient.getInstance().getWindow().getScaleFactor();
+            // canvas.scale(scale, scale);
+            drawingLogic.accept(canvas);
+        });
     }
 
     public static Canvas getCanvas() {

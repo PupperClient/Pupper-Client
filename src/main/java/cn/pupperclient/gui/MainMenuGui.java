@@ -9,6 +9,7 @@ import java.nio.file.StandardCopyOption;
 
 import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.mod.impl.settings.SystemSettings;
+import cn.pupperclient.skia.context.SkiaContext;
 import com.google.gson.JsonObject;
 import cn.pupperclient.animation.SimpleAnimation;
 import cn.pupperclient.gui.api.SimpleSoarGui;
@@ -372,7 +373,12 @@ public class MainMenuGui extends SimpleSoarGui {
         if (currentlyMinimized) {
             return;
         }
+        SkiaContext.draw(canvas -> {
+            drawskia(mouseX, mouseY);
+        });
+    }
 
+    private void drawskia(double mouseX, double mouseY) {
         PupperClient instance = PupperClient.getInstance();
         ColorPalette palette = instance.getColorManager().getPalette();
 

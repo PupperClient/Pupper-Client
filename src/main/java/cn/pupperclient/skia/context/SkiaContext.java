@@ -2,11 +2,15 @@ package cn.pupperclient.skia.context;
 
 import java.util.function.Consumer;
 
-import io.github.humbleui.skija.*;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL33;
+import cn.pupperclient.PupperLogger;
 import com.mojang.blaze3d.opengl.GlConst;
 import com.mojang.blaze3d.opengl.GlStateManager;
+import io.github.humbleui.skija.*;
+import net.minecraft.client.gl.Framebuffer;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL33;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 
 public class SkiaContext {
@@ -15,24 +19,24 @@ public class SkiaContext {
     private static Surface surface;
     private static BackendRenderTarget renderTarget;
 
-    public static DirectContext getContext() {
-        return context;
-    }
-
     public static Canvas getCanvas() {
         return surface.getCanvas();
     }
 
     public static void createSurface(int width, int height) {
+
         if (context == null) {
             context = DirectContext.makeGL();
         }
 
         if (surface != null) {
             surface.close();
+            surface = null;
         }
+
         if (renderTarget != null) {
             renderTarget.close();
+            renderTarget = null;
         }
 
         renderTarget = BackendRenderTarget.makeGL(
@@ -40,43 +44,54 @@ public class SkiaContext {
             height,
             0,
             8,
-            0,
-            0x8058
+            net.minecraft.client.gl.Framebuffer.index,
+            GL11.GL_RGBA8
         );
-
-        surface = Surface.wrapBackendRenderTarget(
-            context,
-            renderTarget,
-            SurfaceOrigin.BOTTOM_LEFT,
-            SurfaceColorFormat.RGBA_8888,
-            ColorSpace.getSRGB()
-        );
+        surface = Surface.wrapBackendRenderTarget(context, renderTarget, SurfaceOrigin.BOTTOM_LEFT,
+            SurfaceColorFormat.BGRA_8888, ColorSpace.getSRGB());
     }
 
     public static void draw(Consumer<Canvas> drawingLogic) {
-        GlStateManager._pixelStore(GlConst.GL_UNPACK_ROW_LENGTH, 0);
-        GlStateManager._pixelStore(GlConst.GL_UNPACK_SKIP_PIXELS, 0);
-        GlStateManager._pixelStore(GlConst.GL_UNPACK_SKIP_ROWS, 0);
-        GlStateManager._pixelStore(GlConst.GL_UNPACK_ALIGNMENT, 4);
+        if (context == null || surface == null) {
+            PupperLogger.warn("SkiaContext", "Skip drawing: Context or Surface is null.");
+            return;
+        }
+
+        GlStateManager._pixelStore(GL11.GL_UNPACK_ROW_LENGTH, 0);
+        GlStateManager._pixelStore(GL11.GL_UNPACK_SKIP_PIXELS, 0);
+        GlStateManager._pixelStore(GL11.GL_UNPACK_SKIP_ROWS, 0);
+        GlStateManager._pixelStore(GL11.GL_UNPACK_ALIGNMENT, 4);
 
         context.resetGLAll();
+        try {
+            Canvas canvas = getCanvas();
+            canvas.clear(0);
 
-        Canvas canvas = getCanvas();
-        drawingLogic.accept(canvas);
+            drawingLogic.accept(canvas);
+        } catch (Exception e) {
+            PupperLogger.error("SkiaContext", "Error during Skia drawing logic", e);
+        }
 
         context.flush();
 
-        GL33.glBindSampler(0, 0);
-        GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
-        GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, 0);
-
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        GL33.glBlendEquation(GL33.GL_FUNC_ADD);
-        GL11.glColorMask(true, true, true, true);
-        GL11.glDepthMask(true);
-
+        GlStateManager._glBindVertexArray(0);
         GlStateManager._glUseProgram(0);
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+        for (int i = 0; i < 8; i++) {
+            GL33.glBindSampler(i, 0);
+        }
+
+        GlStateManager._disableBlend();
+        GlStateManager._enableDepthTest();
+        GlStateManager._depthMask(true);
+        GlStateManager._colorMask(true, true, true, true);
+
+        RenderSystem.disableScissor();
+
+        GlStateManager._activeTexture(GL13.GL_TEXTURE0);
+    }
+
+    public static DirectContext getContext() {
+        return context;
     }
 }

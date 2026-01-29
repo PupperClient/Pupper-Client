@@ -3,6 +3,7 @@ package cn.pupperclient.mixin.mixins.minecraft.client.gui;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.context.SkiaContext;
 import cn.pupperclient.skia.font.Fonts;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.GpuTexture;
 import io.github.humbleui.skija.Canvas;
 import io.github.humbleui.skija.Font;
@@ -70,6 +71,8 @@ public abstract class MixinSplashScreen {
 
     @Inject(method = "render", at = @At("HEAD"), cancellable = true)
     private void pupper_takeOverAndRender(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+
         int width = MinecraftClient.getInstance().getWindow().getWidth();
         int height = MinecraftClient.getInstance().getWindow().getHeight();
 

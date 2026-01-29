@@ -27,9 +27,9 @@ public class MixinGameRenderer {
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/InGameHud;render(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/client/render/RenderTickCounter;)V", shift = At.Shift.BEFORE))
 	public void render(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci) {
 
-		if (HUDModSettings.getInstance().getBlurSetting().isEnabled()) {
-            Kawaseblur.INGAME_BLUR.draw((int) HUDModSettings.getInstance().getBlurIntensitySetting().getValue());
-		}
+//		if (HUDModSettings.getInstance().getBlurSetting().isEnabled()) {
+//            Kawaseblur.INGAME_BLUR.draw((int) HUDModSettings.getInstance().getBlurIntensitySetting().getValue());
+//		}
 
 		SkiaContext.draw((context) -> {
 			Skia.save();
@@ -42,9 +42,9 @@ public class MixinGameRenderer {
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/InGameHud;render(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/client/render/RenderTickCounter;)V", shift = At.Shift.AFTER))
 	public void renderGuiBlur(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci) {
 
-		if (HUDModSettings.getInstance().getBlurSetting().isEnabled()) {
-            Kawaseblur.GUI_BLUR.draw((int) ModMenuSettings.getInstance().getBlurIntensitySetting().getValue());
-		}
+//		if (HUDModSettings.getInstance().getBlurSetting().isEnabled()) {
+//            Kawaseblur.GUI_BLUR.draw((int) ModMenuSettings.getInstance().getBlurIntensitySetting().getValue());
+//		}
 	}
 
 	@Inject(method = "getFov", at = @At(value = "RETURN", ordinal = 1), cancellable = true)

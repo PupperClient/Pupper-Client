@@ -163,6 +163,8 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 	public void onResolutionChanged(CallbackInfo info) {
 		Kawaseblur.GUI_BLUR.resize();
         Kawaseblur.INGAME_BLUR.resize();
+
+        SkiaContext.createSurface(window.getFramebufferWidth(), window.getFramebufferHeight());
 	}
 
 	@Override
