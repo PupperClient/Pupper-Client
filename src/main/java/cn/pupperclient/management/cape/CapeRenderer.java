@@ -2,6 +2,7 @@ package cn.pupperclient.management.cape;
 
 import cn.pupperclient.skia.Skia;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.texture.GlTexture;
 import net.minecraft.util.Identifier;
 import io.github.humbleui.skija.ClipMode;
 import io.github.humbleui.skija.Path;
@@ -20,8 +21,8 @@ public class CapeRenderer {
             var textureId = MinecraftClient.getInstance().getTextureManager().getTexture(capeTexture).getGlTexture();
 
             // 尝试不同的纹理尺寸
-            boolean loaded = Skia.getImageHelper().load(textureId, 64, 32) != null ||
-                           Skia.getImageHelper().load(textureId, 128, 64) != null;
+            boolean loaded = Skia.getImageHelper().load(textureId, 64, 32) ||
+                           Skia.getImageHelper().load(textureId, 128, 64);
 
             if (loaded) {
                 Skia.save();
@@ -30,7 +31,7 @@ public class CapeRenderer {
 
                 Rect srcRect = Rect.makeXYWH(1, 1, 10, 16);
                 Rect dstRect = Rect.makeXYWH(0, 0, 10, 16);
-                Skia.getCanvas().drawImageRect(Objects.requireNonNull(Skia.getImageHelper().get(textureId)), srcRect, dstRect, null, false);
+                Skia.getCanvas().drawImageRect(Objects.requireNonNull(Skia.getImageHelper().get(textureId.hashCode())), srcRect, dstRect, null, false);
 
                 Skia.restore();
 
@@ -40,7 +41,7 @@ public class CapeRenderer {
 
                 Rect srcRect2 = Rect.makeXYWH(12, 1, 10, 16);
                 Rect dstRect2 = Rect.makeXYWH(0, 0, 10, 16);
-                Skia.getCanvas().drawImageRect(Objects.requireNonNull(Skia.getImageHelper().get(textureId)), srcRect2, dstRect2, null, false);
+                Skia.getCanvas().drawImageRect(Objects.requireNonNull(Skia.getImageHelper().get(textureId.hashCode())), srcRect2, dstRect2, null, false);
 
                 Skia.restore();
             }
@@ -57,8 +58,8 @@ public class CapeRenderer {
             var textureId = MinecraftClient.getInstance().getTextureManager().getTexture(capeTexture).getGlTexture();
 
             // 尝试不同的纹理尺寸
-            boolean loaded = Skia.getImageHelper().load(textureId, 64, 32) != null ||
-                           Skia.getImageHelper().load(textureId, 128, 64) != null;
+            boolean loaded = Skia.getImageHelper().load(textureId, 64, 32) ||
+                           Skia.getImageHelper().load(textureId, 128, 64);
 
             if (loaded) {
                 Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, radius));
@@ -69,7 +70,7 @@ public class CapeRenderer {
 
                 Skia.save();
                 Skia.getCanvas().clipPath(path, ClipMode.INTERSECT, true);
-                Skia.getCanvas().drawImageRect(Objects.requireNonNull(Skia.getImageHelper().get(textureId)), srcRect, dstRect, null, false);
+                Skia.getCanvas().drawImageRect(Objects.requireNonNull(Skia.getImageHelper().get(textureId.hashCode())), srcRect, dstRect, null, false);
                 Skia.restore();
             }
         } catch (Exception e) {

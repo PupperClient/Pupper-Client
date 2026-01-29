@@ -9,6 +9,7 @@ import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.font.Icon;
 
 import net.ccbluex.liquidbounce.mcef.MCEF;
+import net.minecraft.client.texture.GlTexture;
 
 public class WebBrowserMod extends HUDMod {
 
@@ -31,10 +32,10 @@ public class WebBrowserMod extends HUDMod {
 		currentWidth = width * scale;
 		currentHeight = height * scale;
 
-		if (MCEF.INSTANCE.isInitialized() && JCefBrowser.getBrowser() != null) {
+		if (MCEF.INSTANCE.isInitialized() && JCefBrowser.getBrowser() != null && JCefBrowser.getBrowser().getRenderer().getTexture() instanceof GlTexture glTexture) {
 			MCEF.INSTANCE.getApp().getHandle().N_DoMessageLoopWork();
 			this.drawBlurBackground(getX(), getY(), currentWidth, currentHeight);
-			Skia.drawRoundedImage(JCefBrowser.getBrowser().getRenderer().getTexture(), getX(), getY(), currentWidth, currentHeight,
+			Skia.drawRoundedImage(glTexture.getGlId(), getX(), getY(), currentWidth, currentHeight,
 					getRadius(), opacitySetting.getValue());
 		}
 

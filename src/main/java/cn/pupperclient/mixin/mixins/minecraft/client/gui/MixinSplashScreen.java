@@ -11,6 +11,7 @@ import java.awt.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.SplashOverlay;
+import net.minecraft.client.texture.GlTexture;
 import net.minecraft.client.texture.ResourceTexture;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
@@ -74,7 +75,7 @@ public abstract class MixinSplashScreen {
 
         // Recreate surface if window size changed
         if (lastWindowWidth != width || lastWindowHeight != height) {
-            SkiaContext.createSimpleSurface(width, height);
+            SkiaContext.createSurface(width, height);
             lastWindowWidth = width;
             lastWindowHeight = height;
         }
@@ -249,7 +250,7 @@ public abstract class MixinSplashScreen {
     @Unique
     private void drawLogo(int x, int y, int size, float alpha) {
         // Draw logo using Skia
-        GpuTexture textureId = MinecraftClient.getInstance().getTextureManager().getTexture(CUSTOM_LOGO).getGlTexture();
+        var textureId = MinecraftClient.getInstance().getTextureManager().getTexture(CUSTOM_LOGO).getGlTexture();
         Skia.drawImage(textureId, x, y, size, size, alpha);
     }
 

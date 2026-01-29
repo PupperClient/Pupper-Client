@@ -7,6 +7,7 @@ import cn.pupperclient.management.mod.impl.settings.HUDModSettings;
 import cn.pupperclient.shader.impl.Kawaseblur;
 import cn.pupperclient.skia.context.SkiaContext;
 import cn.pupperclient.skia.image.ImageHelper;
+import com.mojang.blaze3d.textures.GpuTexture;
 import io.github.humbleui.skija.Canvas;
 import io.github.humbleui.skija.ClipMode;
 import io.github.humbleui.skija.FilterTileMode;
@@ -122,6 +123,20 @@ public class Skia {
         if (imageHelper.load(path)) {
             getCanvas().drawImageRect(imageHelper.get(path), Rect.makeXYWH(x, y, width, height));
         }
+    }
+
+    public static void drawImage(GpuTexture gpuTexture, float x, float y, float width, float height, float alpha,
+                                 SurfaceOrigin origin) {
+
+        if (imageHelper.load(gpuTexture, width, height, origin)) {
+            Paint paint = new Paint();
+            paint.setAlpha((int) (255 * alpha));
+            getCanvas().drawImageRect(imageHelper.get(gpuTexture.hashCode()), Rect.makeXYWH(x, y, width, height), paint);
+        }
+    }
+
+    public static void drawImage(GpuTexture gpuTexture, float x, float y, float width, float height, float alpha) {
+        drawImage(gpuTexture, x, y, width, height, alpha, SurfaceOrigin.TOP_LEFT);
     }
 
     public static void drawImage(int textureId, float x, float y, float width, float height, float alpha,
