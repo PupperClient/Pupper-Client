@@ -3,6 +3,7 @@ package cn.pupperclient.shader.impl;
 import cn.pupperclient.shader.Framebuffer;
 import cn.pupperclient.shader.MeshBuilder;
 import cn.pupperclient.shader.PupperRenderPipelines;
+import cn.pupperclient.shader.PupperVertexFormats;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.systems.RenderPass;
@@ -50,21 +51,13 @@ public class Kawaseblur {
                 }
             }
 
-            // 创建全屏四边形网格，使用正确的顶点数据
-            mesh = new MeshBuilder(VertexFormats.POSITION_TEXTURE, VertexFormat.DrawMode.TRIANGLES);
+            mesh = new MeshBuilder(PupperVertexFormats.POS2, VertexFormat.DrawMode.TRIANGLES);
             mesh.begin();
 
-            // 顶点1: (-1, -1, 0) 纹理坐标: (0, 0)
-            mesh.vec3(-1, -1, 0).vec2(0, 0).next();
-
-            // 顶点2: (-1, 1, 0) 纹理坐标: (0, 1)
-            mesh.vec3(-1, 1, 0).vec2(0, 1).next();
-
-            // 顶点3: (1, 1, 0) 纹理坐标: (1, 1)
-            mesh.vec3(1, 1, 0).vec2(1, 1).next();
-
-            // 顶点4: (1, -1, 0) 纹理坐标: (1, 0)
-            mesh.vec3(1, -1, 0).vec2(1, 0).next();
+            mesh.vec2(-1, -1).next();
+            mesh.vec2(-1, 1);
+            mesh.vec2(1, 1);
+            mesh.vec2(1, -1);
 
             mesh.quad(0, 1, 2, 3);
             mesh.end();

@@ -7,6 +7,7 @@ import cn.pupperclient.management.mod.api.hud.SimpleHUDMod;
 public class CooldownHudMod extends SimpleHUDMod {
     public CooldownHudMod() {
         super("mod.cooldown.name", "mod.cooldown.description", "");
+        this.setEnabled(true);
     }
 
     @Override

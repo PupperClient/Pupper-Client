@@ -16,6 +16,7 @@ import cn.pupperclient.management.music.MusicManager;
 import cn.pupperclient.management.profile.ProfileManager;
 import cn.pupperclient.management.user.UserManager;
 import cn.pupperclient.management.websocket.WebSocketManager;
+import cn.pupperclient.shader.PupperRenderPipelines;
 import cn.pupperclient.skia.font.Fonts;
 import cn.pupperclient.utils.ExternalToolManager;
 import cn.pupperclient.utils.IMinecraft;
@@ -26,6 +27,8 @@ import com.viaversion.viafabricplus.ViaFabricPlus;
 import com.viaversion.viafabricplus.api.ViaFabricPlusBase;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.Logger;
 
@@ -85,6 +88,7 @@ public class PupperClient implements IMinecraft {
         FileLocation.init();
         I18n.setLanguage(Language.ENGLISH);
         launchTime = System.currentTimeMillis();
+        ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new PupperRenderPipelines.Reloader());
     }
 
     private void initializeManagers() {
@@ -243,6 +247,10 @@ public class PupperClient implements IMinecraft {
     }
 
     public static Identifier identifier(String path) {
-        return Identifier.of("pupper", path);
+        Identifier id = Identifier.of("pupper", path);
+        if (path.contains("vert") || path.contains("frag")) {
+            PupperLogger.info("ResourceID", "Generated Shader Path: " + id.getPath());
+        }
+        return id;
     }
 }
