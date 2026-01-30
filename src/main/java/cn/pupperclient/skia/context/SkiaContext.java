@@ -3,12 +3,12 @@ package cn.pupperclient.skia.context;
 import java.util.function.Consumer;
 
 import cn.pupperclient.PupperLogger;
-import com.mojang.blaze3d.opengl.GlConst;
 import com.mojang.blaze3d.opengl.GlStateManager;
 import io.github.humbleui.skija.*;
 import net.minecraft.client.gl.Framebuffer;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL33;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -39,12 +39,14 @@ public class SkiaContext {
             renderTarget = null;
         }
 
+        int currentFbo = GL11.glGetInteger(GL30.GL_DRAW_FRAMEBUFFER_BINDING);
+
         renderTarget = BackendRenderTarget.makeGL(
             width,
             height,
             0,
             8,
-            net.minecraft.client.gl.Framebuffer.index,
+            currentFbo,
             GL11.GL_RGBA8
         );
         surface = Surface.wrapBackendRenderTarget(context, renderTarget, SurfaceOrigin.BOTTOM_LEFT,

@@ -16,11 +16,14 @@ import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
 
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import static com.mojang.blaze3d.textures.TextureFormat.*;
 
 public class ImageHelper {
 
@@ -50,9 +53,22 @@ public class ImageHelper {
 
         if (texture instanceof GlTexture glTexture) {
             var GlId = glTexture.getGlId();
+            var mcFormat = glTexture.getFormat();
+
+            int glInternalFormat = switch (mcFormat) {
+                case RGBA8 -> GL30.GL_RGBA8; // GL_RGBA8
+                case RED8 -> GL30.GL_R8;  // GL_R8
+                case DEPTH32 -> GL30.GL_DEPTH_COMPONENT32; // GL_DEPTH_COMPONENT32
+            };
+
+            ColorType skColorType = switch (mcFormat) {
+                case RGBA8 -> ColorType.RGBA_8888;
+                case RED8 -> ColorType.GRAY_8;
+                case DEPTH32 -> ColorType.GRAY_8;
+            };
 
             Image image = Image.adoptGLTextureFrom(SkiaContext.getContext(), GlId, GL11.GL_TEXTURE_2D, (int) width,
-               (int) height, GL11.GL_RGBA8, origin, ColorType.RGBA_8888);
+               (int) height, glInternalFormat, origin, skColorType);
             textures.put(texture.hashCode(), image);
 
             return true;

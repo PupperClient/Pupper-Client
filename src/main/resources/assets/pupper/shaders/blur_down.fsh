@@ -1,7 +1,6 @@
 #version 150
 
 precision mediump float;
-
 in vec2 uv;
 out vec4 fragColor;
 
@@ -17,6 +16,5 @@ void main() {
         texture(Sampler0, uv + vec2(uHalfTexelSize.x, -uHalfTexelSize.y) * uOffset) +
         texture(Sampler0, uv - vec2(uHalfTexelSize.x, -uHalfTexelSize.y) * uOffset)
     ) / 6.0;
-
     fragColor = vec4(result.rgb, 1.0);
 }

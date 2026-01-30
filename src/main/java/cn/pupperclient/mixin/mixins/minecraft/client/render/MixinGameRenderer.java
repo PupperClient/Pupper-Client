@@ -2,6 +2,7 @@ package cn.pupperclient.mixin.mixins.minecraft.client.render;
 
 import cn.pupperclient.management.mod.impl.render.NoHurtFov;
 import cn.pupperclient.shader.impl.Kawaseblur;
+import com.mojang.blaze3d.systems.RenderSystem;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -27,9 +28,12 @@ public class MixinGameRenderer {
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/InGameHud;render(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/client/render/RenderTickCounter;)V", shift = At.Shift.BEFORE))
 	public void render(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci) {
 
-//		if (HUDModSettings.getInstance().getBlurSetting().isEnabled()) {
-//            Kawaseblur.INGAME_BLUR.draw((int) HUDModSettings.getInstance().getBlurIntensitySetting().getValue());
-//		}
+        if (HUDModSettings.getInstance().getBlurSetting().isEnabled()) {
+            // 转换为 int 类型以符合 Kawaseblur.draw(int radius) 的签名
+            int intensity = (int) HUDModSettings.getInstance().getBlurIntensitySetting().getValue();
+            var encoder = RenderSystem.getDevice().createCommandEncoder();
+            Kawaseblur.INGAME_BLUR.draw(encoder, intensity);
+        }
 
 		SkiaContext.draw((context) -> {
 			Skia.save();
@@ -41,10 +45,12 @@ public class MixinGameRenderer {
 	
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/InGameHud;render(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/client/render/RenderTickCounter;)V", shift = At.Shift.AFTER))
 	public void renderGuiBlur(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci) {
-
-//		if (HUDModSettings.getInstance().getBlurSetting().isEnabled()) {
-//            Kawaseblur.GUI_BLUR.draw((int) ModMenuSettings.getInstance().getBlurIntensitySetting().getValue());
-//		}
+        if (HUDModSettings.getInstance().getBlurSetting().isEnabled()) {
+            // 使用 ModMenuSettings 或 HUDModSettings 中定义的强度
+            int intensity = (int) ModMenuSettings.getInstance().getBlurIntensitySetting().getValue();
+            var encoder = RenderSystem.getDevice().createCommandEncoder();
+            Kawaseblur.GUI_BLUR.draw(encoder, intensity);
+        }
 	}
 
 	@Inject(method = "getFov", at = @At(value = "RETURN", ordinal = 1), cancellable = true)

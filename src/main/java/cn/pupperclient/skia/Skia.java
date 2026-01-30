@@ -5,9 +5,13 @@ import java.io.File;
 import java.util.function.Consumer;
 
 import cn.pupperclient.management.mod.impl.settings.HUDModSettings;
+import cn.pupperclient.shader.PupperMeshRenderer;
+import cn.pupperclient.shader.PupperRenderPipelines;
+import cn.pupperclient.shader.PupperRenderer2D;
 import cn.pupperclient.shader.impl.Kawaseblur;
 import cn.pupperclient.skia.context.SkiaContext;
 import cn.pupperclient.skia.image.ImageHelper;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.GpuTexture;
 import io.github.humbleui.skija.Canvas;
 import io.github.humbleui.skija.ClipMode;
@@ -61,33 +65,76 @@ public class Skia {
     }
 
     public static void drawBlur(float x, float y, float width, float height) {
+        if (!HUDModSettings.getInstance().getBlurSetting().isEnabled()) return;
 
-        if (HUDModSettings.getInstance().getBlurSetting().isEnabled()) {
+        var mc = MinecraftClient.getInstance();
+        var window = mc.getWindow();
+        var texturedMesh = PupperRenderer2D.COLOR.getTexturedMesh();
 
-            Window window = MinecraftClient.getInstance().getWindow();
-            Path path = Path.makeRect(Rect.makeXYWH(x, y, width, height));
+        float u1 = x / (float) window.getScaledWidth();
+        float v1 = 1.0f - (y / (float) window.getScaledHeight());
+        float u2 = (x + width) / (float) window.getScaledWidth();
+        float v2 = 1.0f - ((y + height) / (float) window.getScaledHeight());
 
-            save();
-            getCanvas().clipPath(path, ClipMode.INTERSECT, true);
-            drawImage(Kawaseblur.INGAME_BLUR.getTexture(), 0, 0, window.getScaledWidth(), window.getScaledHeight(), 1F,
-                SurfaceOrigin.BOTTOM_LEFT);
-            restore();
-        }
+        texturedMesh.begin();
+
+        int i1 = texturedMesh.vec2(x, y).color(0xFFFFFFFF).tex2(u1, v1).next();
+        int i2 = texturedMesh.vec2(x, y + height).color(0xFFFFFFFF).tex2(u1, v2).next();
+        int i3 = texturedMesh.vec2(x + width, y + height).color(0xFFFFFFFF).tex2(u2, v2).next();
+        int i4 = texturedMesh.vec2(x + width, y).color(0xFFFFFFFF).tex2(u2, v1).next();
+
+        texturedMesh.quad(i1, i2, i3, i4);
+        texturedMesh.end();
+
+        PupperMeshRenderer.begin()
+            .attachments(mc.getFramebuffer())
+            .pipeline(PupperRenderPipelines.UI_TEXTURED)
+            .mesh(texturedMesh)
+            .setupCallback(pass -> {
+                pass.setUniform("u_Proj", RenderSystem.getProjectionMatrix());
+                pass.setUniform("u_ModelView", RenderSystem.getModelViewStack());
+                pass.bindSampler("Sampler0", Kawaseblur.INGAME_BLUR.getFbos()[0].getColorAttachment());
+            })
+            .end();
     }
 
     public static void drawRoundedBlur(float x, float y, float width, float height, float radius) {
+        if (!HUDModSettings.getInstance().getBlurSetting().isEnabled()) return;
 
-        if (HUDModSettings.getInstance().getBlurSetting().isEnabled()) {
+        var mc = MinecraftClient.getInstance();
+        var window = mc.getWindow();
+        var texturedMesh = PupperRenderer2D.COLOR.getTexturedMesh();
 
-            Window window = MinecraftClient.getInstance().getWindow();
-            Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, radius));
+        float u1 = x / (float) window.getScaledWidth();
+        float v1 = 1.0f - (y / (float) window.getScaledHeight());
+        float u2 = (x + width) / (float) window.getScaledWidth();
+        float v2 = 1.0f - ((y + height) / (float) window.getScaledHeight());
 
-            save();
-            getCanvas().clipPath(path, ClipMode.INTERSECT, true);
-            drawImage(Kawaseblur.INGAME_BLUR.getTexture(), 0, 0, window.getScaledWidth(), window.getScaledHeight(), 1F,
-                SurfaceOrigin.BOTTOM_LEFT);
-            restore();
-        }
+        texturedMesh.begin();
+
+        int i1 = texturedMesh.vec2(x, y).color(0xFFFFFFFF).tex2(u1, v1).next();
+        int i2 = texturedMesh.vec2(x, y + height).color(0xFFFFFFFF).tex2(u1, v2).next();
+        int i3 = texturedMesh.vec2(x + width, y + height).color(0xFFFFFFFF).tex2(u2, v2).next();
+        int i4 = texturedMesh.vec2(x + width, y).color(0xFFFFFFFF).tex2(u2, v1).next();
+
+        texturedMesh.quad(i1, i2, i3, i4);
+        texturedMesh.end();
+
+        PupperMeshRenderer.begin()
+            .attachments(mc.getFramebuffer())
+            .pipeline(PupperRenderPipelines.UI_ROUNDED_TEXTURED)
+            .mesh(texturedMesh)
+            .setupCallback(pass -> {
+                pass.setUniform("u_Proj", RenderSystem.getProjectionMatrix());
+                pass.setUniform("u_ModelView", RenderSystem.getModelViewStack());
+
+                // 传递圆角参数
+                pass.setUniform("uSize", width, height);
+                pass.setUniform("uRadius", radius);
+
+                pass.bindSampler("Sampler0", Kawaseblur.INGAME_BLUR.getFbos()[0].getColorAttachment());
+            })
+            .end();
     }
 
     public static void drawShadow(float x, float y, float width, float height, float radius) {

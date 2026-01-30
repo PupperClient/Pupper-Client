@@ -1,116 +1,101 @@
 package cn.pupperclient.shader.impl;
 
-import cn.pupperclient.management.mod.impl.settings.SystemSettings;
 import cn.pupperclient.shader.*;
-import cn.pupperclient.utils.TimerUtils;
+import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.systems.CommandEncoder;
-import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.GpuTexture;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import it.unimi.dsi.fastutil.ints.IntDoubleImmutablePair;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.SimpleFramebuffer;
-import net.minecraft.client.texture.GlTexture;
-import org.joml.Matrix4f;
-
-import java.util.OptionalInt;
 
 public class Kawaseblur {
-
     public static final Kawaseblur GUI_BLUR = new Kawaseblur();
     public static final Kawaseblur INGAME_BLUR = new Kawaseblur();
 
-    private static final IntDoubleImmutablePair[] STRENGTHS = new IntDoubleImmutablePair[] {
-        IntDoubleImmutablePair.of(1, 1.25), IntDoubleImmutablePair.of(1, 2.25), IntDoubleImmutablePair.of(2, 2.0),
-        IntDoubleImmutablePair.of(2, 3.0), IntDoubleImmutablePair.of(2, 4.25), IntDoubleImmutablePair.of(3, 2.5),
-        IntDoubleImmutablePair.of(3, 3.25), IntDoubleImmutablePair.of(3, 4.25), IntDoubleImmutablePair.of(3, 5.5),
-        IntDoubleImmutablePair.of(4, 3.25), IntDoubleImmutablePair.of(4, 4.0), IntDoubleImmutablePair.of(4, 5.0),
-        IntDoubleImmutablePair.of(4, 6.0), IntDoubleImmutablePair.of(4, 7.25), IntDoubleImmutablePair.of(4, 8.25),
-        IntDoubleImmutablePair.of(5, 4.5), IntDoubleImmutablePair.of(5, 5.25), IntDoubleImmutablePair.of(5, 6.25),
-        IntDoubleImmutablePair.of(5, 7.25), IntDoubleImmutablePair.of(5, 8.5)
-    };
+    private Framebuffer[] fbos;
+    private int lastWidth, lastHeight;
 
-    private final Framebuffer[] fbos = new Framebuffer[6];
-    private final TimerUtils timer = new TimerUtils();
-    private boolean initialized = false;
+    private Kawaseblur() {}
 
+    /**
+     * 当窗口大小改变时调用，重新初始化 FBO
+     */
     public void resize() {
         MinecraftClient mc = MinecraftClient.getInstance();
         int width = mc.getWindow().getFramebufferWidth();
         int height = mc.getWindow().getFramebufferHeight();
 
-        for (int i = 0; i < fbos.length; i++) {
-            if (fbos[i] != null) {
-                fbos[i].delete();
-            }
-            double factor = 1.0 / Math.pow(2, i);
-            int fboW = Math.max(1, (int) (width * factor));
-            int fboH = Math.max(1, (int) (height * factor));
-            fbos[i] = new SimpleFramebuffer("KawaseBlur_FBO_" + i, fboW, fboH, false);
+        if (width <= 0 || height <= 0 || (width == lastWidth && height == lastHeight)) return;
+
+        if (fbos != null) {
+            for (Framebuffer fb : fbos) if (fb != null) fb.delete();
         }
-        initialized = true;
+
+        fbos = new Framebuffer[5];
+        for (int i = 0; i < 5; i++) {
+            fbos[i] = new SimpleFramebuffer("kawase_blur_" + i, width, height, false);
+        }
+
+        lastWidth = width;
+        lastHeight = height;
     }
 
-    public void draw(int radius) {
-        if (!initialized) resize();
-
-        SystemSettings setting = SystemSettings.getInstance();
-        if (setting.isFastBlur() && !timer.delay(16)) return;
-        timer.reset();
-
-        IntDoubleImmutablePair strength = STRENGTHS[Math.min(radius - 1, STRENGTHS.length - 1)];
-        int iterations = strength.leftInt();
-        float offset = (float) strength.rightDouble();
+    /**
+     * 执行模糊渲染逻辑
+     * @param encoder 1.21.5 的命令编码器
+     * @param iterations 模糊强度/迭代次数
+     */
+    public void draw(CommandEncoder encoder, int iterations) {
+        if (fbos == null || iterations <= 0) return;
 
         MinecraftClient mc = MinecraftClient.getInstance();
         Framebuffer mainFbo = mc.getFramebuffer();
-        CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
 
-        renderPass(encoder, fbos[0], mainFbo.getColorAttachment(), PupperRenderPipelines.BLUR_DOWN, offset);
+        // 1. Initial Pass: 把主 FBO 拷贝到第一个模糊 FBO (使用 Passthrough)
+        renderPass(encoder, fbos[0], mainFbo.getColorAttachment(), PupperRenderPipelines.PASSTHROUGH, 0);
+
+        // 2. Downsample Passes: 逐层下采样并模糊
         for (int i = 0; i < iterations; i++) {
-            renderPass(encoder, fbos[i + 1], fbos[i].getColorAttachment(), PupperRenderPipelines.BLUR_DOWN, offset);
+            renderPass(encoder, fbos[Math.min(i + 1, 4)], fbos[i].getColorAttachment(), PupperRenderPipelines.BLUR_DOWN, i);
         }
 
-        for (int i = iterations; i >= 1; i--) {
-            renderPass(encoder, fbos[i - 1], fbos[i].getColorAttachment(), PupperRenderPipelines.BLUR_UP, offset);
+        // 3. Upsample Passes: 逐层恢复尺寸
+        for (int i = iterations; i > 0; i--) {
+            renderPass(encoder, fbos[i - 1], fbos[i].getColorAttachment(), PupperRenderPipelines.BLUR_UP, i);
         }
 
-        renderPass(encoder, mainFbo, fbos[0].getColorAttachment(), PupperRenderPipelines.PASSTHROUGH, offset);
-
-        ShaderHelper.fullReset();
+        // 4. Final Pass: 将结果画回主 FBO (或者你可以在这里直接渲染到屏幕)
+        renderPass(encoder, mainFbo, fbos[0].getColorAttachment(), PupperRenderPipelines.PASSTHROUGH, 0);
     }
 
     private void renderPass(CommandEncoder encoder, Framebuffer targetFbo, GpuTexture sourceTex, RenderPipeline pipeline, float offset) {
-        if (targetFbo.getColorAttachment() == null || sourceTex == null) return;
+        if (targetFbo == null || sourceTex == null) return;
 
-        PostProcessRenderer.init();
+        GlStateManager._disableDepthTest();
+        GlStateManager._depthMask(false);
 
-        try (RenderPass pass = encoder.createRenderPass(targetFbo.getColorAttachment(), OptionalInt.empty())) {
-            pass.setPipeline(pipeline);
-            pass.setUniform("u_Proj", RenderSystem.getProjectionMatrix());
-            pass.setUniform("u_ModelView", new Matrix4f(RenderSystem.getModelViewStack()));
-            pass.setUniform("uOffset", offset);
-            pass.setUniform("uHalfTexelSize", 0.5f / (float)targetFbo.textureWidth, 0.5f / (float)targetFbo.textureHeight);
+        PupperMeshRenderer.begin()
+            .attachments(targetFbo)
+            .pipeline(pipeline)
+            .mesh(PupperFullScreenRenderer.mesh)
+            .setupCallback(pass -> {
+                pass.setUniform("u_Proj", RenderSystem.getProjectionMatrix());
+                pass.setUniform("u_ModelView", RenderSystem.getModelViewStack());
 
-            pass.bindSampler("Sampler0", sourceTex);
+                pass.setUniform("uOffset", offset);
+                pass.setUniform("uHalfTexelSize", 0.5f / (float)targetFbo.textureWidth, 0.5f / (float)targetFbo.textureHeight);
 
-            pass.setVertexBuffer(0, PostProcessRenderer.getVertices());
-            pass.setIndexBuffer(PostProcessRenderer.getIndices(), VertexFormat.IndexType.INT);
+                pass.bindSampler("Sampler0", sourceTex);
+            })
+            .end();
 
-            pass.drawIndexed(0, 6);
-        }
+        GlStateManager._enableDepthTest();
+        GlStateManager._depthMask(true);
     }
 
-    public int getTexture() {
-        if (fbos[0] != null) {
-            GpuTexture texture = fbos[0].getColorAttachment();
-            if (texture instanceof GlTexture glTexture) {
-                return glTexture.getGlId();
-            }
-        }
-        return -1;
+    public Framebuffer[] getFbos() {
+        return fbos;
     }
 }
