@@ -24,10 +24,9 @@ public class PacketHandler {
 
 		Packet<?> basePacket = packetEvent.getPacket();
 
-		if (basePacket instanceof PlayerInteractEntityC2SPacket) {
+		if (basePacket instanceof PlayerInteractEntityC2SPacket packet) {
 
-			PlayerInteractEntityC2SPacket packet = (PlayerInteractEntityC2SPacket) basePacket;
-			PlayerInteractEntityC2SPacket.InteractType type = ((PlayerInteractEntityC2SPacketAccessor) packet)
+            PlayerInteractEntityC2SPacket.InteractType type = ((PlayerInteractEntityC2SPacketAccessor) packet)
 					.getInteractTypeHandler().getType();
 
 			if (type.equals(PlayerInteractEntityC2SPacket.InteractType.ATTACK)) {
@@ -36,10 +35,9 @@ public class PacketHandler {
 			}
 		}
 
-		if (basePacket instanceof ChatMessageC2SPacket) {
+		if (basePacket instanceof ChatMessageC2SPacket packet) {
 
-			ChatMessageC2SPacket packet = (ChatMessageC2SPacket) basePacket;
-			SendChatEvent event = new SendChatEvent(packet.chatMessage());
+            SendChatEvent event = new SendChatEvent(packet.chatMessage());
 
 			EventBus.getInstance().post(event);
 
@@ -53,17 +51,14 @@ public class PacketHandler {
 
 		Packet<?> basePacket = packetEvent.getPacket();
 
-		if (basePacket instanceof EntityDamageS2CPacket) {
+		if (basePacket instanceof EntityDamageS2CPacket packet) {
 
-			EntityDamageS2CPacket packet = (EntityDamageS2CPacket) basePacket;
-
-			EventBus.getInstance().post(new DamageEntityEvent(packet.entityId()));
+            EventBus.getInstance().post(new DamageEntityEvent(packet.entityId()));
 		}
 
-		if (basePacket instanceof ChatMessageS2CPacket) {
+		if (basePacket instanceof ChatMessageS2CPacket packet) {
 
-			ChatMessageS2CPacket packet = (ChatMessageS2CPacket) basePacket;
-			ReceiveChatEvent event = new ReceiveChatEvent(packet.body().content());
+            ReceiveChatEvent event = new ReceiveChatEvent(packet.body().content());
 
 			EventBus.getInstance().post(event);
 
@@ -72,10 +67,9 @@ public class PacketHandler {
 			}
 		}
 
-		if (basePacket instanceof GameMessageS2CPacket) {
+		if (basePacket instanceof GameMessageS2CPacket packet) {
 
-			GameMessageS2CPacket packet = (GameMessageS2CPacket) basePacket;
-			ReceiveChatEvent event = new ReceiveChatEvent(packet.content().getString());
+            ReceiveChatEvent event = new ReceiveChatEvent(packet.content().getString());
 
 			EventBus.getInstance().post(event);
 

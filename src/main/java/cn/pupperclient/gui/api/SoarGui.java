@@ -47,6 +47,7 @@ public abstract class SoarGui extends SimpleSoarGui {
 		inOutAnimation = new EaseEmphasizedDecelerate(Duration.EXTRA_LONG_1, 0, 1);
 		closable = true;
 		currentPage.init();
+        super.init();
 	}
 
 	public void setPageSize(SimplePage p) {

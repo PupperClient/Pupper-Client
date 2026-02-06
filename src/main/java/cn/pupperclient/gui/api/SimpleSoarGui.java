@@ -21,6 +21,7 @@ public class SimpleSoarGui {
     }
 
     public void init() {
+        EventBus.getInstance().register(this);
     }
 
     public void draw(double mouseX, double mouseY) {
@@ -46,7 +47,6 @@ public class SimpleSoarGui {
             @Override
             public void init() {
                 SimpleSoarGui.this.init();
-                EventBus.getInstance().register(this);
             }
 
             @Override

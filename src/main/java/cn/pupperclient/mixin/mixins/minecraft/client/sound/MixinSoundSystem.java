@@ -3,10 +3,6 @@ package cn.pupperclient.mixin.mixins.minecraft.client.sound;
 import java.util.Arrays;
 import java.util.List;
 
-import cn.pupperclient.event.EventBus;
-import cn.pupperclient.event.client.PlaySoundEvent;
-import cn.pupperclient.utils.SoundEventHelper;
-import net.minecraft.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -38,22 +34,4 @@ public class MixinSoundSystem {
 			return;
 		}
 	}
-
-    @Inject(method = "play*", at = @At("HEAD"), cancellable = true)
-    private void onPlaySound(SoundInstance soundInstance, CallbackInfo ci) {
-        PlaySoundEvent event = new PlaySoundEvent(soundInstance);
-
-        Entity soundSource = SoundEventHelper.getLastSoundSource();
-        if (soundSource != null &&
-            soundInstance.getId().equals(SoundEventHelper.getLastSoundEvent().id())) {
-            event.setSourceEntity(soundSource);
-            SoundEventHelper.clearLastSound();
-        }
-
-        EventBus.getInstance().post(event);
-
-        if (event.isCancelled()) {
-            ci.cancel();
-        }
-    }
 }

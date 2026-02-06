@@ -21,7 +21,6 @@ public class GuiModMenu extends SoarGui {
 		components.clear();
 		navigationRail = new NavigationRail(this, getX(), getY(), 90, getHeight());
 		components.add(navigationRail);
-		super.init();
 	}
 
 	@Override

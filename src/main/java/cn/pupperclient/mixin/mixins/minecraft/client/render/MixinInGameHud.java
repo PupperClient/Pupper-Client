@@ -1,18 +1,13 @@
 package cn.pupperclient.mixin.mixins.minecraft.client.render;
 
-import org.spongepowered.asm.mixin.*;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import cn.pupperclient.event.EventBus;
-import cn.pupperclient.event.client.RenderGameOverlayEvent;
 import cn.pupperclient.management.mod.impl.player.OldAnimationsMod;
 
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.RenderTickCounter;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 
 @Mixin(InGameHud.class)
 public class MixinInGameHud {
@@ -24,12 +19,13 @@ public class MixinInGameHud {
 	private void drawHeart(DrawContext context, InGameHud.HeartType type, int x, int y, boolean hardcore, boolean blinking, boolean half) {
 		
     	OldAnimationsMod mod = OldAnimationsMod.getInstance();
-    	
-		context.drawGuiTexture(RenderLayer::getGuiTextured, type.getTexture(hardcore, half, (!mod.isEnabled() || !mod.isDisableHeartFlash()) && blinking), x, y, 9, 9);
-	}
-    
-	@Inject(method = "renderMainHud", at = @At("TAIL"))
-	private void renderMainHud(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-		EventBus.getInstance().post(new RenderGameOverlayEvent(context));
+		context.drawGuiTexture(
+            RenderLayer::getGuiTextured,
+            type.getTexture(hardcore, half, (!mod.isEnabled() || !mod.isDisableHeartFlash()) && blinking),
+            x,
+            y,
+            9,
+            9
+        );
 	}
 }

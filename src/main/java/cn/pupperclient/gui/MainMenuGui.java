@@ -84,6 +84,7 @@ public class MainMenuGui extends SimpleSoarGui {
         if (!toolsChecked) {
             checkTools();
         }
+        super.init();
     }
 
     private void checkTools() {
