@@ -1,6 +1,6 @@
 package cn.pupperclient.gui.api.page;
 
-import cn.pupperclient.gui.api.SoarGui;
+import cn.pupperclient.gui.api.PupperGui;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.ui.component.impl.text.SearchBar;
 import cn.pupperclient.utils.mouse.ScrollHelper;
@@ -10,7 +10,7 @@ public class Page extends SimplePage {
 	protected ScrollHelper scrollHelper = new ScrollHelper();
 	protected SearchBar searchBar;
 
-	public Page(SoarGui parent, String title, String icon, GuiTransition transition) {
+	public Page(PupperGui parent, String title, String icon, GuiTransition transition) {
 		super(parent, title, icon, transition);
 	}
 

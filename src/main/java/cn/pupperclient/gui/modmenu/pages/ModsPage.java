@@ -9,7 +9,7 @@ import cn.pupperclient.PupperClient;
 import org.lwjgl.glfw.GLFW;
 
 import cn.pupperclient.animation.SimpleAnimation;
-import cn.pupperclient.gui.api.SoarGui;
+import cn.pupperclient.gui.api.PupperGui;
 import cn.pupperclient.gui.api.page.Page;
 import cn.pupperclient.gui.api.page.impl.LeftRightTransition;
 import cn.pupperclient.gui.api.page.impl.RightLeftTransition;
@@ -49,7 +49,7 @@ public class ModsPage extends Page {
         }
     }
 
-    public ModsPage(SoarGui parent) {
+    public ModsPage(PupperGui parent) {
         super(parent, "text.mods", Icon.INVENTORY_2, new RightLeftTransition(true));
     }
 

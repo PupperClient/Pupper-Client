@@ -1,7 +1,7 @@
 package cn.pupperclient.gui.welcomegui;
 
 import cn.pupperclient.PupperClient;
-import cn.pupperclient.gui.api.SimpleSoarGui;
+import cn.pupperclient.gui.api.SimplePupperGui;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.font.Fonts;
 import cn.pupperclient.ui.component.handler.impl.ButtonHandler;
@@ -11,7 +11,7 @@ import net.minecraft.sound.SoundEvents;
 
 import java.awt.Color;
 
-public class TermsScreen extends SimpleSoarGui {
+public class TermsScreen extends SimplePupperGui {
     private int centerX;
     private int centerY;
     private boolean accepted = false;
@@ -32,13 +32,13 @@ public class TermsScreen extends SimpleSoarGui {
             @Override
             public void onAction() {
                 accepted = true;
+                assert client.player != null;
                 client.player.playSound(SoundEvents.UI_TOAST_IN, 1.0f, 1.0f);
                 PupperClient.hasAcceptedTerms = true;
                 client.setScreen(null);
             }
         });
 
-        // 创建拒绝按钮
         declineButton = new Button("text.decline", 0, 0, Button.Style.TONAL);
         declineButton.setHandler(new ButtonHandler() {
             @Override
@@ -47,7 +47,6 @@ public class TermsScreen extends SimpleSoarGui {
             }
         });
 
-        // 更新按钮位置
         updateButtonPositions();
     }
 
@@ -59,31 +58,26 @@ public class TermsScreen extends SimpleSoarGui {
     private void updateButtonPositions() {
         updatePositions();
 
-        // 获取按钮宽度
         float acceptWidth = acceptButton.getWidth();
         float declineWidth = declineButton.getWidth();
 
-        // 计算按钮位置 - 让两个按钮紧挨着居中显示
-        float totalWidth = acceptWidth + declineWidth + 10; // 10像素间距
+        float totalWidth = acceptWidth + declineWidth + 10;
         float startX = centerX - totalWidth / 2;
 
         acceptButton.setX(startX);
         acceptButton.setY(centerY + 20);
 
-        declineButton.setX(startX + acceptWidth + 10); // 10像素间距
+        declineButton.setX(startX + acceptWidth + 10);
         declineButton.setY(centerY + 20);
     }
 
     @Override
     public void draw(double mouseX, double mouseY) {
-        // 更新位置
         updatePositions();
         updateButtonPositions();
 
-        // 绘制半透明背景
         drawTranslucentBackground();
 
-        // 绘制欢迎界面内容
         renderSkijaWelcome(mouseX, mouseY);
     }
 
@@ -94,14 +88,11 @@ public class TermsScreen extends SimpleSoarGui {
     }
 
     private void renderSkijaWelcome(double mouseX, double mouseY) {
-        // 绘制标题
         Skia.drawFullCenteredText("Terms of Service", centerX, centerY - 60, Color.WHITE, Fonts.getRegular(20));
 
-        // 绘制正文 - 增加与标题的间距
         Skia.drawFullCenteredText("Please read and accept the Terms of Service",
             centerX, centerY - 20, Color.WHITE, Fonts.getRegular(14));
 
-        // 绘制按钮
         acceptButton.draw(mouseX, mouseY);
         declineButton.draw(mouseX, mouseY);
     }
@@ -118,7 +109,6 @@ public class TermsScreen extends SimpleSoarGui {
         declineButton.mouseReleased(mouseX, mouseY, button);
     }
 
-    // 添加一个方法来检查是否已经接受条款
     public boolean isAccepted() {
         return accepted;
     }

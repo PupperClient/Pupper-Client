@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import cn.pupperclient.PupperClient;
-import cn.pupperclient.gui.api.SoarGui;
+import cn.pupperclient.gui.api.PupperGui;
 import cn.pupperclient.gui.api.page.Page;
 import cn.pupperclient.gui.api.page.impl.RightLeftTransition;
 import cn.pupperclient.management.color.api.ColorPalette;
@@ -16,7 +16,7 @@ import cn.pupperclient.skia.font.Icon;
 public class HomePage extends Page {
     private String currentTime;
 
-    public HomePage(SoarGui parent) {
+    public HomePage(PupperGui parent) {
         super(parent, "text.home", Icon.HOME, new RightLeftTransition(true));
     }
 

@@ -19,7 +19,7 @@ import cn.pupperclient.utils.concurrent.Multithreading;
 
 import net.minecraft.client.gui.screen.Screen;
 
-public abstract class SoarGui extends SimpleSoarGui {
+public abstract class PupperGui extends SimplePupperGui {
 
 	protected List<Component> components = new ArrayList<>();
 	protected List<SimplePage> pages;
@@ -31,7 +31,7 @@ public abstract class SoarGui extends SimpleSoarGui {
 	private boolean closable;
 	private Screen nextScreen;
 
-	public SoarGui(boolean mcScale) {
+	public PupperGui(boolean mcScale) {
 		super(mcScale);
 
 		this.pages = createPages();

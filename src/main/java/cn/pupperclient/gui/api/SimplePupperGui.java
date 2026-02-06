@@ -4,19 +4,18 @@ import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.EventListener;
 import cn.pupperclient.event.client.RenderSkiaEvent;
 import cn.pupperclient.skia.Skia;
-import cn.pupperclient.skia.event.EventSkiaDraw;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 
-public class SimpleSoarGui {
+public class SimplePupperGui {
     public MinecraftClient client = MinecraftClient.getInstance();
     private final boolean mcScale;
     private double currentMouseX;
     private double currentMouseY;
 
-    public SimpleSoarGui(boolean mcScale) {
+    public SimplePupperGui(boolean mcScale) {
         this.mcScale = mcScale;
     }
 
@@ -46,7 +45,7 @@ public class SimpleSoarGui {
         return new Screen(Text.empty()) {
             @Override
             public void init() {
-                SimpleSoarGui.this.init();
+                SimplePupperGui.this.init();
             }
 
             @Override
@@ -69,7 +68,7 @@ public class SimpleSoarGui {
             @Override
             public boolean mouseClicked(double mouseX, double mouseY, int button) {
                 if (client != null) {
-                    SimpleSoarGui.this.mousePressed(mcScale ? mouseX : client.mouse.getX(),
+                    SimplePupperGui.this.mousePressed(mcScale ? mouseX : client.mouse.getX(),
                         mcScale ? mouseY : client.mouse.getY(), button);
                 }
                 return true;
@@ -78,7 +77,7 @@ public class SimpleSoarGui {
             @Override
             public boolean mouseReleased(double mouseX, double mouseY, int button) {
                 if (client != null) {
-                    SimpleSoarGui.this.mouseReleased(mcScale ? mouseX : client.mouse.getX(),
+                    SimplePupperGui.this.mouseReleased(mcScale ? mouseX : client.mouse.getX(),
                         mcScale ? mouseY : client.mouse.getY(), button);
                 }
                 return true;
@@ -87,7 +86,7 @@ public class SimpleSoarGui {
             @Override
             public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
                 if (client != null) {
-                    SimpleSoarGui.this.mouseScrolled(mcScale ? mouseX : client.mouse.getX(),
+                    SimplePupperGui.this.mouseScrolled(mcScale ? mouseX : client.mouse.getX(),
                         mcScale ? mouseY : client.mouse.getY(), horizontalAmount, verticalAmount);
                 }
                 return true;
@@ -95,13 +94,13 @@ public class SimpleSoarGui {
 
             @Override
             public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-                SimpleSoarGui.this.keyPressed(keyCode, scanCode, modifiers);
+                SimplePupperGui.this.keyPressed(keyCode, scanCode, modifiers);
                 return true;
             }
 
             @Override
             public boolean charTyped(char chr, int modifiers) {
-                SimpleSoarGui.this.charTyped(chr, modifiers);
+                SimplePupperGui.this.charTyped(chr, modifiers);
                 return true;
             }
 

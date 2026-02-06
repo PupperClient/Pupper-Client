@@ -13,7 +13,7 @@ import cn.pupperclient.event.client.RenderSkiaEvent;
 import cn.pupperclient.management.mod.impl.settings.SystemSettings;
 import com.google.gson.JsonObject;
 import cn.pupperclient.animation.SimpleAnimation;
-import cn.pupperclient.gui.api.SimpleSoarGui;
+import cn.pupperclient.gui.api.SimplePupperGui;
 import cn.pupperclient.management.Notification.NotificationManager;
 import cn.pupperclient.management.color.api.ColorPalette;
 import cn.pupperclient.management.config.ConfigType;
@@ -45,7 +45,7 @@ import net.minecraft.client.gui.screen.world.SelectWorldScreen;
 import net.minecraft.client.realms.gui.screen.RealmsMainScreen;
 import ru.vidtu.ias.screen.AccountScreen;
 
-public class MainMenuGui extends SimpleSoarGui {
+public class MainMenuGui extends SimplePupperGui {
 
     private final List<MainMenuButton> buttons = new ArrayList<>();
     private MainMenuButton settingsButton;

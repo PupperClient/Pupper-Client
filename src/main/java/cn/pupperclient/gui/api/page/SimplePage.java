@@ -2,17 +2,17 @@ package cn.pupperclient.gui.api.page;
 
 import cn.pupperclient.animation.Animation;
 import cn.pupperclient.animation.other.DummyAnimation;
-import cn.pupperclient.gui.api.SoarGui;
+import cn.pupperclient.gui.api.PupperGui;
 
 public class SimplePage {
 
 	protected float x, y, width, height;
 	private String title, icon;
-	protected SoarGui parent;
+	protected PupperGui parent;
 	private Animation animation;
 	private GuiTransition transition;
 
-	public SimplePage(SoarGui parent, String title, String icon, GuiTransition transition) {
+	public SimplePage(PupperGui parent, String title, String icon, GuiTransition transition) {
 		this.parent = parent;
 		this.title = title;
 		this.icon = icon;
@@ -104,7 +104,7 @@ public class SimplePage {
 		this.animation = animation;
 	}
 
-	public SoarGui getParent() {
+	public PupperGui getParent() {
 		return parent;
 	}
 }
