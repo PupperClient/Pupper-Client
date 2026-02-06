@@ -1,5 +1,8 @@
 package cn.pupperclient.mixin.mixins.minecraft.client.gui;
 
+import cn.pupperclient.event.EventBus;
+import cn.pupperclient.event.EventListener;
+import cn.pupperclient.event.client.RenderSkiaEvent;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.context.SkiaContext;
 import cn.pupperclient.skia.font.Fonts;
@@ -61,6 +64,8 @@ public abstract class MixinSplashScreen {
     @Unique private long tapPromptStartTime = -1L;
     @Unique private long tapClickTime = -1L;
 
+    @Unique private float mx, my, w, h;
+
     @Unique
     private void ensureLogoTexture() {
         var tm = this.client.getTextureManager();
@@ -78,7 +83,6 @@ public abstract class MixinSplashScreen {
 
         // Recreate surface if window size changed
         if (lastWindowWidth != width || lastWindowHeight != height) {
-            SkiaContext.createSurface(width, height);
             lastWindowWidth = width;
             lastWindowHeight = height;
         }
@@ -87,15 +91,17 @@ public abstract class MixinSplashScreen {
             return;
         }
 
-        ci.cancel();
+        mx = mouseX;
+        my = mouseY;
+        w = lastWindowWidth;
+        h = lastWindowHeight;
 
-        SkiaContext.draw(canvas -> {
-            renderWithSkia(canvas, width, height, mouseX, mouseY);
-        });
+        EventBus.getInstance().register(this);
+        ci.cancel();
     }
 
     @Unique
-    private void renderWithSkia(Canvas canvas, int width, int height, int mouseX, int mouseY) {
+    private void renderWithSkia(Canvas canvas, float width, float height, float mouseX, float mouseY) {
         ensureLogoTexture();
 
         // Handle reloading state
@@ -228,14 +234,14 @@ public abstract class MixinSplashScreen {
     }
 
     @Unique
-    private void renderLoadingScreen(int width, int height, long timePassed, float alpha, boolean showProgress) {
+    private void renderLoadingScreen(float width, float height, long timePassed, float alpha, boolean showProgress) {
         // Background
         Skia.drawRect(0, 0, width, height, new Color(0, 0, 0, (int)(255 * alpha)));
 
         // Calculate scaled logo size and position
         int scaledSize = (int)(LOGO_ACTUAL_SIZE * LOGO_SCALE);
-        int logoX = (width - scaledSize) / 2;
-        int logoY = (height - scaledSize) / 3;
+        float logoX = (width - scaledSize) / 2;
+        float logoY = (height - scaledSize) / 3;
 
         // Draw logo
         drawLogo(logoX, logoY, scaledSize, alpha);
@@ -251,18 +257,18 @@ public abstract class MixinSplashScreen {
     }
 
     @Unique
-    private void drawLogo(int x, int y, int size, float alpha) {
+    private void drawLogo(float x, float y, int size, float alpha) {
         // Draw logo using Skia
         var textureId = MinecraftClient.getInstance().getTextureManager().getTexture(CUSTOM_LOGO).getGlTexture();
         Skia.drawImage(textureId, x, y, size, size, alpha);
     }
 
     @Unique
-    private void drawProgressBar(int width, int height, float progress, float alpha) {
-        int barWidth = width / 2;
+    private void drawProgressBar(float width, float height, float progress, float alpha) {
+        float barWidth = width / 2;
         int barHeight = PROGRESS_BAR_HEIGHT;
-        int barX = (width - barWidth) / 2;
-        int barY = height - 200;
+        float barX = (width - barWidth) / 2;
+        float barY = height - 200;
 
         // Progress bar background
         Skia.drawRect(barX, barY, barWidth, barHeight,
@@ -275,11 +281,11 @@ public abstract class MixinSplashScreen {
     }
 
     @Unique
-    private void drawReloadingProgressBar(int width, int height, long time, float alpha) {
-        int barWidth = width / 2;
+    private void drawReloadingProgressBar(float width, float height, long time, float alpha) {
+        float barWidth = width / 2;
         int barHeight = PROGRESS_BAR_HEIGHT;
-        int barX = (width - barWidth) / 2;
-        int barY = height - 200;
+        float barX = (width - barWidth) / 2;
+        float barY = height - 200;
 
         // Progress bar background
         Skia.drawRect(barX, barY, barWidth, barHeight,
@@ -288,9 +294,9 @@ public abstract class MixinSplashScreen {
         // Dynamic progress indicator
         long cycle = 1500L;
         float p = (float)(time % cycle) / (float)cycle;
-        int indicatorWidth = barWidth / 4;
-        int start = (int)((barWidth + indicatorWidth) * p) - indicatorWidth;
-        int end = Math.min(start + indicatorWidth, barWidth);
+        float indicatorWidth = barWidth / 4;
+        float start = ((barWidth + indicatorWidth) * p) - indicatorWidth;
+        float end = Math.min(start + indicatorWidth, barWidth);
 
         Skia.drawRect(barX + Math.max(0, start), barY,
             barX + end, barHeight,
@@ -298,7 +304,7 @@ public abstract class MixinSplashScreen {
     }
 
     @Unique
-    private void renderWelcomeScreen(int width, int height, long welcomeTimePassed, boolean clicked, long clickTimePassed) {
+    private void renderWelcomeScreen(float width, float height, long welcomeTimePassed, boolean clicked, long clickTimePassed) {
         // Background (always full opacity)
         Skia.drawRect(0, 0, width, height, new Color(0, 0, 0, 255));
 
@@ -323,11 +329,9 @@ public abstract class MixinSplashScreen {
             welcomeAlpha = 1.0f;
         }
 
-        // Draw welcome text (no animation, just fade out after click)
         String welcomeText = "Welcome to Pupper Client";
         Font welcomeFont = Fonts.getMedium(32f);
 
-        // Calculate text position (centered)
         Rect welcomeBounds = welcomeFont.measureText(welcomeText);
         float welcomeX = (width - welcomeBounds.getWidth()) / 2;
         float welcomeY = height / 2f - welcomeBounds.getHeight() / 2;
@@ -388,5 +392,12 @@ public abstract class MixinSplashScreen {
         }
 
         return Math.max(0f, Math.min(1f, alpha));
+    }
+
+    @Unique
+    @EventListener
+    public void onSkiaRender(RenderSkiaEvent event) {
+        renderWithSkia(event.getCanvas(), w, h, mx, my);
+        EventBus.getInstance().unregister(this);
     }
 }

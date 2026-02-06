@@ -19,6 +19,7 @@ public class FontHelper {
         return typefaceCache.computeIfAbsent(font, k -> loadTypeface(k, type));
     }
 
+    @SuppressWarnings("unused")
     private static Typeface loadTypeface(String font, FontType type) {
         Optional<Data> fontDataOptional = SkiaUtils.convertToData("/assets/pupper/fonts/" + font);
         return fontDataOptional.map(data -> FontMgr.getDefault().makeFromData(data))
@@ -39,6 +40,7 @@ public class FontHelper {
         return FontType.fromString(fileExtension);
     }
 
+    @SuppressWarnings("unused")
     public static void clearCache() {
         typefaceCache.clear();
     }

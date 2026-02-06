@@ -6,8 +6,10 @@ import java.io.IOException;
 import cn.pupperclient.event.client.WorldChangeEvent;
 import cn.pupperclient.shader.impl.Kawaseblur;
 import cn.pupperclient.skia.Skia;
+import cn.pupperclient.skia.event.EventSkiaInit;
 import net.minecraft.client.gui.screen.Screen;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -134,13 +136,19 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 
 	@Inject(method = "<init>", at = @At("TAIL"))
 	public void init(CallbackInfo ci) throws IOException {
-        int width = window.getWidth();
-        int height = window.getHeight();
-        if (width > 0 && height > 0) {
-            SkiaContext.createSurface(width, height);
-        } else {
-            PupperClient.LOGGER.warn("Window size during init is invalid: {}x{}", width, height);
-        }
+        SkiaContext instance = SkiaContext.INSTANCE;
+
+        int[] width = new int[1];
+        int[] height = new int[1];
+
+        long windowHandle = MinecraftClient.getInstance().getWindow().getHandle();
+        GLFW.glfwGetFramebufferSize(windowHandle, width, height);
+
+        int finalWidth = Math.max(width[0], 1);
+        int finalHeight = Math.max(height[0], 1);
+
+        EventBus.getInstance().post(new EventSkiaInit(finalWidth, finalHeight));
+
         PupperClient.getInstance().start();
 	}
 
@@ -157,14 +165,6 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 	@Inject(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;printCrashReport()V"))
 	public void onGameLoop(CallbackInfo ci) {
 		EventBus.getInstance().post(new GameLoopEvent());
-	}
-
-	@Inject(method = "onResolutionChanged", at = @At("TAIL"))
-	public void onResolutionChanged(CallbackInfo info) {
-		Kawaseblur.GUI_BLUR.resize();
-        Kawaseblur.INGAME_BLUR.resize();
-
-        SkiaContext.createSurface(window.getFramebufferWidth(), window.getFramebufferHeight());
 	}
 
 	@Override

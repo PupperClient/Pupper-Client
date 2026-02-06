@@ -22,8 +22,10 @@ import cn.pupperclient.management.music.MusicManager;
 import cn.pupperclient.management.music.MusicPlayer;
 import cn.pupperclient.management.music.lyric.LyricsManager;
 import cn.pupperclient.skia.Skia;
+import cn.pupperclient.skia.context.SkiaContext;
 import cn.pupperclient.skia.font.Fonts;
 import cn.pupperclient.skia.font.Icon;
+import cn.pupperclient.skia.utils.TextureUtils;
 import cn.pupperclient.utils.ColorUtils;
 import cn.pupperclient.utils.TimerUtils;
 
@@ -318,15 +320,11 @@ public class MusicInfoMod extends SimpleHUDMod {
             String albumPath = m.getAlbum().getAbsolutePath();
             if (!albumPath.equals(currentAlbumPath)) {
                 currentAlbumPath = albumPath;
-                if (Skia.getImageHelper().load(m.getAlbum())) {
-                    Image image = Skia.getImageHelper().get(m.getAlbum().getName());
-                    if (image != null) {
-                        albumBitmap = new Bitmap();
-                        albumBitmap.allocPixels(image.getImageInfo());
-                        image.readPixels(albumBitmap, 0, 0);
-                    } else {
-                        albumBitmap = null;
-                    }
+                Image image = TextureUtils.getImageFromFile(SkiaContext.INSTANCE.getContext(), m.getAlbum());
+                if (image != null) {
+                    albumBitmap = new Bitmap();
+                    albumBitmap.allocPixels(image.getImageInfo());
+                    image.readPixels(albumBitmap, 0, 0);
                 } else {
                     albumBitmap = null;
                 }
@@ -462,14 +460,21 @@ public class MusicInfoMod extends SimpleHUDMod {
     }
 
     private void drawBlurredImage(File file, float x, float y, float width, float height) {
-        Paint blurPaint = new Paint();
-        blurPaint.setImageFilter(ImageFilter.makeBlur(DEFAULT_BLUR_RADIUS, DEFAULT_BLUR_RADIUS, FilterTileMode.REPEAT));
-        if (Skia.getImageHelper().load(file)) {
-            Image image = Skia.getImageHelper().get(file.getName());
-            if (image != null) {
-                Skia.getCanvas().drawImageRect(image, Rect.makeWH(image.getWidth(), image.getHeight()),
-                    Rect.makeXYWH(x, y, width, height), blurPaint, true);
-            }
+        Image image = TextureUtils.getImageFromFile(SkiaContext.INSTANCE.getContext(), file);
+        if (image == null) return;
+
+        try (Paint blurPaint = new Paint();
+             ImageFilter blurFilter = ImageFilter.makeBlur(DEFAULT_BLUR_RADIUS, DEFAULT_BLUR_RADIUS, FilterTileMode.REPEAT)) {
+
+            blurPaint.setImageFilter(blurFilter);
+
+            Skia.getCanvas().drawImageRect(
+                image,
+                Rect.makeWH(image.getWidth(), image.getHeight()),
+                Rect.makeXYWH(x, y, width, height),
+                blurPaint,
+                true
+            );
         }
     }
 

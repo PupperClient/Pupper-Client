@@ -1,6 +1,10 @@
 package cn.pupperclient.mixin.mixins.minecraft.client.util;
 
 import cn.pupperclient.PupperClient;
+import cn.pupperclient.event.EventBus;
+import cn.pupperclient.skia.event.EventSkiaDraw;
+import cn.pupperclient.skia.event.EventSkiaInit;
+import net.minecraft.client.util.tracy.TracyFrameCapturer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -24,11 +28,10 @@ public class MixinWindow {
 
 	@Inject(method = "onFramebufferSizeChanged", at = @At("RETURN"))
 	private void onFramebufferSizeChanged(long window, int width, int height, CallbackInfo ci) {
-        if (width > 0 && height > 0) {
-            SkiaContext.createSurface(width, height);
-        } else {
-            PupperClient.LOGGER.warn("Window size is invalid: {}x{}, skipping surface creation", width, height);
-        }
+        int finalWidth = Math.max(width, 1);
+        int finalHeight = Math.max(height, 1);
+
+        EventBus.getInstance().post(new EventSkiaInit(finalWidth, finalHeight));
 	}
 
     @Inject(method = "<init>", at = @At("RETURN"))
@@ -83,5 +86,10 @@ public class MixinWindow {
     @Inject(method = "setIcon", at = @At("HEAD"), cancellable = true)
     private void onSetIcon(CallbackInfo ci) {
         ci.cancel();
+    }
+
+    @Inject(method = "swapBuffers", at = @At("HEAD"))
+    private void onSwapBuffers(TracyFrameCapturer capturer, CallbackInfo ci) {
+        EventBus.getInstance().post(EventSkiaDraw.INSTANCE);
     }
 }

@@ -1,99 +1,120 @@
+/*
+ * Hina Client
+ * Copyright (C) 2026 Hina Client
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package cn.pupperclient.skia.context;
 
-import java.util.function.Consumer;
-
-import cn.pupperclient.PupperLogger;
-import com.mojang.blaze3d.opengl.GlStateManager;
+import cn.pupperclient.event.EventBus;
+import cn.pupperclient.event.EventListener;
+import cn.pupperclient.event.client.RenderSkiaEvent;
+import cn.pupperclient.skia.event.EventSkiaDraw;
+import cn.pupperclient.skia.event.EventSkiaInit;
+import cn.pupperclient.skia.gl.States;
 import io.github.humbleui.skija.*;
-import net.minecraft.client.gl.Framebuffer;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GL33;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import java.util.Objects;
 
 public class SkiaContext {
+    public static final SkiaContext INSTANCE = new SkiaContext();
 
-    private static DirectContext context = null;
-    private static Surface surface;
-    private static BackendRenderTarget renderTarget;
+    private DirectContext context;
+    private WrappedBackendRenderTarget renderTarget;
+    private Surface surface;
+    private Canvas canvas;
 
-    public static Canvas getCanvas() {
-        return surface.getCanvas();
+    public SkiaContext() {
+        EventBus.getInstance().register(this);
     }
 
-    public static void createSurface(int width, int height) {
+    private void initSkia(int width, int height) {
+        createContext();
+        createSurface(width, height);
+    }
 
+    private void createContext() {
         if (context == null) {
             context = DirectContext.makeGL();
         }
+    }
 
-        if (surface != null) {
-            surface.close();
-            surface = null;
-        }
+    private void createSurface(int width, int height) {
+        if (surface != null) surface.close();
+        if (renderTarget != null) renderTarget.close();
 
-        if (renderTarget != null) {
-            renderTarget.close();
-            renderTarget = null;
-        }
-
-        int currentFbo = GL11.glGetInteger(GL30.GL_DRAW_FRAMEBUFFER_BINDING);
-
-        renderTarget = BackendRenderTarget.makeGL(
+        renderTarget = WrappedBackendRenderTarget.makeGL(
             width,
             height,
             0,
             8,
-            currentFbo,
-            GL11.GL_RGBA8
+            0,
+            FramebufferFormat.GR_GL_RGBA8
         );
-        surface = Surface.wrapBackendRenderTarget(context, renderTarget, SurfaceOrigin.BOTTOM_LEFT,
-            SurfaceColorFormat.BGRA_8888, ColorSpace.getSRGB());
+
+        surface = Surface.wrapBackendRenderTarget(
+            Objects.requireNonNull(context, "Context must not be null"),
+            Objects.requireNonNull(renderTarget, "RenderTarget must not be null"),
+            SurfaceOrigin.BOTTOM_LEFT,
+            SurfaceColorFormat.RGBA_8888,
+            ColorSpace.getSRGB()
+        );
+
+        canvas = surface.getCanvas();
     }
 
-    public static void draw(Consumer<Canvas> drawingLogic) {
-        if (context == null || surface == null) {
-            PupperLogger.warn("SkiaContext", "Skip drawing: Context or Surface is null.");
-            return;
-        }
+    private void draw() {
+        if (context == null || surface == null) return;
 
-        GlStateManager._pixelStore(GL11.GL_UNPACK_ROW_LENGTH, 0);
-        GlStateManager._pixelStore(GL11.GL_UNPACK_SKIP_PIXELS, 0);
-        GlStateManager._pixelStore(GL11.GL_UNPACK_SKIP_ROWS, 0);
-        GlStateManager._pixelStore(GL11.GL_UNPACK_ALIGNMENT, 4);
+        States.push();
+        GL11.glDisable(GL11.GL_CULL_FACE);
+        GL11.glClearColor(0f, 0f, 0f, 0f);
 
         context.resetGLAll();
-        try {
-            Canvas canvas = getCanvas();
-            canvas.clear(0);
+        drawDrawables();
+        context.flushAndSubmit(surface);
 
-            drawingLogic.accept(canvas);
-        } catch (Exception e) {
-            PupperLogger.error("SkiaContext", "Error during Skia drawing logic", e);
-        }
-
-        context.flush();
-
-        GlStateManager._glBindVertexArray(0);
-        GlStateManager._glUseProgram(0);
-
-        for (int i = 0; i < 8; i++) {
-            GL33.glBindSampler(i, 0);
-        }
-
-        GlStateManager._disableBlend();
-        GlStateManager._enableDepthTest();
-        GlStateManager._depthMask(true);
-        GlStateManager._colorMask(true, true, true, true);
-
-        RenderSystem.disableScissor();
-
-        GlStateManager._activeTexture(GL13.GL_TEXTURE0);
+        States.pop();
     }
 
-    public static DirectContext getContext() {
+    private void drawDrawables() {
+        if (canvas != null && context != null && renderTarget != null) {
+            EventBus.getInstance().post(new RenderSkiaEvent(context, renderTarget, canvas));
+        }
+    }
+
+    public DirectContext getContext() {
         return context;
+    }
+
+    public Canvas getCanvas() {
+        return canvas;
+    }
+
+    public Surface getSurface() {
+        return surface;
+    }
+
+    @EventListener
+    public void onInit(EventSkiaInit event) {
+        initSkia(event.getWidth(), event.getHeight());
+    }
+
+    @EventListener
+    public void onDraw(EventSkiaDraw event) {
+        draw();
     }
 }

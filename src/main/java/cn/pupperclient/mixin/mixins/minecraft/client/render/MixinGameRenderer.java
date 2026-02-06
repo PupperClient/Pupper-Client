@@ -29,18 +29,17 @@ public class MixinGameRenderer {
 	public void render(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci) {
 
         if (HUDModSettings.getInstance().getBlurSetting().isEnabled()) {
-            // 转换为 int 类型以符合 Kawaseblur.draw(int radius) 的签名
             int intensity = (int) HUDModSettings.getInstance().getBlurIntensitySetting().getValue();
             var encoder = RenderSystem.getDevice().createCommandEncoder();
             Kawaseblur.INGAME_BLUR.draw(encoder, intensity);
         }
-
-		SkiaContext.draw((context) -> {
-			Skia.save();
-			Skia.scale((float) MinecraftClient.getInstance().getWindow().getScaleFactor());
-			EventBus.getInstance().post(new RenderSkiaEvent(context));
-			Skia.restore();
-		});
+//
+//		SkiaContext.draw((context) -> {
+//			Skia.save();
+//			Skia.scale((float) MinecraftClient.getInstance().getWindow().getScaleFactor());
+//			EventBus.getInstance().post(new RenderSkiaEvent(context));
+//			Skia.restore();
+//		});
 	}
 	
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/InGameHud;render(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/client/render/RenderTickCounter;)V", shift = At.Shift.AFTER))

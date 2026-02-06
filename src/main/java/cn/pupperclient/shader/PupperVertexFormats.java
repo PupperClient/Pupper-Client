@@ -14,7 +14,7 @@ public abstract class PupperVertexFormats {
         .build();
 
     public static final VertexFormat POS3_COLOR = VertexFormat.builder()
-        .add("Position", VertexFormatElement.POSITION) // MC built-in Position is vec3
+        .add("Position", VertexFormatElement.POSITION)
         .add("Color", VertexFormatElement.COLOR)
         .build();
 

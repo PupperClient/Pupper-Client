@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.pupperclient.PupperClient;
-import cn.pupperclient.shader.impl.Kawaseblur;
 import org.lwjgl.glfw.GLFW;
 
 import cn.pupperclient.animation.Animation;
@@ -14,12 +13,10 @@ import cn.pupperclient.gui.api.page.GuiTransition;
 import cn.pupperclient.gui.api.page.SimplePage;
 import cn.pupperclient.management.color.api.ColorPalette;
 import cn.pupperclient.management.config.ConfigType;
-import cn.pupperclient.management.mod.impl.settings.ModMenuSettings;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.ui.component.Component;
 import cn.pupperclient.utils.Multithreading;
 
-import io.github.humbleui.skija.SurfaceOrigin;
 import net.minecraft.client.gui.screen.Screen;
 
 public abstract class SoarGui extends SimpleSoarGui {

@@ -8,8 +8,9 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
 import cn.pupperclient.PupperClient;
+import cn.pupperclient.event.EventListener;
+import cn.pupperclient.event.client.RenderSkiaEvent;
 import cn.pupperclient.management.mod.impl.settings.SystemSettings;
-import cn.pupperclient.skia.context.SkiaContext;
 import com.google.gson.JsonObject;
 import cn.pupperclient.animation.SimpleAnimation;
 import cn.pupperclient.gui.api.SimpleSoarGui;
@@ -66,6 +67,8 @@ public class MainMenuGui extends SimpleSoarGui {
     private final NotificationManager notificationManager;
     private boolean toolsAvailable = false;
     private boolean toolsChecked = false;
+
+    private double mx, my;
 
     public MainMenuGui() {
         super(false);
@@ -373,9 +376,9 @@ public class MainMenuGui extends SimpleSoarGui {
         if (currentlyMinimized) {
             return;
         }
-        SkiaContext.draw(canvas -> {
-            drawskia(mouseX, mouseY);
-        });
+
+        mx = mouseX;
+        my = mouseY;
     }
 
     private void drawskia(double mouseX, double mouseY) {
@@ -389,7 +392,6 @@ public class MainMenuGui extends SimpleSoarGui {
             button.draw((int) mouseX, (int) mouseY);
         }
 
-        // 绘制通知
         notificationManager.draw(mouseX, mouseY);
 
         backgroundButton.draw((int) mouseX, (int) mouseY);
@@ -748,5 +750,10 @@ public class MainMenuGui extends SimpleSoarGui {
             }
             pressAnimation.onReleased(mouseX, mouseY, x, y);
         }
+    }
+
+    @EventListener
+    public void onSkiaRender(RenderSkiaEvent event) {
+        drawskia(mx, my);
     }
 }

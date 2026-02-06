@@ -5,7 +5,7 @@ public enum FontType {
 
 	private final String string;
 
-	private FontType(String string) {
+	FontType(String string) {
 		this.string = string;
 	}
 

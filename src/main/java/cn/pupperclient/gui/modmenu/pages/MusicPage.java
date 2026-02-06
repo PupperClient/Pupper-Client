@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.pupperclient.PupperClient;
+import cn.pupperclient.skia.context.SkiaContext;
+import cn.pupperclient.skia.utils.TextureUtils;
 import org.lwjgl.glfw.GLFW;
 
 import cn.pupperclient.animation.SimpleAnimation;
@@ -296,30 +298,25 @@ public class MusicPage extends Page {
         controlBar.charTyped(chr, modifiers);
     }
 
-    private void drawRoundedImage(File file, float x, float y, float width, float height, float cornerRadius,
-                                  float blurRadius) {
+    private void drawRoundedImage(File file, float x, float y, float width, float height, float cornerRadius, float blurRadius) {
+        Image image = TextureUtils.getImageFromFile(SkiaContext.INSTANCE.getContext(), file);
+        if (image == null) return;
 
-        Path path = new Path();
-        Path.makeRRect(RRect.makeXYWH(x, y, width, height, cornerRadius));
+        try (Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, cornerRadius));
+             Paint blurPaint = new Paint();
+             ImageFilter blurFilter = ImageFilter.makeBlur(blurRadius, blurRadius, FilterTileMode.CLAMP)) {
 
-        Paint blurPaint = new Paint();
-        blurPaint.setImageFilter(ImageFilter.makeBlur(blurRadius, blurRadius, FilterTileMode.CLAMP));
+            blurPaint.setImageFilter(blurFilter);
 
-        Skia.save();
+            Skia.save();
+            Skia.getCanvas().clipPath(path, ClipMode.INTERSECT, true);
 
-        Skia.getCanvas().clipPath(path, ClipMode.INTERSECT, true);
+            Skia.getCanvas().drawImageRect(image, Rect.makeXYWH(x, y, width, height));
+            Skia.getCanvas().drawImageRect(image, Rect.makeWH(image.getWidth(), image.getHeight()),
+                Rect.makeXYWH(x, y, width, height), blurPaint, true);
 
-        Skia.drawImage(file, x, y, width, height);
-
-        if (Skia.getImageHelper().load(file)) {
-            Image image = Skia.getImageHelper().get(file.getName());
-            if (image != null) {
-                Skia.getCanvas().drawImageRect(image, Rect.makeWH(image.getWidth(), image.getHeight()),
-                    Rect.makeXYWH(x, y, width, height), blurPaint, true);
-            }
+            Skia.restore();
         }
-
-        Skia.restore();
     }
 
     private static class Item {

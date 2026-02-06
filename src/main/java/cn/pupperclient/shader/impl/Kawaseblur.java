@@ -19,9 +19,6 @@ public class Kawaseblur {
 
     private Kawaseblur() {}
 
-    /**
-     * 当窗口大小改变时调用，重新初始化 FBO
-     */
     public void resize() {
         MinecraftClient mc = MinecraftClient.getInstance();
         int width = mc.getWindow().getFramebufferWidth();
@@ -42,31 +39,22 @@ public class Kawaseblur {
         lastHeight = height;
     }
 
-    /**
-     * 执行模糊渲染逻辑
-     * @param encoder 1.21.5 的命令编码器
-     * @param iterations 模糊强度/迭代次数
-     */
     public void draw(CommandEncoder encoder, int iterations) {
         if (fbos == null || iterations <= 0) return;
 
         MinecraftClient mc = MinecraftClient.getInstance();
         Framebuffer mainFbo = mc.getFramebuffer();
 
-        // 1. Initial Pass: 把主 FBO 拷贝到第一个模糊 FBO (使用 Passthrough)
         renderPass(encoder, fbos[0], mainFbo.getColorAttachment(), PupperRenderPipelines.PASSTHROUGH, 0);
 
-        // 2. Downsample Passes: 逐层下采样并模糊
         for (int i = 0; i < iterations; i++) {
             renderPass(encoder, fbos[Math.min(i + 1, 4)], fbos[i].getColorAttachment(), PupperRenderPipelines.BLUR_DOWN, i);
         }
 
-        // 3. Upsample Passes: 逐层恢复尺寸
         for (int i = iterations; i > 0; i--) {
             renderPass(encoder, fbos[i - 1], fbos[i].getColorAttachment(), PupperRenderPipelines.BLUR_UP, i);
         }
 
-        // 4. Final Pass: 将结果画回主 FBO (或者你可以在这里直接渲染到屏幕)
         renderPass(encoder, mainFbo, fbos[0].getColorAttachment(), PupperRenderPipelines.PASSTHROUGH, 0);
     }
 
