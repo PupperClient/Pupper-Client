@@ -139,7 +139,7 @@ public class KeystrokesMod extends HUDMod {
 		private void update() {
 
 			boolean isKeyDown = snapTapSetting.isEnabled() ? keyBinding.isPressed()
-					: ((IMixinKeyBinding) keyBinding).getRealIsPressed();
+					: ((IMixinKeyBinding) keyBinding).pupper$getRealIsPressed();
 
 			if (isKeyDown && animation.getEnd() != 1 && mc.currentScreen == null) {
 				animation = new EaseStandard(Duration.MEDIUM_3, animation.getValue(), 1);

@@ -11,10 +11,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.client.PlayerDirectionChangeEvent;
-import cn.pupperclient.management.mod.impl.player.FreelookMod;
 import cn.pupperclient.mixin.interfaces.IMixinCameraEntity;
 
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
 
@@ -63,21 +61,6 @@ public abstract class MixinEntity implements IMixinCameraEntity {
 		pitch = MathHelper.clamp(pitch, -90.0F, 90.0F);
 
 		EventBus.getInstance().post(new PlayerDirectionChangeEvent(prevPitch, prevYaw, pitch, yaw));
-	}
-
-	@Inject(method = "changeLookDirection", at = @At("HEAD"), cancellable = true)
-	public void changeCameraLookDirection(double xDelta, double yDelta, CallbackInfo ci) {
-		if (FreelookMod.getInstance().isEnabled() && FreelookMod.getInstance().isActive()
-				&& (Entity) (Object) this instanceof ClientPlayerEntity) {
-			double pitchDelta = (yDelta * 0.15);
-			double yawDelta = (xDelta * 0.15);
-
-			this.cameraPitch = MathHelper.clamp(this.cameraPitch + (float) pitchDelta, -90.0f, 90.0f);
-			this.cameraYaw += (float) yawDelta;
-
-			ci.cancel();
-
-		}
 	}
 
 	@Override

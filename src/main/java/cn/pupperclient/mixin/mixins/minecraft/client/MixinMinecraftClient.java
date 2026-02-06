@@ -61,7 +61,8 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 	@Shadow
 	public ParticleManager particleManager;
 
-	@Shadow
+	@Final
+    @Shadow
 	public GameOptions options;
 
 	@Shadow
@@ -133,7 +134,7 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 
 	@Inject(method = "<init>", at = @At("TAIL"))
 	public void init(CallbackInfo ci) throws IOException {
-        SkiaContext instance = SkiaContext.INSTANCE;
+        SkiaContext.INSTANCE.init();
 
         int[] width = new int[1];
         int[] height = new int[1];
@@ -165,7 +166,7 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 	}
 
 	@Override
-	public File getAssetDir() {
+	public File pupper$getAssetDir() {
 		return this.assetDir;
 	}
 }

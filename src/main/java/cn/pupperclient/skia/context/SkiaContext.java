@@ -37,7 +37,7 @@ public class SkiaContext {
     private Surface surface;
     private Canvas canvas;
 
-    public SkiaContext() {
+    public void init() {
         EventBus.getInstance().register(this);
     }
 

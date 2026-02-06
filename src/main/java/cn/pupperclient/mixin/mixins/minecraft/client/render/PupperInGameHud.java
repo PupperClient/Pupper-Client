@@ -41,7 +41,7 @@ public class PupperInGameHud {
 
     @Inject(method = "renderHotbar", at = @At("HEAD"), cancellable = true)
     private void replaceHotbarRender(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-        ci.cancel(); // 取消原版物品栏绘制
+        ci.cancel();
         drawCustomHotbar(context, tickCounter);
     }
 

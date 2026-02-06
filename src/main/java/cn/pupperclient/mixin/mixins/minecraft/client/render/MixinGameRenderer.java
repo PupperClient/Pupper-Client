@@ -33,19 +33,11 @@ public class MixinGameRenderer {
             var encoder = RenderSystem.getDevice().createCommandEncoder();
             Kawaseblur.INGAME_BLUR.draw(encoder, intensity);
         }
-//
-//		SkiaContext.draw((context) -> {
-//			Skia.save();
-//			Skia.scale((float) MinecraftClient.getInstance().getWindow().getScaleFactor());
-//			EventBus.getInstance().post(new RenderSkiaEvent(context));
-//			Skia.restore();
-//		});
 	}
 	
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/InGameHud;render(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/client/render/RenderTickCounter;)V", shift = At.Shift.AFTER))
 	public void renderGuiBlur(RenderTickCounter tickCounter, boolean tick, CallbackInfo ci) {
         if (HUDModSettings.getInstance().getBlurSetting().isEnabled()) {
-            // 使用 ModMenuSettings 或 HUDModSettings 中定义的强度
             int intensity = (int) ModMenuSettings.getInstance().getBlurIntensitySetting().getValue();
             var encoder = RenderSystem.getDevice().createCommandEncoder();
             Kawaseblur.GUI_BLUR.draw(encoder, intensity);

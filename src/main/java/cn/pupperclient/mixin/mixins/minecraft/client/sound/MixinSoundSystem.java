@@ -31,7 +31,6 @@ public class MixinSoundSystem {
 		if (OldAnimationsMod.getInstance().isEnabled() && OldAnimationsMod.getInstance().isOldPvPSounds()
 				&& newPvPSounds.contains(sound.getId())) {
 			ci.cancel();
-			return;
-		}
+        }
 	}
 }

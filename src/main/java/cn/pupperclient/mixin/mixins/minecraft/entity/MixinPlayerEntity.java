@@ -26,11 +26,14 @@ public class MixinPlayerEntity {
 	private void injectGetMainArm(CallbackInfoReturnable<Arm> cir) {
 
 		MinecraftClient client = MinecraftClient.getInstance();
-		PlayerEntity player = client.player;
-		PlayerEntity e = ((PlayerEntity) (Object) this);
+		var player = client.player;
+		var e = ((PlayerEntity) (Object) this);
 
-		if (ForceMainHandMod.getInstance().isEnabled() && e.getId() != player.getId()) {
-			cir.setReturnValue(ForceMainHandMod.getInstance().isRightHand() ? Arm.RIGHT : Arm.LEFT);
-		}
+		if (ForceMainHandMod.getInstance().isEnabled()) {
+            assert player != null;
+            if (e.getId() != player.getId()) {
+                cir.setReturnValue(ForceMainHandMod.getInstance().isRightHand() ? Arm.RIGHT : Arm.LEFT);
+            }
+        }
 	}
 }

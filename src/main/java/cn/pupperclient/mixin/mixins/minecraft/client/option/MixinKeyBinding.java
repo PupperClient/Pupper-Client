@@ -117,7 +117,7 @@ public class MixinKeyBinding implements IMixinKeyBinding {
 	}
 
 	@Override
-	public boolean getRealIsPressed() {
+	public boolean pupper$getRealIsPressed() {
 		return this.pressed;
 	}
 }

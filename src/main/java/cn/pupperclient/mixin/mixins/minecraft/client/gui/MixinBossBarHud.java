@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -32,10 +33,10 @@ public abstract class MixinBossBarHud {
 
 	@Shadow
 	@Final
-	final Map<UUID, ClientBossBar> bossBars = Maps.<UUID, ClientBossBar>newLinkedHashMap();
+	final Map<UUID, ClientBossBar> bossBars = Maps.newLinkedHashMap();
 
 	@Shadow
-	public abstract void renderBossBar(DrawContext context, int x, int y, BossBar bossBar);
+    protected abstract void renderBossBar(DrawContext context, int x, int y, BossBar bossBar);
 
 	@Inject(method = "render", at = @At("HEAD"), cancellable = true)
 	private void render(DrawContext context, CallbackInfo ci) {
@@ -53,7 +54,8 @@ public abstract class MixinBossBarHud {
 		}
 	}
 
-	public void onCustomRender(DrawContext context, int x, int y) {
+	@Unique
+    public void onCustomRender(DrawContext context, int x, int y) {
 
 		if (!this.bossBars.isEmpty()) {
 

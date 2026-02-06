@@ -4,10 +4,8 @@ import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.EventListener;
 import cn.pupperclient.event.client.RenderSkiaEvent;
 import cn.pupperclient.skia.Skia;
-import cn.pupperclient.skia.context.SkiaContext;
 import cn.pupperclient.skia.font.Fonts;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.GpuTexture;
 import io.github.humbleui.skija.Canvas;
 import io.github.humbleui.skija.Font;
 import io.github.humbleui.types.Rect;
@@ -15,7 +13,6 @@ import java.awt.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.SplashOverlay;
-import net.minecraft.client.texture.GlTexture;
 import net.minecraft.client.texture.ResourceTexture;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
@@ -309,8 +306,8 @@ public abstract class MixinSplashScreen {
         Skia.drawRect(0, 0, width, height, new Color(0, 0, 0, 255));
 
         // Text transparency calculations
-        float welcomeAlpha = 1.0f; // Welcome text always full opacity (no animation)
-        float ttsAlpha = 1.0f; // TTS text alpha
+        float welcomeAlpha; // Welcome text always full opacity (no animation)
+        float ttsAlpha; // TTS text alpha
 
         if (clicked) {
             // After click: 2-second fade out for all text

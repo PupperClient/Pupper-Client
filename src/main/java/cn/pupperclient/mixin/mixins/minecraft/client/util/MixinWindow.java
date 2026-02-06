@@ -4,6 +4,7 @@ import cn.pupperclient.PupperClient;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.skia.event.EventSkiaDraw;
 import cn.pupperclient.skia.event.EventSkiaInit;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.tracy.TracyFrameCapturer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -37,10 +38,8 @@ public class MixinWindow {
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onWindowInit(CallbackInfo ci) {
         try {
-            // 获取窗口句柄
-            long handle = ((Window)(Object)this).getHandle();
+            long handle = MinecraftClient.getInstance().getWindow().getHandle();
 
-            // 从资源加载图标
             try (InputStream is = getClass().getResourceAsStream("/assets/pupper/logo.png")) {
                 if (is == null) {
                     System.err.println("PupperClient icon not found!");
