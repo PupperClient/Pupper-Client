@@ -11,7 +11,7 @@ import org.lwjgl.util.nfd.NativeFileDialog;
 
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 
-public class SoarFileDialog {
+public class FileDialog {
 
 	public static ObjectObjectImmutablePair<Boolean, File> chooseFile(String name, String... extensions) {
 

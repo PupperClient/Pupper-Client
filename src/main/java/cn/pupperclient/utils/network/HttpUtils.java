@@ -1,4 +1,4 @@
-package cn.pupperclient.utils;
+package cn.pupperclient.utils.network;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,41 +8,44 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Objects;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 public class HttpUtils {
 
-	private static String ACCEPTED_RESPONSE = "application/json";
-	private static Gson gson = new Gson();
+	private final static String ACCEPTED_RESPONSE = "application/json";
+	private final static Gson gson = new Gson();
 
 	public static JsonObject readJson(HttpURLConnection connection) {
 		return gson.fromJson(readResponse(connection), JsonObject.class);
 	}
 
-	public static JsonObject postJson(String url, Object request) {
+	public static void postJson(String url, Object request) {
 
 		HttpURLConnection connection = setupConnection(url, "Mozilla/5.0", 5000, false);
-		connection.setDoOutput(true);
+        assert connection != null;
+
+        connection.setDoOutput(true);
 		connection.addRequestProperty("Content-Type", ACCEPTED_RESPONSE);
 		connection.addRequestProperty("Accept", ACCEPTED_RESPONSE);
 
 		try {
 			connection.setRequestMethod("POST");
 			connection.getOutputStream().write(gson.toJson(request).getBytes(StandardCharsets.UTF_8));
-		} catch (IOException e) {
+		} catch (IOException ignored) {
 		}
 
-		return readJson(connection);
-	}
+        readJson(connection);
+    }
 
 	public static String readResponse(HttpURLConnection connection) {
 
 		String redirection = connection.getHeaderField("Location");
 
 		if (redirection != null) {
-			return readResponse(setupConnection(redirection, "Mozilla/5.0", 5000, false));
+			return readResponse(Objects.requireNonNull(setupConnection(redirection, "Mozilla/5.0", 5000, false)));
 		}
 
 		StringBuilder response = new StringBuilder();
@@ -53,7 +56,7 @@ public class HttpUtils {
 			while ((line = br.readLine()) != null) {
 				response.append(line).append('\n');
 			}
-		} catch (IOException e) {
+		} catch (IOException ignored) {
 		}
 
 		return response.toString();
@@ -63,10 +66,10 @@ public class HttpUtils {
 
 		try {
 			HttpURLConnection connection = setupConnection(url, userAgents, 5000, false);
-
+            assert connection != null;
 			if (headers != null) {
 				for (String header : headers.keySet()) {
-					connection.addRequestProperty(header, headers.get(header));
+                    connection.addRequestProperty(header, headers.get(header));
 				}
 			}
 
@@ -75,7 +78,7 @@ public class HttpUtils {
 			BufferedReader rd = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
 
 			return gson.fromJson(readResponse(rd), JsonObject.class);
-		} catch (IOException e) {
+		} catch (IOException ignored) {
 		}
 
 		return null;
@@ -96,7 +99,7 @@ public class HttpUtils {
 			}
 
 			return sb.toString();
-		} catch (IOException e) {
+		} catch (IOException ignored) {
 		}
 
 		return null;
@@ -105,7 +108,7 @@ public class HttpUtils {
 	public static HttpURLConnection setupConnection(String url, String userAgent, int timeout, boolean useCaches) {
 
 		try {
-			HttpURLConnection connection = ((HttpURLConnection) new URI(url).toURL().openConnection());
+			HttpURLConnection connection = ((HttpURLConnection) URI.create(url).toURL().openConnection());
 
 			connection.setRequestMethod("GET");
 			connection.setUseCaches(useCaches);
@@ -117,7 +120,7 @@ public class HttpUtils {
 			connection.setDoOutput(true);
 
 			return connection;
-		} catch (Exception e) {
+		} catch (Exception ignored) {
 		}
 
 		return null;

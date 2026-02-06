@@ -6,7 +6,7 @@ public enum Language {
 
 	private final String id;
 
-	private Language(String id) {
+	Language(String id) {
 		this.id = id;
 	}
 

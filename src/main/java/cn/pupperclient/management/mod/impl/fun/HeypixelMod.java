@@ -8,7 +8,7 @@ import cn.pupperclient.management.mod.Mod;
 import cn.pupperclient.management.mod.ModCategory;
 import cn.pupperclient.management.mod.settings.impl.BooleanSetting;
 import cn.pupperclient.skia.font.Icon;
-import cn.pupperclient.utils.ChatUtils;
+import cn.pupperclient.utils.minecraft.ChatUtils;
 import net.minecraft.client.MinecraftClient;
 
 public class HeypixelMod extends Mod {

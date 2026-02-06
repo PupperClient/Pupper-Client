@@ -14,7 +14,7 @@ import cn.pupperclient.management.mod.settings.impl.BooleanSetting;
 import cn.pupperclient.management.mod.settings.impl.NumberSetting;
 import cn.pupperclient.management.mod.settings.impl.StringSetting;
 import cn.pupperclient.skia.font.Icon;
-import cn.pupperclient.utils.Multithreading;
+import cn.pupperclient.utils.concurrent.Multithreading;
 import cn.pupperclient.utils.server.Server;
 import cn.pupperclient.utils.server.ServerUtils;
 

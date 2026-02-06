@@ -11,8 +11,8 @@ import cn.pupperclient.skia.font.Fonts;
 import cn.pupperclient.ui.component.Component;
 import cn.pupperclient.ui.component.api.PressAnimation;
 import cn.pupperclient.ui.component.handler.impl.FileSelectorHandler;
-import cn.pupperclient.utils.Multithreading;
-import cn.pupperclient.utils.file.dialog.SoarFileDialog;
+import cn.pupperclient.utils.concurrent.Multithreading;
+import cn.pupperclient.utils.file.dialog.FileDialog;
 import cn.pupperclient.utils.language.I18n;
 import cn.pupperclient.utils.mouse.MouseUtils;
 
@@ -55,7 +55,7 @@ public class FileSelector extends Component {
 			pressAnimation.onPressed(mouseX, mouseY, x, y);
 			Multithreading.runAsync(() -> {
 
-				ObjectObjectImmutablePair<Boolean, File> p = SoarFileDialog.chooseFile(I18n.get("text.selectfile"), extensions);
+				ObjectObjectImmutablePair<Boolean, File> p = FileDialog.chooseFile(I18n.get("text.selectfile"), extensions);
 
 				if (p.left()) {
 					file = p.right();

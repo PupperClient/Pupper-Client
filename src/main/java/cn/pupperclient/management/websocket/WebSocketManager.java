@@ -11,7 +11,7 @@ import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import cn.pupperclient.management.websocket.client.SoarWebSocketClient;
 import cn.pupperclient.management.websocket.packet.SoarPacket;
-import cn.pupperclient.utils.HttpUtils;
+import cn.pupperclient.utils.network.HttpUtils;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.session.Session;

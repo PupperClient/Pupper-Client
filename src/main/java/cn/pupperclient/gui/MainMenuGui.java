@@ -27,13 +27,13 @@ import cn.pupperclient.ui.component.impl.IconButton;
 import cn.pupperclient.ui.component.impl.Switch;
 import cn.pupperclient.ui.component.handler.impl.ButtonHandler;
 import cn.pupperclient.ui.component.handler.impl.SwitchHandler;
-import cn.pupperclient.utils.ColorUtils;
-import cn.pupperclient.utils.ExternalToolManager;
-import cn.pupperclient.utils.ToolInstallCallback;
+import cn.pupperclient.utils.color.ColorUtils;
+import cn.pupperclient.utils.tools.ToolManager;
+import cn.pupperclient.utils.tools.ToolInstallCallback;
 import cn.pupperclient.utils.language.I18n;
 import cn.pupperclient.utils.mouse.MouseUtils;
-import cn.pupperclient.utils.Multithreading;
-import cn.pupperclient.utils.file.dialog.SoarFileDialog;
+import cn.pupperclient.utils.concurrent.Multithreading;
+import cn.pupperclient.utils.file.dialog.FileDialog;
 import cn.pupperclient.utils.file.FileLocation;
 import cn.pupperclient.utils.mouse.ScrollHelper;
 import com.terraformersmc.modmenu.gui.ModsScreen;
@@ -92,7 +92,7 @@ public class MainMenuGui extends SimpleSoarGui {
 
         if (!PupperClient.firstLaunch) {
             toolsAvailable = true;
-            ExternalToolManager toolManager = PupperClient.getInstance().getToolManager();
+            ToolManager toolManager = PupperClient.getInstance().getToolManager();
             if (SystemSettings.getInstance().getFFmpegPath() == null || SystemSettings.getInstance().getYtdlpPath() == null) {
                 SystemSettings.getInstance().getFfmpegPathSetting().setFile(toolManager.getFfmpegPath());
                 SystemSettings.getInstance().getYtdlpPathSetting().setFile(toolManager.getYtDlpPath());
@@ -103,7 +103,7 @@ public class MainMenuGui extends SimpleSoarGui {
         PupperClient.LOGGER.info("开始检查工具...");
         Multithreading.runAsync(() -> {
             try {
-                ExternalToolManager toolManager = PupperClient.getInstance().getToolManager();
+                ToolManager toolManager = PupperClient.getInstance().getToolManager();
                 if (toolManager != null) {
                     toolManager.checkAndInstallTools(new ToolInstallCallback() {
                         @Override
@@ -283,7 +283,7 @@ public class MainMenuGui extends SimpleSoarGui {
             @Override
             public void onAction() {
                 Multithreading.runAsync(() -> {
-                    ObjectObjectImmutablePair<Boolean, File> result = SoarFileDialog.chooseFile("Select Background Image", "png", "jpg");
+                    ObjectObjectImmutablePair<Boolean, File> result = FileDialog.chooseFile("Select Background Image", "png", "jpg");
 
                     if (result.left()) {
                         File selectedFile = result.right();

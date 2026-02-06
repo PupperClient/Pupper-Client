@@ -5,13 +5,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import cn.pupperclient.PupperLogger;
-import cn.pupperclient.utils.Multithreading;
+import cn.pupperclient.utils.concurrent.Multithreading;
 
 import net.ccbluex.liquidbounce.mcef.MCEF;
 import net.ccbluex.liquidbounce.mcef.MCEFDownloadManager;
 import net.ccbluex.liquidbounce.mcef.MCEFPlatform;
 import net.ccbluex.liquidbounce.mcef.cef.MCEFBrowser;
-import net.ccbluex.liquidbounce.mcef.cef.MCEFBrowserSettings;
 
 public class JCefBrowser {
 

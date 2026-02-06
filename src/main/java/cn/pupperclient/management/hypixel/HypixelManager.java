@@ -9,7 +9,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.hypixel.api.HypixelUser;
 import cn.pupperclient.management.websocket.packet.impl.SC_HypixelStatsPacket;
-import cn.pupperclient.utils.TimerUtils;
+import cn.pupperclient.utils.concurrent.TimerUtils;
 import cn.pupperclient.utils.server.Server;
 import cn.pupperclient.utils.server.ServerUtils;
 

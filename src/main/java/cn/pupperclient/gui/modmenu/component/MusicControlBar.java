@@ -21,7 +21,7 @@ import cn.pupperclient.ui.component.Component;
 import cn.pupperclient.ui.component.handler.impl.ButtonHandler;
 import cn.pupperclient.ui.component.impl.IconButton;
 import cn.pupperclient.ui.component.impl.text.TextField;
-import cn.pupperclient.utils.Multithreading;
+import cn.pupperclient.utils.concurrent.Multithreading;
 import cn.pupperclient.utils.mouse.MouseUtils;
 
 public class MusicControlBar extends Component {

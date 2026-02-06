@@ -2,8 +2,8 @@ package cn.pupperclient.management.command.impl;
 
 import cn.pupperclient.PupperClient;
 import cn.pupperclient.PupperLogger;
-import cn.pupperclient.utils.ChatUtils;
-import cn.pupperclient.utils.Multithreading;
+import cn.pupperclient.utils.minecraft.ChatUtils;
+import cn.pupperclient.utils.concurrent.Multithreading;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.text.ClickEvent;

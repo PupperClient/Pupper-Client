@@ -16,8 +16,8 @@ import cn.pupperclient.management.mod.api.Position;
 import cn.pupperclient.management.mod.api.hud.HUDMod;
 import cn.pupperclient.management.mod.settings.Setting;
 import cn.pupperclient.management.mod.settings.impl.*;
-import cn.pupperclient.utils.ColorUtils;
-import cn.pupperclient.utils.JsonUtils;
+import cn.pupperclient.utils.color.ColorUtils;
+import cn.pupperclient.utils.network.JsonUtils;
 
 import net.minecraft.client.util.InputUtil;
 

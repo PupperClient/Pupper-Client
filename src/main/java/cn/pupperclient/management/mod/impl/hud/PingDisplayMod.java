@@ -5,8 +5,8 @@ import cn.pupperclient.event.client.RenderSkiaEvent;
 import cn.pupperclient.management.mod.api.hud.SimpleHUDMod;
 import cn.pupperclient.management.mod.settings.impl.NumberSetting;
 import cn.pupperclient.skia.font.Icon;
-import cn.pupperclient.utils.Multithreading;
-import cn.pupperclient.utils.TimerUtils;
+import cn.pupperclient.utils.concurrent.Multithreading;
+import cn.pupperclient.utils.concurrent.TimerUtils;
 import cn.pupperclient.utils.server.ServerUtils;
 
 import net.lenni0451.mcping.MCPing;

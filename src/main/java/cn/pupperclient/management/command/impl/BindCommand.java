@@ -7,7 +7,7 @@ import cn.pupperclient.management.config.ConfigType;
 import cn.pupperclient.management.keybind.KeybindManager;
 import cn.pupperclient.management.mod.Mod;
 import cn.pupperclient.management.mod.ModManager;
-import cn.pupperclient.utils.ChatUtils;
+import cn.pupperclient.utils.minecraft.ChatUtils;
 import cn.pupperclient.utils.language.I18n;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;

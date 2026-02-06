@@ -4,7 +4,7 @@ import cn.pupperclient.management.irc.client.packet.IRCPacket;
 import cn.pupperclient.management.irc.client.packet.implemention.clientbound.*;
 import cn.pupperclient.management.irc.client.packet.implemention.serverbound.*;
 import cn.pupperclient.management.irc.client.processor.IRCProtocol;
-import cn.pupperclient.utils.ChatUtils;
+import cn.pupperclient.utils.minecraft.ChatUtils;
 import org.smartboot.socket.MessageProcessor;
 import org.smartboot.socket.transport.AioQuickClient;
 import org.smartboot.socket.transport.AioSession;

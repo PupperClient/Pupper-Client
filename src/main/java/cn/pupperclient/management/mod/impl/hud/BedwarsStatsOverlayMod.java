@@ -11,7 +11,7 @@ import cn.pupperclient.management.mod.settings.impl.NumberSetting;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.font.Fonts;
 import cn.pupperclient.skia.font.Icon;
-import cn.pupperclient.utils.SkinUtils;
+import cn.pupperclient.utils.minecraft.SkinUtils;
 import cn.pupperclient.utils.server.Server;
 import cn.pupperclient.utils.server.ServerUtils;
 

@@ -1,17 +1,11 @@
 package cn.pupperclient;
 
 import java.util.List;
-import java.util.Objects;
 
-import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.EventListener;
-import cn.pupperclient.event.EventType;
 import cn.pupperclient.event.client.*;
 import cn.pupperclient.event.server.impl.GameJoinEvent;
 import cn.pupperclient.management.profile.Profile;
-import cn.pupperclient.utils.ChatUtils;
-import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
-import net.minecraft.client.MinecraftClient;
 
 public class PupperEventHandle {
 

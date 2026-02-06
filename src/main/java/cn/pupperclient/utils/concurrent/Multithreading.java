@@ -1,7 +1,6 @@
-package cn.pupperclient.utils;
+package cn.pupperclient.utils.concurrent;
 
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import net.minecraft.client.MinecraftClient;
 

@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.user.UserManager;
 import cn.pupperclient.management.websocket.handler.WebSocketHandler;
-import cn.pupperclient.utils.JsonUtils;
+import cn.pupperclient.utils.network.JsonUtils;
 
 public class SoarUserHandler extends WebSocketHandler {
 

@@ -1,4 +1,4 @@
-package cn.pupperclient.utils;
+package cn.pupperclient.utils.tools;
 
 import cn.pupperclient.PupperClient;
 

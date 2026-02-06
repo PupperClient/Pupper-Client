@@ -4,8 +4,10 @@ import cn.pupperclient.animation.SimpleAnimation;
 
 public class ScrollHelper {
 
-	private SimpleAnimation animation = new SimpleAnimation();
-	private float scroll, maxScroll, minScroll;
+	private final SimpleAnimation animation = new SimpleAnimation();
+	private float scroll;
+    private float maxScroll;
+    private final float minScroll;
 
 	public ScrollHelper() {
 		maxScroll = Float.MAX_VALUE;
@@ -26,22 +28,14 @@ public class ScrollHelper {
 	}
 
 	public void setMaxScroll(float itemHeight, float itemSpace, int itemSize, int row, float height) {
-
-		int totalItems = itemSize;
-		int itemsPerRow = row;
-		int rows = (int) Math.ceil((double) totalItems / itemsPerRow);
+        int rows = (int) Math.ceil((double) itemSize / row);
 		float totalHeight = rows * (itemHeight + itemSpace);
-		float viewportHeight = height;
-		float maxScroll = Math.max(0, totalHeight - viewportHeight);
 
-		this.maxScroll = maxScroll;
+        this.maxScroll = Math.max(0, totalHeight - height);
 	}
 
 	public void setMaxScroll(float totalHeight, float height) {
-
-		float maxScroll = Math.max(0, totalHeight - height);
-
-		this.maxScroll = maxScroll;
+        this.maxScroll = Math.max(0, totalHeight - height);
 	}
 
 	public void reset() {

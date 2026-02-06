@@ -7,8 +7,8 @@ import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.font.Fonts;
 import cn.pupperclient.ui.component.Component;
 import cn.pupperclient.ui.component.handler.impl.SliderHandler;
-import cn.pupperclient.utils.ColorUtils;
-import cn.pupperclient.utils.MathUtils;
+import cn.pupperclient.utils.color.ColorUtils;
+import cn.pupperclient.utils.math.MathUtils;
 import cn.pupperclient.utils.mouse.MouseUtils;
 
 public class Slider extends Component {

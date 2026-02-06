@@ -7,7 +7,7 @@ import cn.pupperclient.event.client.TotemEvent;
 import cn.pupperclient.management.mod.Mod;
 import cn.pupperclient.management.mod.ModCategory;
 import cn.pupperclient.skia.font.Icon;
-import cn.pupperclient.utils.ChatUtils;
+import cn.pupperclient.utils.minecraft.ChatUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.player.PlayerEntity;

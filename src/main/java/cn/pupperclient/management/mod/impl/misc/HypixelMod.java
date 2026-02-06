@@ -6,7 +6,7 @@ import cn.pupperclient.management.mod.Mod;
 import cn.pupperclient.management.mod.ModCategory;
 import cn.pupperclient.management.mod.settings.impl.BooleanSetting;
 import cn.pupperclient.skia.font.Icon;
-import cn.pupperclient.utils.TimerUtils;
+import cn.pupperclient.utils.concurrent.TimerUtils;
 import cn.pupperclient.utils.server.Server;
 import cn.pupperclient.utils.server.ServerUtils;
 

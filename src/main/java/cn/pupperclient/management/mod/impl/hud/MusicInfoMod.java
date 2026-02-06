@@ -26,8 +26,8 @@ import cn.pupperclient.skia.context.SkiaContext;
 import cn.pupperclient.skia.font.Fonts;
 import cn.pupperclient.skia.font.Icon;
 import cn.pupperclient.skia.utils.TextureUtils;
-import cn.pupperclient.utils.ColorUtils;
-import cn.pupperclient.utils.TimerUtils;
+import cn.pupperclient.utils.color.ColorUtils;
+import cn.pupperclient.utils.concurrent.TimerUtils;
 
 import io.github.humbleui.skija.Bitmap;
 import io.github.humbleui.skija.FilterTileMode;

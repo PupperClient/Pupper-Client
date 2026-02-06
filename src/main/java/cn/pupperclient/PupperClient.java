@@ -17,17 +17,15 @@ import cn.pupperclient.management.profile.ProfileManager;
 import cn.pupperclient.management.user.UserManager;
 import cn.pupperclient.management.websocket.WebSocketManager;
 import cn.pupperclient.skia.font.Fonts;
-import cn.pupperclient.utils.ExternalToolManager;
-import cn.pupperclient.utils.IMinecraft;
-import cn.pupperclient.utils.Multithreading;
+import cn.pupperclient.utils.tools.ToolManager;
+import cn.pupperclient.utils.minecraft.IMinecraft;
+import cn.pupperclient.utils.concurrent.Multithreading;
 import cn.pupperclient.utils.file.FileLocation;
 import cn.pupperclient.utils.language.*;
 import com.viaversion.viafabricplus.ViaFabricPlus;
 import com.viaversion.viafabricplus.api.ViaFabricPlusBase;
 import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.Logger;
 
@@ -49,7 +47,7 @@ public class PupperClient implements IMinecraft {
     public static final Logger LOGGER = PupperLogger.getLogger();
 
     private final ViaFabricPlusBase viaPlatform = ViaFabricPlus.getImpl();
-    private ExternalToolManager toolManager;
+    private ToolManager toolManager;
     private MusicToolStatus musicToolStatus = MusicToolStatus.CHECKING;
     private long launchTime;
 
@@ -101,7 +99,7 @@ public class PupperClient implements IMinecraft {
         hypixelManager = new HypixelManager();
         keybindManager = KeybindManager.getInstance();
         keybindManager.initialize();
-        toolManager = new ExternalToolManager();
+        toolManager = new ToolManager();
         SoarCommand.register();
         capeManager = new CapeManager();
     }
@@ -220,7 +218,7 @@ public class PupperClient implements IMinecraft {
         viaPlatform.setTargetVersion(version);
     }
 
-    public ExternalToolManager getToolManager() {
+    public ToolManager getToolManager() {
         return toolManager;
     }
 

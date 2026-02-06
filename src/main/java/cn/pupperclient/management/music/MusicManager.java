@@ -16,8 +16,8 @@ import cn.pupperclient.libraries.flac.FLACDecoder;
 import cn.pupperclient.libraries.flac.metadata.Metadata;
 import cn.pupperclient.libraries.flac.metadata.Picture;
 import cn.pupperclient.libraries.flac.metadata.VorbisComment;
-import cn.pupperclient.utils.ImageUtils;
-import cn.pupperclient.utils.RandomUtils;
+import cn.pupperclient.utils.render.ImageUtils;
+import cn.pupperclient.utils.math.RandomUtils;
 import cn.pupperclient.utils.file.FileLocation;
 import cn.pupperclient.utils.file.FileUtils;
 

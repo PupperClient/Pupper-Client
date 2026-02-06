@@ -11,7 +11,7 @@ import cn.pupperclient.management.mod.settings.impl.BooleanSetting;
 import cn.pupperclient.management.mod.settings.impl.NumberSetting;
 import cn.pupperclient.management.mod.settings.impl.StringSetting;
 import cn.pupperclient.skia.font.Icon;
-import cn.pupperclient.utils.IMinecraft;
+import cn.pupperclient.utils.minecraft.IMinecraft;
 import net.minecraft.text.Text;
 
 import java.io.IOException;

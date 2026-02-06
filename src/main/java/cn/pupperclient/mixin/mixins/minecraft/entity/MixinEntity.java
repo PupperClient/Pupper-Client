@@ -1,8 +1,6 @@
 package cn.pupperclient.mixin.mixins.minecraft.entity;
 
-import cn.pupperclient.utils.SoundEventHelper;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -105,10 +103,4 @@ public abstract class MixinEntity implements IMixinCameraEntity {
 	public void pupper$setCameraYaw(float yaw) {
 		this.cameraYaw = yaw;
 	}
-
-    @Inject(method = "playSound", at = @At("HEAD"))
-    private void onPlaySound(SoundEvent sound, float volume, float pitch, CallbackInfo ci) {
-        SoundEventHelper.lastSoundSource = (Entity) (Object) this;
-        SoundEventHelper.lastSoundEvent = sound;
-    }
 }

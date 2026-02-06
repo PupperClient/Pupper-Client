@@ -2,7 +2,7 @@ package cn.pupperclient.ui.component.impl.text;
 
 import org.lwjgl.glfw.GLFW;
 
-import cn.pupperclient.utils.MathUtils;
+import cn.pupperclient.utils.math.MathUtils;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.StringHelper;

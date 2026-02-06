@@ -8,7 +8,7 @@ import cn.pupperclient.PupperClient;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import cn.pupperclient.management.websocket.packet.impl.SC_SoarUserPacket;
-import cn.pupperclient.utils.TimerUtils;
+import cn.pupperclient.utils.concurrent.TimerUtils;
 import cn.pupperclient.utils.server.ServerUtils;
 
 public class UserManager {

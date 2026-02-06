@@ -16,7 +16,7 @@ import cn.pupperclient.mixin.interfaces.IMixinKeyBinding;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.font.Fonts;
 import cn.pupperclient.skia.font.Icon;
-import cn.pupperclient.utils.ColorUtils;
+import cn.pupperclient.utils.color.ColorUtils;
 
 import net.minecraft.client.option.KeyBinding;
 

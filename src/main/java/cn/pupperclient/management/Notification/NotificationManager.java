@@ -4,7 +4,8 @@ import cn.pupperclient.PupperClient;
 import cn.pupperclient.animation.SimpleAnimation;
 import cn.pupperclient.management.color.api.ColorPalette;
 import cn.pupperclient.skia.font.Icon;
-import cn.pupperclient.utils.ExternalToolManager;
+import cn.pupperclient.utils.minecraft.IMinecraft;
+import cn.pupperclient.utils.tools.ToolManager;
 import cn.pupperclient.utils.language.I18n;
 
 import java.util.ArrayList;
@@ -42,9 +43,9 @@ public class NotificationManager {
             // 如果是多进度模式，更新进度信息
             if (multiProgressMode) {
                 existing.updateMultiProgress(
-                    ExternalToolManager.getYtDlpProgress(),
-                    ExternalToolManager.getFfmpegProgress(),
-                    ExternalToolManager.getCurrentDownload()
+                    ToolManager.getYtDlpProgress(),
+                    ToolManager.getFfmpegProgress(),
+                    ToolManager.getCurrentDownload()
                 );
             }
             return;
@@ -94,7 +95,7 @@ public class NotificationManager {
 
         // 绘制通知
         ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
-        float windowWidth = cn.pupperclient.utils.IMinecraft.mc.getWindow().getWidth();
+        float windowWidth = IMinecraft.mc.getWindow().getWidth();
 
         float notificationWidth = 350; // 稍微加宽以容纳双进度信息
         float notificationHeight = multiProgressMode ? 90 : 70; // 多进度模式更高
@@ -115,7 +116,7 @@ public class NotificationManager {
                 notifications.remove(i);
                 lastDisplayedStatus = null;
                 multiProgressMode = false;
-                ExternalToolManager.resetProgress(); // 重置进度
+                ToolManager.resetProgress(); // 重置进度
                 i--;
             }
         }

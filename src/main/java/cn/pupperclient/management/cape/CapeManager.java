@@ -1,7 +1,6 @@
 package cn.pupperclient.management.cape;
 
-import cn.pupperclient.utils.Multithreading;
-import com.mojang.blaze3d.systems.RenderSystem;
+import cn.pupperclient.utils.concurrent.Multithreading;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;

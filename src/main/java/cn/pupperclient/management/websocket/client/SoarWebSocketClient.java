@@ -14,7 +14,7 @@ import com.google.gson.JsonObject;
 import cn.pupperclient.management.websocket.handler.WebSocketHandler;
 import cn.pupperclient.management.websocket.handler.impl.HypixelStatsHandler;
 import cn.pupperclient.management.websocket.handler.impl.SoarUserHandler;
-import cn.pupperclient.utils.JsonUtils;
+import cn.pupperclient.utils.network.JsonUtils;
 
 public class SoarWebSocketClient extends WebSocketClient {
 

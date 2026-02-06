@@ -1,4 +1,4 @@
-package cn.pupperclient.utils;
+package cn.pupperclient.utils.system;
 
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.User32;

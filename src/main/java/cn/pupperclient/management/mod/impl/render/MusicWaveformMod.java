@@ -10,7 +10,7 @@ import cn.pupperclient.management.music.MusicManager;
 import cn.pupperclient.management.music.MusicPlayer;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.font.Icon;
-import cn.pupperclient.utils.ColorUtils;
+import cn.pupperclient.utils.color.ColorUtils;
 
 public class MusicWaveformMod extends Mod {
 

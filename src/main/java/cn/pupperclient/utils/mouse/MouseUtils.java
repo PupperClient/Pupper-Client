@@ -6,6 +6,7 @@ public class MouseUtils {
 		return (mouseX > x && mouseX < (x + width)) && (mouseY > y && mouseY < (y + height));
 	}
 
+    @SuppressWarnings("unused")
     public static boolean isHovered(float x, float y, float width, float height, int mouseX, int mouseY) {
         return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
     }

@@ -1,4 +1,4 @@
-package cn.pupperclient.utils;
+package cn.pupperclient.utils.minecraft;
 
 import net.minecraft.client.MinecraftClient;
 

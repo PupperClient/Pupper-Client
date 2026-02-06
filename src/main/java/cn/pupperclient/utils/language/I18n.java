@@ -1,5 +1,7 @@
 package cn.pupperclient.utils.language;
 
+import cn.pupperclient.PupperLogger;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -12,8 +14,7 @@ public final class I18n {
 	private static final Map<String, String> translateMap = new HashMap<>();
 	private static Language currentLanguage;
 
-	private I18n() {
-	}
+	private I18n() {}
 
 	public static void setLanguage(Language language) {
 		currentLanguage = language;
@@ -32,7 +33,7 @@ public final class I18n {
 					.filter(parts -> parts.length == 2)
 					.forEach(parts -> translateMap.put(parts[0].trim(), parts[1].trim()));
 		} catch (Exception e) {
-			e.printStackTrace();
+            PupperLogger.error("I18n", "Load Languages error: " + e);
 		}
 	}
 

@@ -2,7 +2,7 @@ package cn.pupperclient.management.command.impl;
 
 import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.mod.impl.misc.IRCChatMod;
-import cn.pupperclient.utils.IMinecraft;
+import cn.pupperclient.utils.minecraft.IMinecraft;
 import net.minecraft.text.Text;
 
 public class IRCCommand implements IMinecraft {
