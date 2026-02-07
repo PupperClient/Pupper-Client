@@ -6,6 +6,7 @@ package cn.pupperclient.skia.utils;
 
 import cn.pupperclient.PupperLogger;
 import cn.pupperclient.skia.image.ImageHelper;
+import io.github.humbleui.skija.Data;
 import io.github.humbleui.skija.DirectContext;
 import io.github.humbleui.skija.Image;
 import net.minecraft.client.texture.GlTexture;
@@ -13,6 +14,7 @@ import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,6 +55,12 @@ public class TextureUtils {
         int height = nbt.getImage().getHeight();
 
         return ImageHelper.get(context, glId, width, height);
+    }
+
+    public static Image getImageFromInputStream(InputStream inputStream) throws IOException {
+        byte[] bytes = inputStream.readAllBytes();
+        Data data = Data.makeFromBytes(bytes);
+        return Image.makeDeferredFromEncodedBytes(data.getBytes());
     }
 
     @SuppressWarnings("unused")

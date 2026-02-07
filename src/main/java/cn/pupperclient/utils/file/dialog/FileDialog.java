@@ -3,6 +3,7 @@ package cn.pupperclient.utils.file.dialog;
 import java.io.File;
 import java.nio.ByteBuffer;
 
+import cn.pupperclient.PupperLogger;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
@@ -12,6 +13,11 @@ import org.lwjgl.util.nfd.NativeFileDialog;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 
 public class FileDialog {
+    static {
+        if (NativeFileDialog.NFD_Init() != NativeFileDialog.NFD_OKAY) {
+            PupperLogger.error("FileDialog" , "Failed to initialize Native File Dialog!");
+        }
+    }
 
 	public static ObjectObjectImmutablePair<Boolean, File> chooseFile(String name, String... extensions) {
 
@@ -23,9 +29,12 @@ public class FileDialog {
 
 			PointerBuffer path = stack.mallocPointer(1);
 
-			return ObjectObjectImmutablePair.of(
-					isSuccess(NativeFileDialog.NFD_OpenDialog(path, filters, (ByteBuffer) null)),
-					new File(path.getStringUTF8(0)));
+            int result = NativeFileDialog.NFD_OpenDialog(path, filters, (ByteBuffer) null);
+            if (result == NativeFileDialog.NFD_OKAY) {
+                String p = path.getStringUTF8(0);
+                return ObjectObjectImmutablePair.of(true, new File(p));
+            }
+            return ObjectObjectImmutablePair.of(false, null);
 		}
 	}
 
@@ -44,4 +53,8 @@ public class FileDialog {
 	private static boolean isSuccess(int result) {
 		return result == NativeFileDialog.NFD_OKAY;
 	}
+
+    public static void shutdown() {
+        NativeFileDialog.NFD_Quit();
+    }
 }

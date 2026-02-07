@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
 import cn.pupperclient.PupperClient;
+import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.EventListener;
 import cn.pupperclient.event.client.RenderSkiaEvent;
 import cn.pupperclient.management.mod.impl.settings.SystemSettings;
@@ -68,11 +69,13 @@ public class MainMenuGui extends SimplePupperGui {
     private boolean toolsAvailable = false;
     private boolean toolsChecked = false;
 
-    private double mx, my;
+    boolean isdraw = false;
+    double mx, my;
 
     public MainMenuGui() {
         super(false);
         this.notificationManager = new NotificationManager();
+        EventBus.getInstance().register(this);
     }
 
     @Override
@@ -84,7 +87,6 @@ public class MainMenuGui extends SimplePupperGui {
         if (!toolsChecked) {
             checkTools();
         }
-        super.init();
     }
 
     private void checkTools() {
@@ -378,8 +380,7 @@ public class MainMenuGui extends SimplePupperGui {
             return;
         }
 
-        mx = mouseX;
-        my = mouseY;
+        isdraw = true;
     }
 
     private void drawskia(double mouseX, double mouseY) {
@@ -755,6 +756,8 @@ public class MainMenuGui extends SimplePupperGui {
 
     @EventListener
     public void onSkiaRender(RenderSkiaEvent event) {
-        drawskia(mx, my);
+        if (isdraw) {
+            drawskia(mx, my);
+        }
     }
 }

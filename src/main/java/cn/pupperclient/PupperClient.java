@@ -17,6 +17,7 @@ import cn.pupperclient.management.profile.ProfileManager;
 import cn.pupperclient.management.user.UserManager;
 import cn.pupperclient.management.websocket.WebSocketManager;
 import cn.pupperclient.skia.font.Fonts;
+import cn.pupperclient.utils.file.dialog.FileDialog;
 import cn.pupperclient.utils.tools.ToolManager;
 import cn.pupperclient.utils.minecraft.IMinecraft;
 import cn.pupperclient.utils.concurrent.Multithreading;
@@ -77,6 +78,7 @@ public class PupperClient implements IMinecraft {
             keybindManager.cleanup();
         }
         Multithreading.shutdown();
+        FileDialog.shutdown();
     }
 
     private void initializeResources() {

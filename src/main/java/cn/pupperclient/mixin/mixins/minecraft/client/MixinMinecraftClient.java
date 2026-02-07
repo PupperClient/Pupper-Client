@@ -132,9 +132,9 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 				+ getWindowTitle());
 	}
 
-	@Inject(method = "<init>", at = @At("TAIL"))
-	public void init(CallbackInfo ci) throws IOException {
-        SkiaContext.INSTANCE.init();
+    @Inject(method = "<init>", at = @At("TAIL"))
+    public void init(CallbackInfo ci) throws IOException {
+        SkiaContext instance = SkiaContext.INSTANCE;
 
         int[] width = new int[1];
         int[] height = new int[1];
@@ -148,7 +148,7 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
         EventBus.getInstance().post(new EventSkiaInit(finalWidth, finalHeight));
 
         PupperClient.getInstance().start();
-	}
+    }
 
     @Inject(method = "stop", at = @At("HEAD"))
     public void onShutdown(CallbackInfo ci) {

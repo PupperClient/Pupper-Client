@@ -74,7 +74,8 @@ dependencies {
             "org.lwjgl:lwjgl-nfd::natives-linux",
             "org.lwjgl:lwjgl-nfd::natives-macos",
             "org.lwjgl:lwjgl-nfd::natives-macos-arm64",
-            "org.lwjgl:lwjgl-nfd::natives-windows"
+            "org.lwjgl:lwjgl-nfd::natives-windows",
+            "org.lwjgl:lwjgl-nfd::natives-linux-arm64"
     ]
 
     lwjglNfdDeps.each { dep ->

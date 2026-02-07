@@ -17,15 +17,22 @@ public class ColorUtils {
 		return new Color(r, g, b, a);
 	}
 
-	public static Color blend(Color color1, Color color2, double ratio) {
-		float r = (float) ratio;
-		float ir = 1.0f - r;
-		float[] rgb1 = new float[3];
-		float[] rgb2 = new float[3];
-		color1.getColorComponents(rgb1);
-		color2.getColorComponents(rgb2);
-        return new Color(rgb1[0] * r + rgb2[0] * ir, rgb1[1] * r + rgb2[1] * ir, rgb1[2] * r + rgb2[2] * ir);
-	}
+    public static Color blend(Color color1, Color color2, double ratio) {
+        // Clamp the ratio between 0.0 and 1.0 to prevent overflow
+        float r = (float) Math.max(0.0, Math.min(1.0, ratio));
+        float ir = 1.0f - r;
+
+        float[] rgb1 = new float[3];
+        float[] rgb2 = new float[3];
+        color1.getColorComponents(rgb1);
+        color2.getColorComponents(rgb2);
+
+        float red = Math.max(0f, Math.min(1f, rgb1[0] * r + rgb2[0] * ir));
+        float green = Math.max(0f, Math.min(1f, rgb1[1] * r + rgb2[1] * ir));
+        float blue = Math.max(0f, Math.min(1f, rgb1[2] * r + rgb2[2] * ir));
+
+        return new Color(red, green, blue);
+    }
 
 	public static String removeColorCode(String text) {
 		return Pattern.compile("\\u00a7[0-9a-fklmnor]").matcher(text).replaceAll("");

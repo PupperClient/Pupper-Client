@@ -59,6 +59,9 @@ public abstract class PupperGui extends SimplePupperGui {
 
 	@Override
 	public void draw(double mouseX, double mouseY) {
+        if (inOutAnimation == null) {
+            return;
+        }
 
 		ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 

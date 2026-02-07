@@ -2,6 +2,7 @@ package cn.pupperclient.skia;
 
 import java.awt.Color;
 import java.io.File;
+import java.io.IOException;
 
 import cn.pupperclient.management.mod.impl.settings.HUDModSettings;
 import cn.pupperclient.shader.PupperMeshRenderer;
@@ -151,10 +152,19 @@ public class Skia {
     }
 
     public static void drawImage(String path, float x, float y, float width, float height) {
-        File file = new File(MinecraftClient.getInstance().runDirectory, "/assets/pupper/" + path);
-        Image img = TextureUtils.getImageFromFile(getContext(), file);
-        if (img != null) {
+        try {
+            var is = Skia.class.getResourceAsStream("/assets/pupper/" + path);
+            if (is == null) {
+                System.err.println("Image not found: /assets/pupper/" + path);
+                return;
+            }
+
+            Image img = TextureUtils.getImageFromInputStream(is);
+            is.close();
+
             getCanvas().drawImageRect(img, Rect.makeXYWH(x, y, width, height));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

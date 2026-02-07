@@ -2,16 +2,15 @@ package cn.pupperclient.mixin.mixins.minecraft.client.util;
 
 import cn.pupperclient.PupperClient;
 import cn.pupperclient.event.EventBus;
+import cn.pupperclient.event.client.RenderSkiaEvent;
+import cn.pupperclient.skia.context.SkiaContext;
 import cn.pupperclient.skia.event.EventSkiaDraw;
 import cn.pupperclient.skia.event.EventSkiaInit;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.tracy.TracyFrameCapturer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import cn.pupperclient.skia.context.SkiaContext;
 
 import net.minecraft.client.util.Window;
 import org.lwjgl.glfw.GLFW;
@@ -27,18 +26,19 @@ import java.nio.IntBuffer;
 @Mixin(Window.class)
 public class MixinWindow {
 
-	@Inject(method = "onFramebufferSizeChanged", at = @At("RETURN"))
-	private void onFramebufferSizeChanged(long window, int width, int height, CallbackInfo ci) {
+    @Inject(method = "onFramebufferSizeChanged", at = @At("RETURN"))
+    private void onFramebufferSizeChanged(long window, int width, int height, CallbackInfo ci) {
         int finalWidth = Math.max(width, 1);
         int finalHeight = Math.max(height, 1);
 
         EventBus.getInstance().post(new EventSkiaInit(finalWidth, finalHeight));
-	}
+    }
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onWindowInit(CallbackInfo ci) {
         try {
-            long handle = MinecraftClient.getInstance().getWindow().getHandle();
+            Window window = (Window)(Object)this;
+            long handle = window.getHandle();
 
             try (InputStream is = getClass().getResourceAsStream("/assets/pupper/logo.png")) {
                 if (is == null) {
