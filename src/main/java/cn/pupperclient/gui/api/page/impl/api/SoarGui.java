@@ -186,7 +186,7 @@ public abstract class SoarGui extends SimpleSoarGui {
 		if (inOutAnimation.getEnd() == 1) {
 			this.nextScreen = nextScreen;
 			inOutAnimation = new EaseEmphasizedDecelerate(Duration.EXTRA_LONG_1, 1, 0);
-			Multithreading.runAsync(() -> {
+			client.execute(() -> {
 				PupperClient.getInstance().getConfigManager().save(ConfigType.MOD);
 			});
 		}

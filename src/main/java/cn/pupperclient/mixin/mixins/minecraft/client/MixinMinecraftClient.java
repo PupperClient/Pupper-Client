@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import cn.pupperclient.event.client.WorldChangeEvent;
 import cn.pupperclient.shader.impl.Kawaseblur;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.screen.Screen;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -118,6 +119,7 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 	private void onHitDelayFix(CallbackInfoReturnable<Boolean> cir) {
 		if (HitDelayFixMod.getInstance().isEnabled()) {
 			attackCooldown = 0;
+            RenderSystem.defaultBlendFunc();
 		}
 	}
 

@@ -77,9 +77,9 @@ public class MainMenuGui extends SimpleSoarGui {
         loadBackgroundSettings();
         initCustomizationComponents();
 
-        if (!toolsChecked) {
-            checkTools();
-        }
+//        if (!toolsChecked) {
+//            checkTools();
+//        }
     }
 
     private void checkTools() {

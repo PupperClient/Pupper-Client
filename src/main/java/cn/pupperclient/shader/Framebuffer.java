@@ -75,7 +75,6 @@ public class Framebuffer {
         if (mipmapEnabled && sizeMulti < 1.0) {
             bind();
             ShaderHelper.bindTexture(texture);
-            // 直接使用原生的OpenGL调用生成Mipmap
             glGenerateMipmap(GL_TEXTURE_2D);
             unbind();
         }
