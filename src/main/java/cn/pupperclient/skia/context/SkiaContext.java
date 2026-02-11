@@ -1,5 +1,6 @@
 package cn.pupperclient.skia.context;
 
+import cn.pupperclient.PupperLogger;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.EventListener;
 import cn.pupperclient.event.client.RenderSkiaEvent;
@@ -66,9 +67,13 @@ public class SkiaContext {
         GL11.glClearColor(0f, 0f, 0f, 0f);
 
         context.resetGLAll();
+
+        long start = System.nanoTime();
         drawDrawables();
         context.flushAndSubmit(surface);
+        long end = System.nanoTime() - start;
 
+        // PupperLogger.info("SkiaContext", "draw start time: " + start + ", end time: " + end);
         States.pop();
     }
 

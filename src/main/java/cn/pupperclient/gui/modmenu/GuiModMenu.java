@@ -65,4 +65,9 @@ public class GuiModMenu extends PupperGui {
 	public float getHeight() {
 		return 580;
 	}
+
+    @Override
+    public void removed() {
+        super.removed();
+    }
 }

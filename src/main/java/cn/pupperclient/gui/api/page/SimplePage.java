@@ -28,6 +28,7 @@ public class SimplePage {
 	}
 
 	public void draw(double mouseX, double mouseY) {
+        if (!isShowing()) return;
 	}
 
 	public void mousePressed(double mouseX, double mouseY, int button) {
@@ -107,4 +108,8 @@ public class SimplePage {
 	public PupperGui getParent() {
 		return parent;
 	}
+
+    public boolean isShowing() {
+        return parent != null && parent.getCurrentPage() == this;
+    }
 }

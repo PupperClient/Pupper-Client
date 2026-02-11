@@ -1,5 +1,7 @@
 package cn.pupperclient.event;
 
+import cn.pupperclient.gui.api.PupperGui;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -15,7 +17,7 @@ import java.util.function.Consumer;
 
 public class EventBus {
 
-    private static EventBus instance = new EventBus();
+    private static final EventBus instance = new EventBus();
 
     public interface EventListener<T extends Event> {
         void onEvent(T event);
@@ -183,6 +185,11 @@ public class EventBus {
             field.setAccessible(accessible);
         }
         return fieldSubscription;
+    }
+
+    public boolean isregister(final Object o) {
+        if (o == null) return false;
+        return registeredHandlers.containsKey(o);
     }
 
     public static EventBus getInstance() {

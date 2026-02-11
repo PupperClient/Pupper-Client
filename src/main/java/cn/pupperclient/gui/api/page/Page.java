@@ -30,14 +30,18 @@ public class Page extends SimplePage {
 
 	@Override
 	public void draw(double mouseX, double mouseY) {
-
 		scrollHelper.onUpdate();
 
 		Skia.save();
+        Skia.clip(x, y, width, height, 0);
 		Skia.translate(0, scrollHelper.getValue());
 
-		mouseY = (int) (mouseY - scrollHelper.getValue());
-		searchBar.draw(mouseX, mouseY);
+        double relativeMouseY = mouseY - scrollHelper.getValue();
+        if (searchBar != null) {
+            searchBar.draw(mouseX, relativeMouseY);
+        }
+
+        drawContent(mouseX, relativeMouseY);
 
 		Skia.restore();
 	}
@@ -68,4 +72,6 @@ public class Page extends SimplePage {
 	public void mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
 		scrollHelper.onScroll(verticalAmount);
 	}
+
+    public void drawContent(double mouseX, double mouseY) {}
 }

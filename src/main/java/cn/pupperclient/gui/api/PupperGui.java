@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.pupperclient.PupperClient;
+import cn.pupperclient.event.EventBus;
+import cn.pupperclient.event.EventListener;
+import cn.pupperclient.event.client.RenderSkiaEvent;
 import org.lwjgl.glfw.GLFW;
 
 import cn.pupperclient.animation.Animation;
@@ -43,88 +46,51 @@ public abstract class PupperGui extends SimplePupperGui {
 
 	@Override
 	public void init() {
-		setPageSize(currentPage);
-		inOutAnimation = new EaseEmphasizedDecelerate(Duration.EXTRA_LONG_1, 0, 1);
-		closable = true;
-		currentPage.init();
+        if (!EventBus.getInstance().isregister(this)) {
+            EventBus.getInstance().register(this);
+        }
+        inOutAnimation = new EaseEmphasizedDecelerate(Duration.EXTRA_LONG_1, 0, 1);
+        closable = true;
+
+        if (currentPage != null) {
+            setPageSize(currentPage);
+            currentPage.init();
+        }
         super.init();
 	}
 
-	public void setPageSize(SimplePage p) {
-		p.setX(getX());
-		p.setY(getY());
-		p.setWidth(getWidth());
-		p.setHeight(getHeight());
-	}
-
-	@Override
-	public void draw(double mouseX, double mouseY) {
-        if (inOutAnimation == null) {
+    @Override
+    public void draw(double mouseX, double mouseY) {
+        if (inOutAnimation == null || client.currentScreen == null) {
             return;
         }
 
-		ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
+        ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
-//		if (ModMenuSettings.getInstance().getBlurSetting().isEnabled()) {
-//			Skia.drawImage(Kawaseblur.GUI_BLUR., 0, 0, client.getWindow().getWidth(),
-//					client.getWindow().getHeight(), inOutAnimation.getValue(), SurfaceOrigin.BOTTOM_LEFT);
-//		}
+        if (inOutAnimation.getEnd() == 0 && inOutAnimation.isFinished()) {
+            client.setScreen(nextScreen);
+            nextScreen = null;
+            return;
+        }
 
-		Skia.save();
-		Skia.setAlpha((int) (inOutAnimation.getValue() * 255));
-		Skia.scale(getX(), getY(), getWidth(), getHeight(), 2 - inOutAnimation.getValue());
+        Skia.save();
 
-		Skia.clip(getX(), getY(), getWidth(), getHeight(), 35);
-		Skia.drawRoundedRect(getX(), getY(), getWidth(), getHeight(), 35, palette.getSurfaceContainer());
+        float alpha = inOutAnimation.getValue();
+        Skia.setAlpha((int) (alpha * 255));
 
-		if (currentPage != null && lastPage == null) {
-			currentPage.draw(mouseX, mouseY);
-		}
+        Skia.scale(getX(), getY(), getWidth(), getHeight(), 2 - alpha);
 
-		if (lastPage != null) {
+        Skia.clip(getX(), getY(), getWidth(), getHeight(), 35);
+        Skia.drawRoundedRect(getX(), getY(), getWidth(), getHeight(), 35, palette.getSurfaceContainer());
 
-			GuiTransition transition = lastPage.getTransition();
+        renderPages(mouseX, mouseY);
 
-			if (currentPage.getTransition().isConsecutive()) {
+        for (Component c : components) {
+            c.draw(mouseX, mouseY);
+        }
 
-				Skia.save();
-
-				if (transition != null) {
-					float[] result = transition.onTransition(lastPage.getAnimation());
-					Skia.translate(result[0] * getWidth(), result[1] * getHeight());
-				}
-
-				lastPage.draw(mouseX, mouseY);
-				Skia.restore();
-			}
-
-			Skia.save();
-			transition = currentPage.getTransition();
-
-			if (transition != null) {
-				float[] result = transition.onTransition(currentPage.getAnimation());
-				Skia.translate(result[0] * getWidth(), result[1] * getHeight());
-			}
-
-			currentPage.draw(mouseX, mouseY);
-			Skia.restore();
-
-			if (lastPage.getAnimation().isFinished()) {
-				lastPage = null;
-			}
-		}
-
-		for (Component c : components) {
-			c.draw(mouseX, mouseY);
-		}
-
-		Skia.restore();
-
-		if (inOutAnimation.getEnd() == 0 && inOutAnimation.isFinished()) {
-			client.setScreen(nextScreen);
-			nextScreen = null;
-		}
-	}
+        Skia.restore();
+    }
 
 	@Override
 	public void mousePressed(double mouseX, double mouseY, int button) {
@@ -189,15 +155,32 @@ public abstract class PupperGui extends SimplePupperGui {
 		if (inOutAnimation.getEnd() == 1) {
 			this.nextScreen = nextScreen;
 			inOutAnimation = new EaseEmphasizedDecelerate(Duration.EXTRA_LONG_1, 1, 0);
-			Multithreading.runAsync(() -> {
-				PupperClient.getInstance().getConfigManager().save(ConfigType.MOD);
-			});
+			client.execute(() -> PupperClient.getInstance().getConfigManager().save(ConfigType.MOD));
 		}
 	}
 
+    @Override
 	public void close() {
 		close(null);
 	}
+
+    @Override
+    public void removed() {
+        if (EventBus.getInstance().isregister(this)) {
+            EventBus.getInstance().unregister(this);
+        }
+        if (pages != null) {
+            pages.forEach(SimplePage::onClosed);
+        }
+        super.removed();
+    }
+
+    public void setPageSize(SimplePage p) {
+        p.setX(getX());
+        p.setY(getY());
+        p.setWidth(getWidth());
+        p.setHeight(getHeight());
+    }
 
 	public SimplePage getCurrentPage() {
 		return currentPage;
@@ -242,6 +225,41 @@ public abstract class PupperGui extends SimplePupperGui {
 
 		return page;
 	}
+
+    private void renderPages(double mouseX, double mouseY) {
+        if (currentPage != null && lastPage == null) {
+            currentPage.draw(mouseX, mouseY);
+        }
+
+        if (lastPage != null) {
+            renderPageWithTransition(lastPage, mouseX, mouseY);
+
+            renderPageWithTransition(currentPage, mouseX, mouseY);
+
+            if (lastPage.getAnimation().isFinished()) {
+                lastPage = null;
+            }
+        }
+    }
+
+    private void renderPageWithTransition(SimplePage page, double mx, double my) {
+        if (page == null) return;
+        GuiTransition transition = page.getTransition();
+        Skia.save();
+        if (transition != null && page.getAnimation() != null) {
+            float[] result = transition.onTransition(page.getAnimation());
+            Skia.translate(result[0] * getWidth(), result[1] * getHeight());
+        }
+        page.draw(mx, my);
+        Skia.restore();
+    }
+
+    @EventListener
+    public void onSkiaRender(RenderSkiaEvent event) {
+        if (isVisible && client.currentScreen != null) {
+            draw(client.mouse.getX(), client.mouse.getY());
+        }
+    }
 
 	public List<SimplePage> getPages() {
 		return pages;

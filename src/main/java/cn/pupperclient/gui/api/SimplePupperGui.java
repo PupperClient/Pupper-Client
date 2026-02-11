@@ -1,8 +1,5 @@
 package cn.pupperclient.gui.api;
 
-import cn.pupperclient.event.EventBus;
-import cn.pupperclient.event.EventListener; // 这是你的注解
-import cn.pupperclient.event.client.RenderSkiaEvent;
 import cn.pupperclient.skia.Skia;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -14,13 +11,15 @@ import java.util.Objects;
 public class SimplePupperGui {
     public MinecraftClient client = MinecraftClient.getInstance();
     private final boolean mcScale;
-    private boolean isVisible = false;
+    protected boolean isVisible = false;
 
     public SimplePupperGui(boolean mcScale) {
         this.mcScale = mcScale;
     }
 
     public void init() {}
+    public void close() {}
+    public void removed() {}
     public void draw(double mouseX, double mouseY) {}
     public void mousePressed(double mouseX, double mouseY, int button) {}
     public void mouseReleased(double mouseX, double mouseY, int button) {}
@@ -33,7 +32,6 @@ public class SimplePupperGui {
             @Override
             public void init() {
                 isVisible = true;
-                EventBus.getInstance().register(this);
                 SimplePupperGui.this.init();
             }
 
@@ -60,8 +58,14 @@ public class SimplePupperGui {
             @Override
             public void close() {
                 isVisible = false;
-                EventBus.getInstance().register(this);
+                SimplePupperGui.this.close();
                 super.close();
+            }
+
+            @Override
+            public void removed() {
+                SimplePupperGui.this.removed();
+                super.removed();
             }
 
             @Override

@@ -489,7 +489,7 @@ public class Skia {
     }
 
     public static Paint getPaint(Color color) {
-        Paint paint = new Paint();
+        var paint = new Paint();
         paint.setARGB(color.getAlpha(), color.getRed(), color.getGreen(), color.getBlue());
         return paint;
     }

@@ -1,5 +1,6 @@
 package cn.pupperclient.gui;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.File;
@@ -38,6 +39,8 @@ import cn.pupperclient.utils.file.dialog.FileDialog;
 import cn.pupperclient.utils.file.FileLocation;
 import cn.pupperclient.utils.mouse.ScrollHelper;
 import com.terraformersmc.modmenu.gui.ModsScreen;
+import io.github.humbleui.skija.Image;
+import io.github.humbleui.types.Rect;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
@@ -68,6 +71,7 @@ public class MainMenuGui extends SimplePupperGui {
     private final NotificationManager notificationManager;
     private boolean toolsAvailable = false;
     private boolean toolsChecked = false;
+    private Image currentBackgroundRawImage = null;
 
     boolean isdraw = false;
     double mx, my;
@@ -75,17 +79,158 @@ public class MainMenuGui extends SimplePupperGui {
     public MainMenuGui() {
         super(false);
         this.notificationManager = new NotificationManager();
-        EventBus.getInstance().register(this);
     }
 
     @Override
     public void init() {
+        EventBus.getInstance().register(this);
+
         updateLayout();
         loadBackgroundSettings();
         initCustomizationComponents();
 
         if (!toolsChecked) {
             checkTools();
+        }
+    }
+
+    @Override
+    public void close() {
+        EventBus.getInstance().unregister(this);
+    }
+
+    @Override
+    public void draw(double mouseX, double mouseY) {
+        boolean currentlyMinimized = isWindowMinimized();
+
+        if (client.getWindow().getWidth() != lastWindowWidth ||
+            client.getWindow().getHeight() != lastWindowHeight ||
+            wasMinimized != currentlyMinimized) {
+            updateLayout();
+            initCustomizationComponents();
+            wasMinimized = currentlyMinimized;
+        }
+
+        if (currentlyMinimized) {
+            return;
+        }
+
+        this.mx = client.mouse.getX();
+        this.my = client.mouse.getY();
+
+        isdraw = true;
+    }
+
+    @Override
+    public void removed() {
+        EventBus.getInstance().unregister(this);
+        isdraw = false;
+        backgroundItems.forEach(item -> {
+            if (item.cachedImage != null) item.cachedImage.close();
+        });
+        backgroundItems.clear();
+        super.removed();
+    }
+
+    @Override
+    public void mousePressed(double mouseX, double mouseY, int button) {
+        if (isWindowMinimized()) {
+            return;
+        }
+
+        if (showBackgroundWindow) {
+            exitBackgroundButton.mousePressed(mouseX, mouseY, button);
+            addBackgroundButton.mousePressed(mouseX, mouseY, button);
+
+            float adjustedMouseY = (float) (mouseY - backgroundScrollHelper.getValue());
+            float panelX = client.getWindow().getWidth() / 2f - 300;
+            float panelY = client.getWindow().getHeight() / 2f - 200;
+            float startX = panelX + 20;
+            float startY = panelY + 60;
+            float itemWidth = 160;
+            float itemHeight = 90;
+            float spacing = 15;
+            int itemsPerRow = 3;
+
+            for (int i = 0; i < backgroundItems.size(); i++) {
+                BackgroundItem item = backgroundItems.get(i);
+                int row = i / itemsPerRow;
+                int col = i % itemsPerRow;
+                float itemX = startX + col * (itemWidth + spacing);
+                float itemY = startY + row * (itemHeight + spacing);
+
+                if (MouseUtils.isInside(mouseX, adjustedMouseY, itemX, itemY, itemWidth, itemHeight)) {
+                    selectedBackgroundId = item.backgroundId;
+                    saveBackgroundSettings();  // 保存新选择的背景
+                    break;
+                }
+            }
+            return;
+        }
+
+        if (showCustomizationWindow) {
+            darkModeSwitch.mousePressed(mouseX, mouseY, button);
+            exitCustomizationButton.mousePressed(mouseX, mouseY, button);
+            return;
+        }
+
+        for (MainMenuButton menuButton : buttons) {
+            menuButton.mousePressed((int) mouseX, (int) mouseY, button);
+        }
+
+        backgroundButton.mousePressed((int) mouseX, (int) mouseY, button);
+        settingsButton.mousePressed((int) mouseX, (int) mouseY, button);
+    }
+
+    @Override
+    public void mouseReleased(double mouseX, double mouseY, int button) {
+        if (isWindowMinimized()) {
+            return;
+        }
+
+        if (showBackgroundWindow) {
+            exitBackgroundButton.mouseReleased(mouseX, mouseY, button);
+            addBackgroundButton.mouseReleased(mouseX, mouseY, button);
+            return;
+        }
+
+        if (showCustomizationWindow) {
+            darkModeSwitch.mouseReleased(mouseX, mouseY, button);
+            exitCustomizationButton.mouseReleased(mouseX, mouseY, button);
+            return;
+        }
+
+        for (MainMenuButton menuButton : buttons) {
+            menuButton.mouseReleased((int) mouseX, (int) mouseY, button);
+        }
+
+        backgroundButton.mouseReleased((int) mouseX, (int) mouseY, button);
+        settingsButton.mouseReleased((int) mouseX, (int) mouseY, button);
+    }
+
+    @Override
+    public void charTyped(char chr, int modifiers) {
+        if (showBackgroundWindow) {
+            exitBackgroundButton.charTyped(chr, modifiers);
+            addBackgroundButton.charTyped(chr, modifiers);
+        }
+
+        if (showCustomizationWindow) {
+            darkModeSwitch.charTyped(chr, modifiers);
+            exitCustomizationButton.charTyped(chr, modifiers);
+        }
+    }
+
+    @Override
+    public void keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (showBackgroundWindow) {
+            exitBackgroundButton.keyPressed(keyCode, scanCode, modifiers);
+            addBackgroundButton.keyPressed(keyCode, scanCode, modifiers);
+        }
+
+        if (showCustomizationWindow) {
+            darkModeSwitch.keyPressed(keyCode, scanCode, modifiers);
+            exitCustomizationButton.keyPressed(keyCode, scanCode, modifiers);
         }
     }
 
@@ -193,25 +338,34 @@ public class MainMenuGui extends SimplePupperGui {
         float buttonWidth = 240 * scaleFactor;
 
         buttons.add(new MainMenuButton("menu.singleplayer", Icon.HOME,
-            centerX - buttonWidth / 2, centerY - (120 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new SelectWorldScreen(this.build()))));
+            centerX - buttonWidth / 2, centerY - (120 * scaleFactor), buttonWidth, scaleFactor, () -> {
+            client.setScreen(new SelectWorldScreen(this.build()));
+        }));
 
         buttons.add(new MainMenuButton("menu.multiplayer", Icon.GROUPS,
             centerX - buttonWidth / 2, centerY - (60 * scaleFactor), buttonWidth, scaleFactor, () -> {
-            //client.setScreen(new MultiplayerGui().build());
             client.setScreen(new MultiplayerScreen(this.build()));
         }));
 
         buttons.add(new MainMenuButton("menu.realms", Icon.DNS,
-            centerX - buttonWidth / 2, centerY, buttonWidth, scaleFactor, () -> client.setScreen(new RealmsMainScreen(this.build()))));
+            centerX - buttonWidth / 2, centerY, buttonWidth, scaleFactor, () -> {
+            client.setScreen(new RealmsMainScreen(this.build()));
+        }));
 
         buttons.add(new MainMenuButton("menu.ias", Icon.ACCOUNT_BALANCE,
-            centerX - buttonWidth / 2, centerY + (60 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new AccountScreen(this.build()))));
+            centerX - buttonWidth / 2, centerY + (60 * scaleFactor), buttonWidth, scaleFactor, () -> {
+            client.setScreen(new AccountScreen(this.build()));
+        }));
 
         buttons.add(new MainMenuButton("menu.modmenu", Icon.LIST,
-            centerX - buttonWidth / 2, centerY + (120 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new ModsScreen(this.build()))));
+            centerX - buttonWidth / 2, centerY + (120 * scaleFactor), buttonWidth, scaleFactor, () -> {
+            client.setScreen(new ModsScreen(this.build()));
+        }));
 
         buttons.add(new MainMenuButton("menu.options", Icon.SETTINGS,
-            centerX - buttonWidth / 2, centerY + (180 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new OptionsScreen(this.build(), client.options))));
+            centerX - buttonWidth / 2, centerY + (180 * scaleFactor), buttonWidth, scaleFactor, () -> {
+            client.setScreen(new OptionsScreen(this.build(), client.options));
+        }));
 
         buttons.add(new MainMenuButton("menu.quit", Icon.CLOSE,
             centerX - buttonWidth / 2, centerY + (240 * scaleFactor), buttonWidth, scaleFactor, () -> client.scheduleStop()));
@@ -299,20 +453,56 @@ public class MainMenuGui extends SimplePupperGui {
     }
 
     private void loadExistingBackgrounds() {
+        for (BackgroundItem item : backgroundItems) {
+            if (item.cachedImage != null) {
+                item.cachedImage.close();
+            }
+        }
         backgroundItems.clear();
 
-        backgroundItems.add(new BackgroundItem("background.png", null, true));
+        BackgroundItem defaultItem = new BackgroundItem("background.png", null, true);
+        try (java.io.InputStream is = client.getClass().getResourceAsStream("/assets/pupper/background.png")) {
+            if (is != null) {
+                byte[] data = is.readAllBytes();
+                defaultItem.cachedImage = Image.makeDeferredFromEncodedBytes(data);
+            }
+        } catch (IOException e) {
+            PupperClient.LOGGER.error(e.getMessage());
+        }
+        backgroundItems.add(defaultItem);
 
         File backgroundDir = FileLocation.BACKGROUND_DIR;
         if (backgroundDir.exists() && backgroundDir.isDirectory()) {
             File[] backgroundFiles = backgroundDir.listFiles((dir, name) ->
                 name.toLowerCase().endsWith(".png") || name.toLowerCase().endsWith(".jpg"));
+
             if (backgroundFiles != null) {
                 for (File backgroundFile : backgroundFiles) {
                     String backgroundId = backgroundFile.getName();
-                    backgroundItems.add(new BackgroundItem(backgroundId, backgroundFile, false));
+                    BackgroundItem customItem = new BackgroundItem(backgroundId, backgroundFile, false);
+                    try {
+                        byte[] data = Files.readAllBytes(backgroundFile.toPath());
+                        customItem.cachedImage = Image.makeDeferredFromEncodedBytes(data);
+                        backgroundItems.add(customItem);
+                    } catch (IOException e) {
+                        PupperClient.LOGGER.error(e.getMessage());
+                    }
                 }
             }
+        }
+
+        updateCurrentBackgroundReference();
+    }
+
+    private void updateCurrentBackgroundReference() {
+        for (BackgroundItem item : backgroundItems) {
+            if (item.backgroundId.equals(selectedBackgroundId)) {
+                this.currentBackgroundRawImage = item.cachedImage;
+                return;
+            }
+        }
+        if (!backgroundItems.isEmpty()) {
+            this.currentBackgroundRawImage = backgroundItems.getFirst().cachedImage;
         }
     }
 
@@ -330,7 +520,6 @@ public class MainMenuGui extends SimplePupperGui {
             Files.copy(selectedFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             loadExistingBackgrounds();
 
-            // 自动选择新添加的背景
             selectedBackgroundId = processedName;
             saveBackgroundSettings();
 
@@ -362,25 +551,6 @@ public class MainMenuGui extends SimplePupperGui {
         } else {
             return 0.9f;
         }
-    }
-
-    @Override
-    public void draw(double mouseX, double mouseY) {
-        boolean currentlyMinimized = isWindowMinimized();
-
-        if (client.getWindow().getWidth() != lastWindowWidth ||
-            client.getWindow().getHeight() != lastWindowHeight ||
-            wasMinimized != currentlyMinimized) {
-            updateLayout();
-            initCustomizationComponents();
-            wasMinimized = currentlyMinimized;
-        }
-
-        if (currentlyMinimized) {
-            return;
-        }
-
-        isdraw = true;
     }
 
     private void drawskia(double mouseX, double mouseY) {
@@ -504,7 +674,8 @@ public class MainMenuGui extends SimplePupperGui {
     }
 
     private void drawCustomBackground() {
-        // 计算视差效果
+        if (currentBackgroundRawImage == null) return;
+
         float parallaxStrength = 40;
         float targetParallaxX = (float) (client.mouse.getX() - client.getWindow().getWidth() / 2F) / client.getWindow().getWidth() * parallaxStrength;
         float targetParallaxY = (float) (client.mouse.getY() - client.getWindow().getHeight() / 2F) / client.getWindow().getHeight() * parallaxStrength;
@@ -519,19 +690,8 @@ public class MainMenuGui extends SimplePupperGui {
         float offsetX = (scaledWidth - client.getWindow().getWidth()) / 2 - parallaxX;
         float offsetY = (scaledHeight - client.getWindow().getHeight()) / 2 - parallaxY;
 
-        if (selectedBackgroundId.equals("background.png")) {
-            Skia.drawImage("background.png", -offsetX, -offsetY, scaledWidth, scaledHeight);
-        } else {
-            for (BackgroundItem item : backgroundItems) {
-                if (item.backgroundId.equals(selectedBackgroundId) && !item.isDefault) {
-                    if (item.backgroundFile != null && item.backgroundFile.exists()) {
-                        Skia.drawImage(item.backgroundFile, -offsetX, -offsetY, scaledWidth, scaledHeight);
-                        return;
-                    }
-                }
-            }
-            Skia.drawImage("background.png", -offsetX, -offsetY, scaledWidth, scaledHeight);
-        }
+        Skia.getCanvas().drawImageRect(currentBackgroundRawImage,
+            Rect.makeXYWH(-offsetX, -offsetY, scaledWidth, scaledHeight));
     }
 
     private void drawLogoIcon() {
@@ -546,111 +706,10 @@ public class MainMenuGui extends SimplePupperGui {
         Skia.drawRoundedImage("logo.png", logoX, logoY, logoSize, logoSize, 10 * scaleFactor);
     }
 
-    @Override
-    public void mousePressed(double mouseX, double mouseY, int button) {
-        if (isWindowMinimized()) {
-            return;
-        }
-
-        if (showBackgroundWindow) {
-            exitBackgroundButton.mousePressed(mouseX, mouseY, button);
-            addBackgroundButton.mousePressed(mouseX, mouseY, button);
-
-            float adjustedMouseY = (float) (mouseY - backgroundScrollHelper.getValue());
-            float panelX = client.getWindow().getWidth() / 2f - 300;
-            float panelY = client.getWindow().getHeight() / 2f - 200;
-            float startX = panelX + 20;
-            float startY = panelY + 60;
-            float itemWidth = 160;
-            float itemHeight = 90;
-            float spacing = 15;
-            int itemsPerRow = 3;
-
-            for (int i = 0; i < backgroundItems.size(); i++) {
-                BackgroundItem item = backgroundItems.get(i);
-                int row = i / itemsPerRow;
-                int col = i % itemsPerRow;
-                float itemX = startX + col * (itemWidth + spacing);
-                float itemY = startY + row * (itemHeight + spacing);
-
-                if (MouseUtils.isInside(mouseX, adjustedMouseY, itemX, itemY, itemWidth, itemHeight)) {
-                    selectedBackgroundId = item.backgroundId;
-                    saveBackgroundSettings();  // 保存新选择的背景
-                    break;
-                }
-            }
-            return;
-        }
-
-        if (showCustomizationWindow) {
-            darkModeSwitch.mousePressed(mouseX, mouseY, button);
-            exitCustomizationButton.mousePressed(mouseX, mouseY, button);
-            return;
-        }
-
-        for (MainMenuButton menuButton : buttons) {
-            menuButton.mousePressed((int) mouseX, (int) mouseY, button);
-        }
-
-        backgroundButton.mousePressed((int) mouseX, (int) mouseY, button);
-        settingsButton.mousePressed((int) mouseX, (int) mouseY, button);
-    }
-
-    @Override
-    public void mouseReleased(double mouseX, double mouseY, int button) {
-        if (isWindowMinimized()) {
-            return;
-        }
-
-        if (showBackgroundWindow) {
-            exitBackgroundButton.mouseReleased(mouseX, mouseY, button);
-            addBackgroundButton.mouseReleased(mouseX, mouseY, button);
-            return;
-        }
-
-        if (showCustomizationWindow) {
-            darkModeSwitch.mouseReleased(mouseX, mouseY, button);
-            exitCustomizationButton.mouseReleased(mouseX, mouseY, button);
-            return;
-        }
-
-        for (MainMenuButton menuButton : buttons) {
-            menuButton.mouseReleased((int) mouseX, (int) mouseY, button);
-        }
-
-        backgroundButton.mouseReleased((int) mouseX, (int) mouseY, button);
-        settingsButton.mouseReleased((int) mouseX, (int) mouseY, button);
-    }
-
-    @Override
-    public void charTyped(char chr, int modifiers) {
-        if (showBackgroundWindow) {
-            exitBackgroundButton.charTyped(chr, modifiers);
-            addBackgroundButton.charTyped(chr, modifiers);
-        }
-
-        if (showCustomizationWindow) {
-            darkModeSwitch.charTyped(chr, modifiers);
-            exitCustomizationButton.charTyped(chr, modifiers);
-        }
-    }
-
-    @Override
-    public void keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (showBackgroundWindow) {
-            exitBackgroundButton.keyPressed(keyCode, scanCode, modifiers);
-            addBackgroundButton.keyPressed(keyCode, scanCode, modifiers);
-        }
-
-        if (showCustomizationWindow) {
-            darkModeSwitch.keyPressed(keyCode, scanCode, modifiers);
-            exitCustomizationButton.keyPressed(keyCode, scanCode, modifiers);
-        }
-    }
-
     static class BackgroundItem {
         String backgroundId;
         File backgroundFile;
+        Image cachedImage;
         private final SimpleAnimation xAnimation = new SimpleAnimation();
         private final SimpleAnimation yAnimation = new SimpleAnimation();
         private final SimpleAnimation focusAnimation = new SimpleAnimation();
@@ -696,61 +755,74 @@ public class MainMenuGui extends SimplePupperGui {
 
         public void draw(int mouseX, int mouseY) {
             ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
-            boolean hovered = enabled && MouseUtils.isInside(mouseX, mouseY, x, y, width, height);
 
+            float drawX = Math.round(this.x);
+            float drawY = Math.round(this.y);
+            float drawW = Math.round(this.width);
+            float drawH = Math.round(this.height);
+            float drawRadius = Math.round(20 * scaleFactor);
+
+            boolean hovered = enabled && MouseUtils.isInside(mouseX, mouseY, drawX, drawY, drawW, drawH);
             focusAnimation.onTick(hovered ? 1.0F : 0, 12);
 
-            float radius = 20 * scaleFactor;
-
-            // 根据启用状态调整颜色
-            java.awt.Color bgColor = enabled ? palette.getSurface() :
+            var bgColor = enabled ? palette.getSurface() :
                 ColorUtils.applyAlpha(palette.getSurface(), 0.5f);
-            java.awt.Color textColor = enabled ?
+            var textColor = enabled ?
                 (hovered ? ColorUtils.blend(palette.getOnSurfaceVariant(), palette.getPrimary(), focusAnimation.getValue()) :
                     palette.getOnSurfaceVariant()) :
                 ColorUtils.applyAlpha(palette.getOnSurfaceVariant(), 0.5f);
 
-            Skia.drawRoundedRect(x, y, width, height, radius, bgColor);
+            Skia.drawRoundedRect(drawX, drawY, drawW, drawH, drawRadius, bgColor);
 
             if (enabled && hovered) {
-                java.awt.Color hoverColor = palette.getPrimary();
-                Skia.drawRoundedRect(x, y, width, height, radius,
+                var hoverColor = palette.getPrimary();
+                Skia.drawRoundedRect(drawX, drawY, drawW, drawH, drawRadius,
                     ColorUtils.applyAlpha(hoverColor, focusAnimation.getValue() * 0.12F));
             }
 
             if (enabled) {
                 Skia.save();
-                Skia.clip(x, y, width, height, radius);
-                pressAnimation.draw(x + pressedPos[0], y + pressedPos[1], width, height, palette.getPrimary(), 1);
+                Skia.clip(drawX, drawY, drawW, drawH, drawRadius);
+                pressAnimation.draw(drawX + pressedPos[0], drawY + pressedPos[1], drawW, drawH, palette.getPrimary(), 1);
                 Skia.restore();
             }
 
-            float fontSize = 18 * scaleFactor;
-            float iconSize = 22 * scaleFactor;
-            float iconPadding = 16 * scaleFactor;
+            float fontSize = Math.round(18 * scaleFactor);
+            float iconSize = Math.round(22 * scaleFactor);
+            float iconPadding = Math.round(16 * scaleFactor);
 
             if (!title.isEmpty()) {
-                Skia.drawFullCenteredText(I18n.get(title), x + (width / 2), y + (height / 2), textColor,
+                Skia.drawFullCenteredText(I18n.get(title), drawX + (drawW / 2f), drawY + (drawH / 2f), textColor,
                     Fonts.getRegular(fontSize));
 
-                Skia.drawHeightCenteredText(icon, x + iconPadding, y + (height / 2), textColor, Fonts.getIcon(iconSize));
+                Skia.drawHeightCenteredText(icon, drawX + iconPadding, drawY + (drawH / 2f), textColor, Fonts.getIcon(iconSize));
             } else {
-                Skia.drawFullCenteredText(icon, x + (width / 2), y + (height / 2), textColor, Fonts.getIcon(iconSize));
+                Skia.drawFullCenteredText(icon, drawX + (drawW / 2f), drawY + (drawH / 2f), textColor, Fonts.getIcon(iconSize));
             }
         }
 
         public void mousePressed(int mouseX, int mouseY, int mouseButton) {
-            if (enabled && MouseUtils.isInside(mouseX, mouseY, x, y, width, height) && mouseButton == 0) {
-                pressedPos = new int[]{mouseX - (int) x, mouseY - (int) y};
-                pressAnimation.onPressed(mouseX, mouseY, x, y);
+            float drawX = Math.round(this.x);
+            float drawY = Math.round(this.y);
+            float drawW = Math.round(this.width);
+            float drawH = Math.round(this.height);
+
+            if (enabled && MouseUtils.isInside(mouseX, mouseY, drawX, drawY, drawW, drawH) && mouseButton == 0) {
+                pressedPos = new int[]{(int)(mouseX - drawX), (int)(mouseY - drawY)};
+                pressAnimation.onPressed(mouseX, mouseY, drawX, drawY);
             }
         }
 
         public void mouseReleased(int mouseX, int mouseY, int mouseButton) {
-            if (enabled && MouseUtils.isInside(mouseX, mouseY, x, y, width, height) && mouseButton == 0) {
+            float drawX = Math.round(this.x);
+            float drawY = Math.round(this.y);
+            float drawW = Math.round(this.width);
+            float drawH = Math.round(this.height);
+
+            if (enabled && MouseUtils.isInside(mouseX, mouseY, drawX, drawY, drawW, drawH) && mouseButton == 0) {
                 action.run();
             }
-            pressAnimation.onReleased(mouseX, mouseY, x, y);
+            pressAnimation.onReleased(mouseX, mouseY, drawX, drawY);
         }
     }
 
