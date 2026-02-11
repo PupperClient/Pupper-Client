@@ -2,12 +2,16 @@ package cn.pupperclient.gui.api.page;
 
 import cn.pupperclient.animation.Animation;
 import cn.pupperclient.animation.other.DummyAnimation;
+import cn.pupperclient.event.EventBus;
+import cn.pupperclient.event.EventListener;
+import cn.pupperclient.event.client.RenderSkiaEvent;
 import cn.pupperclient.gui.api.PupperGui;
 
 public class SimplePage {
 
 	protected float x, y, width, height;
-	private String title, icon;
+	private final String title;
+    private final String icon;
 	protected PupperGui parent;
 	private Animation animation;
 	private GuiTransition transition;
@@ -24,30 +28,23 @@ public class SimplePage {
 		this.animation = new DummyAnimation(1);
 	}
 
-	public void init() {
-	}
+	public void init() {}
 
 	public void draw(double mouseX, double mouseY) {
         if (!isShowing()) return;
 	}
 
-	public void mousePressed(double mouseX, double mouseY, int button) {
-	}
+	public void mousePressed(double mouseX, double mouseY, int button) {}
 
-	public void mouseReleased(double mouseX, double mouseY, int button) {
-	}
+	public void mouseReleased(double mouseX, double mouseY, int button) {}
 
-	public void mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-	}
+	public void mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {}
 
-	public void charTyped(char chr, int modifiers) {
-	}
+	public void charTyped(char chr, int modifiers) {}
 
-	public void keyPressed(int keyCode, int scanCode, int modifiers) {
-	}
+	public void keyPressed(int keyCode, int scanCode, int modifiers) {}
 
-	public void onClosed() {
-	}
+    public void onClosed() {}
 
 	public float getX() {
 		return x;

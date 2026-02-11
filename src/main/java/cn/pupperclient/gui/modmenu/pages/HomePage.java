@@ -99,5 +99,6 @@ public class HomePage extends Page {
     @Override
     public void onClosed() {
         this.setTransition(new RightLeftTransition(false));
+        super.onClosed();
     }
 }

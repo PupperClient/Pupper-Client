@@ -1,5 +1,6 @@
 package cn.pupperclient.gui.api.page;
 
+import cn.pupperclient.event.EventBus;
 import cn.pupperclient.gui.api.PupperGui;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.ui.component.impl.text.SearchBar;
@@ -16,6 +17,9 @@ public class Page extends SimplePage {
 
 	@Override
 	public void init() {
+        if (!EventBus.getInstance().isregister(this)) {
+            EventBus.getInstance().register(this);
+        }
 
 		String text = "";
 
@@ -28,20 +32,24 @@ public class Page extends SimplePage {
 		});
 	}
 
+    @Override
+    public void onClosed() {
+        if (EventBus.getInstance().isregister(this)) {
+            EventBus.getInstance().unregister(this);
+        }
+    }
+
 	@Override
 	public void draw(double mouseX, double mouseY) {
 		scrollHelper.onUpdate();
 
 		Skia.save();
-        Skia.clip(x, y, width, height, 0);
 		Skia.translate(0, scrollHelper.getValue());
 
         double relativeMouseY = mouseY - scrollHelper.getValue();
         if (searchBar != null) {
             searchBar.draw(mouseX, relativeMouseY);
         }
-
-        drawContent(mouseX, relativeMouseY);
 
 		Skia.restore();
 	}
@@ -72,6 +80,4 @@ public class Page extends SimplePage {
 	public void mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
 		scrollHelper.onScroll(verticalAmount);
 	}
-
-    public void drawContent(double mouseX, double mouseY) {}
 }

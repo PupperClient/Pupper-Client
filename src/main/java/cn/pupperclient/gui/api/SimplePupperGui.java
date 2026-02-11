@@ -11,7 +11,7 @@ import java.util.Objects;
 public class SimplePupperGui {
     public MinecraftClient client = MinecraftClient.getInstance();
     private final boolean mcScale;
-    protected boolean isVisible = false;
+    public boolean isVisible = false;
 
     public SimplePupperGui(boolean mcScale) {
         this.mcScale = mcScale;
@@ -65,7 +65,6 @@ public class SimplePupperGui {
             @Override
             public void removed() {
                 SimplePupperGui.this.removed();
-                super.removed();
             }
 
             @Override
@@ -86,8 +85,22 @@ public class SimplePupperGui {
                 return true;
             }
 
-            private double getMouseX(double rawX) { return mcScale ? rawX : client.mouse.getX(); }
-            private double getMouseY(double rawY) { return mcScale ? rawY : client.mouse.getY(); }
+            private double getMouseX(double rawX) {
+                if (mcScale) {
+                    return rawX;
+                } else {
+                    assert client != null;
+                    return client.mouse.getX();
+                }
+            }
+            private double getMouseY(double rawY) {
+                if (mcScale) {
+                    return rawY;
+                } else {
+                    assert client != null;
+                    return client.mouse.getY();
+                }
+            }
 
             @Override
             public boolean keyPressed(int keyCode, int scanCode, int modifiers) {

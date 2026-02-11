@@ -7,7 +7,7 @@ import cn.pupperclient.gui.welcomegui.TermsScreen;
 import cn.pupperclient.libraries.browser.JCefBrowser;
 import cn.pupperclient.management.cape.CapeManager;
 import cn.pupperclient.management.color.ColorManager;
-import cn.pupperclient.management.command.SoarCommand;
+import cn.pupperclient.management.command.PupperCommand;
 import cn.pupperclient.management.config.ConfigManager;
 import cn.pupperclient.management.hypixel.HypixelManager;
 import cn.pupperclient.management.keybind.KeybindManager;
@@ -102,7 +102,7 @@ public class PupperClient implements IMinecraft {
         keybindManager = KeybindManager.getInstance();
         keybindManager.initialize();
         toolManager = new ToolManager();
-        SoarCommand.register();
+        PupperCommand.register();
         capeManager = new CapeManager();
     }
 

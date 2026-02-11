@@ -38,7 +38,7 @@ public final class I18n {
 	}
 
 	public static String get(String key) {
-		return translateMap.getOrDefault(key, "null");
+		return translateMap.getOrDefault(key, key);
 	}
 
 	public static Language getCurrentLanguage() {

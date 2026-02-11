@@ -6,7 +6,6 @@ public abstract class Animation {
 	protected float change;
 	protected float timePassed = 0;
 
-
 	public Animation(float duration, float start, float end) {
 
 		this.duration = duration;

@@ -137,6 +137,7 @@ public abstract class PupperGui extends SimplePupperGui {
 
 	@Override
 	public void keyPressed(int keyCode, int scanCode, int modifiers) {
+        inOutAnimation = new EaseEmphasizedDecelerate(Duration.EXTRA_LONG_1, 0, 1);
 
 		if (keyCode == GLFW.GLFW_KEY_ESCAPE && inOutAnimation.getEnd() == 1 && closable) {
 			close();
@@ -161,6 +162,7 @@ public abstract class PupperGui extends SimplePupperGui {
 
     @Override
 	public void close() {
+        EventBus.getInstance().unregister(this);
 		close(null);
 	}
 
@@ -172,7 +174,6 @@ public abstract class PupperGui extends SimplePupperGui {
         if (pages != null) {
             pages.forEach(SimplePage::onClosed);
         }
-        super.removed();
     }
 
     public void setPageSize(SimplePage p) {
@@ -186,22 +187,25 @@ public abstract class PupperGui extends SimplePupperGui {
 		return currentPage;
 	}
 
-	public void setCurrentPage(SimplePage page) {
+    public void setCurrentPage(SimplePage page) {
+        if (currentPage != null) {
+            lastPage = currentPage;
+            currentPage.onClosed();
+        }
 
-		if (currentPage != null) {
-			lastPage = currentPage;
-			currentPage.onClosed();
-		}
+        this.currentPage = page;
+        if (!EventBus.getInstance().isregister(currentPage)) {
+            EventBus.getInstance().register(currentPage);
+        }
 
-		this.currentPage = page;
-		currentPage.setAnimation(new EaseEmphasizedDecelerate(Duration.MEDIUM_1, 0, 1));
-		lastPage.setAnimation(new EaseEmphasizedDecelerate(Duration.MEDIUM_1, 1, 0));
+        currentPage.setAnimation(new EaseEmphasizedDecelerate(Duration.MEDIUM_1, 0, 1));
+        if (lastPage != null) {
+            lastPage.setAnimation(new EaseEmphasizedDecelerate(Duration.MEDIUM_1, 1, 0));
+        }
 
-		if (currentPage != null) {
-			setPageSize(currentPage);
-			currentPage.init();
-		}
-	}
+        setPageSize(currentPage);
+        currentPage.init();
+    }
 
 	public void setCurrentPage(Class<? extends SimplePage> clazz) {
 
