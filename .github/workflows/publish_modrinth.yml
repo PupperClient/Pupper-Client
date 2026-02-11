@@ -23,12 +23,17 @@ jobs:
       - name: Generate Commit Log
         id: commit_log
         run: |
-          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          
           if [ -z "$PREV_TAG" ]; then
+            echo "No previous tag found, getting all logs"
             LOG=$(git log --oneline --pretty=format:"* %s")
           else
+            echo "Comparing current HEAD with tag: $PREV_TAG"
             LOG=$(git log $PREV_TAG..HEAD --oneline --pretty=format:"* %s")
           fi
+          
+          if [ -z "$LOG" ]; then LOG="* Minor updates and improvements"; fi
           
           echo "CHANGELOG<<EOF" >> $GITHUB_ENV
           echo "$LOG" >> $GITHUB_ENV
@@ -41,4 +46,17 @@ jobs:
         run: ./gradlew publishMods
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CHANGELOG: ${{ env.CHANGELOG }}
+
+      - name: Create and Push Tag
+        if: success()
+        run: |
+          NEW_TAG=$(grep "mod_version" gradle.properties | cut -d'=' -f2 | tr -d '[:space:]')
+
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          echo "Creating new tag: $NEW_TAG"
+          git tag $NEW_TAG
+          git push origin $NEW_TAG

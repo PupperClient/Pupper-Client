@@ -137,4 +137,11 @@ publishMods {
 
         optional("sodium", "iris")
     }
+
+    github {
+        accessToken = providers.environmentVariable("GITHUB_TOKEN")
+        repository = "PupperClient/Pupper-Client"
+        commitish = "main"
+        tagName = project.mod_version
+    }
 }
