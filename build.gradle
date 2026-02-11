@@ -126,7 +126,7 @@ publishMods {
 
     modrinth {
         accessToken = providers.environmentVariable("MODRINTH_TOKEN")
-        projectId = "pupper-client"
+        projectId = "zN1WBfNk"
 
         minecraftVersions.add(project.minecraft_version)
 
