@@ -1,5 +1,5 @@
 # Pupper Client LICENSE
-Version 0.0.1 November 29, 2025
+Version November 29, 2025
 
 This License is GPL 3.0
 
