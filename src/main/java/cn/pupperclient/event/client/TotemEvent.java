@@ -4,7 +4,7 @@ import cn.pupperclient.event.Event;
 import net.minecraft.entity.player.PlayerEntity;
 
 public class TotemEvent extends Event {
-    private PlayerEntity player;
+    private final PlayerEntity player;
 
     public TotemEvent(PlayerEntity entity) {
         player = entity;

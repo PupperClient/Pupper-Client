@@ -11,14 +11,6 @@ import cn.pupperclient.management.profile.Profile;
 import net.minecraft.client.MinecraftClient;
 
 public class PupperEventHandle {
-
-    @EventListener
-    public void onMotion(EventMotion e) {
-        if (MinecraftClient.getInstance().player != null && e.getType() == EventType.PRE && MinecraftClient.getInstance().player.deathTime <= 1) {
-            EventBus.getInstance().post(new EventRespawn());
-        }
-    }
-
 	public final EventBus.EventListener<ClientTickEvent> onClientTick = event -> {
 		PupperClient.getInstance().getColorManager().onTick();
 		PupperClient.getInstance().getHypixelManager().update();

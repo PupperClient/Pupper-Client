@@ -1,11 +1,8 @@
 package cn.pupperclient.mixin.mixins.minecraft.entity;
 
-import cn.pupperclient.event.EventBus;
-import cn.pupperclient.event.client.EventAttackYaw;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import cn.pupperclient.management.mod.impl.player.ForceMainHandMod;
@@ -36,19 +33,4 @@ public class MixinPlayerEntity {
 			cir.setReturnValue(ForceMainHandMod.getInstance().isRightHand() ? Arm.RIGHT : Arm.LEFT);
 		}
 	}
-
-    @Redirect(
-        method = {"attack"},
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/entity/player/PlayerEntity;getYaw()F"
-        )
-    )
-    private float hookFixRotation(PlayerEntity instance) {
-        EventAttackYaw event = new EventAttackYaw(instance.getYaw());
-        EventBus.getInstance().post(event);
-        return event.getYaw();
-    }
-
-
 }
