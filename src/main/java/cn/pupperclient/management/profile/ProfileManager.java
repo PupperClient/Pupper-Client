@@ -15,7 +15,7 @@ import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.config.Config;
 import cn.pupperclient.management.config.ConfigManager;
 import cn.pupperclient.management.config.ConfigType;
-import cn.pupperclient.utils.JsonUtils;
+import cn.pupperclient.utils.misc.JsonUtils;
 import cn.pupperclient.utils.file.FileLocation;
 
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;

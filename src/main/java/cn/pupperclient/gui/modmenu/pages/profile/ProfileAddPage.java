@@ -21,8 +21,8 @@ import cn.pupperclient.ui.component.Component;
 import cn.pupperclient.ui.component.handler.impl.ButtonHandler;
 import cn.pupperclient.ui.component.impl.Button;
 import cn.pupperclient.ui.component.impl.text.TextField;
-import cn.pupperclient.utils.Multithreading;
-import cn.pupperclient.utils.file.dialog.SoarFileDialog;
+import cn.pupperclient.utils.thread.Multithreading;
+import cn.pupperclient.utils.file.FileDialog;
 import cn.pupperclient.utils.language.I18n;
 import cn.pupperclient.utils.mouse.MouseUtils;
 
@@ -159,7 +159,7 @@ public class ProfileAddPage extends SimplePage {
 					
 					Multithreading.runAsync(() -> {
 						
-						ObjectObjectImmutablePair<Boolean, File> chooseFile = SoarFileDialog.chooseFile("Select icon", "png");
+						ObjectObjectImmutablePair<Boolean, File> chooseFile = FileDialog.chooseFile("Select icon", "png");
 						
 						if(chooseFile.left()) {
 							currentIcon = chooseFile.right();

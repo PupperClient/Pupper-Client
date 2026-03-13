@@ -1,7 +1,7 @@
 package cn.pupperclient.management.color;
 
 import cn.pupperclient.animation.SimpleAnimation;
-import cn.pupperclient.utils.ColorUtils;
+import cn.pupperclient.utils.color.ColorUtils;
 
 import java.awt.Color;
 

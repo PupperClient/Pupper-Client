@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static cn.pupperclient.utils.IMinecraft.mc;
+import static cn.pupperclient.utils.minecraft.interfaces.IMinecraft.mc;
 
 @Mixin(value = LanguageOptionsScreen.class, priority = 1001)
 public class MixinLanguageScreen extends Screen {

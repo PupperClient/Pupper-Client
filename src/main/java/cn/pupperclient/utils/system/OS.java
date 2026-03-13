@@ -1,4 +1,4 @@
-package cn.pupperclient.utils;
+package cn.pupperclient.utils.system;
 
 public enum OS {
     WINDOWS("win"),

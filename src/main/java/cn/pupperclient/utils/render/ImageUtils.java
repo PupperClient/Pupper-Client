@@ -1,4 +1,4 @@
-package cn.pupperclient.utils;
+package cn.pupperclient.utils.render;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;

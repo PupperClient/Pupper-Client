@@ -1,4 +1,4 @@
-package cn.pupperclient.utils;
+package cn.pupperclient.utils.misc;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.sound.SoundEvent;

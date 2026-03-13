@@ -9,7 +9,7 @@ import cn.pupperclient.management.mod.Mod;
 import cn.pupperclient.management.mod.settings.Setting;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.font.Icon;
-import cn.pupperclient.utils.SearchUtils;
+import cn.pupperclient.utils.misc.SearchUtils;
 import cn.pupperclient.utils.language.I18n;
 import org.lwjgl.glfw.GLFW;
 

@@ -1,4 +1,4 @@
-package cn.pupperclient.utils;
+package cn.pupperclient.utils.minecraft.player;
 
 import java.io.File;
 

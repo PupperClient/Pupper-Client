@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import cn.pupperclient.PupperLogger;
-import cn.pupperclient.utils.Multithreading;
+import cn.pupperclient.utils.thread.Multithreading;
 
 import net.ccbluex.liquidbounce.mcef.MCEF;
 import net.ccbluex.liquidbounce.mcef.MCEFDownloadManager;

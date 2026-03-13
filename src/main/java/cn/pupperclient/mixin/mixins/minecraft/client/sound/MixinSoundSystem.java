@@ -5,7 +5,7 @@ import java.util.List;
 
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.client.PlaySoundEvent;
-import cn.pupperclient.utils.SoundEventHelper;
+import cn.pupperclient.utils.misc.SoundEventHelper;
 import net.minecraft.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;

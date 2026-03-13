@@ -5,7 +5,7 @@ import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.hypixel.HypixelManager;
 import cn.pupperclient.management.hypixel.api.HypixelUser;
 import cn.pupperclient.management.websocket.handler.WebSocketHandler;
-import cn.pupperclient.utils.JsonUtils;
+import cn.pupperclient.utils.misc.JsonUtils;
 
 public class HypixelStatsHandler extends WebSocketHandler {
 

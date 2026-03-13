@@ -5,7 +5,7 @@ import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.EventType;
 import cn.pupperclient.event.client.EventMotion;
 import cn.pupperclient.event.client.EventUpdate;
-import cn.pupperclient.utils.IMinecraft;
+import cn.pupperclient.utils.minecraft.interfaces.IMinecraft;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;

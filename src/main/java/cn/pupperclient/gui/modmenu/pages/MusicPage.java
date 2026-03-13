@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.pupperclient.PupperClient;
+import cn.pupperclient.utils.thread.Multithreading;
 import org.lwjgl.glfw.GLFW;
 
 import cn.pupperclient.animation.SimpleAnimation;
@@ -19,9 +20,9 @@ import cn.pupperclient.management.music.MusicManager;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.font.Fonts;
 import cn.pupperclient.skia.font.Icon;
-import cn.pupperclient.utils.ChatUtils;
-import cn.pupperclient.utils.ColorUtils;
-import cn.pupperclient.utils.SearchUtils;
+import cn.pupperclient.utils.chat.ChatUtils;
+import cn.pupperclient.utils.color.ColorUtils;
+import cn.pupperclient.utils.misc.SearchUtils;
 import cn.pupperclient.utils.mouse.MouseUtils;
 
 import io.github.humbleui.skija.ClipMode;
@@ -270,14 +271,14 @@ public class MusicPage extends Page {
                 PupperClient.getInstance().getMusicManager().load();
 
                 // 在主线程中更新UI
-                cn.pupperclient.utils.Multithreading.runMainThread(() -> {
+                Multithreading.runMainThread(() -> {
                     this.init();
                     isRefreshing = false;
                     ChatUtils.addChatMessage("§a音乐列表已刷新！");
                 });
 
             } catch (Exception e) {
-                cn.pupperclient.utils.Multithreading.runMainThread(() -> {
+                Multithreading.runMainThread(() -> {
                     isRefreshing = false;
                     ChatUtils.addChatMessage("§c刷新失败: " + e.getMessage());
                     PupperClient.LOGGER.error("刷新音乐列表失败: {}", e.getMessage(), e);

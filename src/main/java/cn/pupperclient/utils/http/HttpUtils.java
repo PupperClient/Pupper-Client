@@ -1,4 +1,4 @@
-package cn.pupperclient.utils;
+package cn.pupperclient.utils.http;
 
 import java.io.BufferedReader;
 import java.io.IOException;

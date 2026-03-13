@@ -4,8 +4,9 @@ import cn.pupperclient.PupperClient;
 import cn.pupperclient.animation.SimpleAnimation;
 import cn.pupperclient.management.color.api.ColorPalette;
 import cn.pupperclient.skia.font.Icon;
-import cn.pupperclient.utils.ExternalToolManager;
+import cn.pupperclient.utils.system.ExternalToolManager;
 import cn.pupperclient.utils.language.I18n;
+import cn.pupperclient.utils.minecraft.interfaces.IMinecraft;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,7 +95,7 @@ public class NotificationManager {
 
         // 绘制通知
         ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
-        float windowWidth = cn.pupperclient.utils.IMinecraft.mc.getWindow().getWidth();
+        float windowWidth = IMinecraft.mc.getWindow().getWidth();
 
         float notificationWidth = 350; // 稍微加宽以容纳双进度信息
         float notificationHeight = multiProgressMode ? 90 : 70; // 多进度模式更高

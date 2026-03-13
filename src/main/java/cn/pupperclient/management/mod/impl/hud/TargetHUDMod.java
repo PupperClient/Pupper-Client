@@ -16,8 +16,8 @@ import cn.pupperclient.management.mod.settings.impl.ComboSetting;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.font.Fonts;
 import cn.pupperclient.skia.font.Icon;
-import cn.pupperclient.utils.HealthUtils;
-import cn.pupperclient.utils.SkinUtils;
+import cn.pupperclient.utils.minecraft.player.HealthUtils;
+import cn.pupperclient.utils.minecraft.player.SkinUtils;
 
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.client.MinecraftClient;

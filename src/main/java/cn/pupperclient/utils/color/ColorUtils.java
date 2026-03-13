@@ -1,4 +1,6 @@
-package cn.pupperclient.utils;
+package cn.pupperclient.utils.color;
+
+import cn.pupperclient.utils.math.MathUtils;
 
 import java.awt.Color;
 import java.util.regex.Pattern;

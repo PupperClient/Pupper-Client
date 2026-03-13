@@ -14,10 +14,10 @@ import cn.pupperclient.skia.font.Icon;
 import cn.pupperclient.ui.component.Component;
 import cn.pupperclient.ui.component.handler.impl.ButtonHandler;
 import cn.pupperclient.ui.component.impl.IconButton;
-import cn.pupperclient.utils.ColorUtils;
-import cn.pupperclient.utils.Multithreading;
+import cn.pupperclient.utils.color.ColorUtils;
+import cn.pupperclient.utils.thread.Multithreading;
 import cn.pupperclient.utils.file.FileLocation;
-import cn.pupperclient.utils.file.dialog.SoarFileDialog;
+import cn.pupperclient.utils.file.FileDialog;
 import cn.pupperclient.utils.language.I18n;
 import cn.pupperclient.utils.mouse.MouseUtils;
 import net.minecraft.util.Identifier;
@@ -96,7 +96,7 @@ public class CosmeticsPage extends Page {
 
     private void uploadCape() {
         Multithreading.runAsync(() -> {
-            var result = SoarFileDialog.chooseFile("Select Cape", "png");
+            var result = FileDialog.chooseFile("Select Cape", "png");
 
             if (result.left()) {
                 File selectedFile = result.right();

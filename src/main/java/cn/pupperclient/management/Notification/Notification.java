@@ -5,8 +5,7 @@ import cn.pupperclient.animation.SimpleAnimation;
 import cn.pupperclient.management.color.api.ColorPalette;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.font.Fonts;
-import cn.pupperclient.utils.ColorUtils;
-import cn.pupperclient.utils.ExternalToolManager;
+import cn.pupperclient.utils.color.ColorUtils;
 
 public class Notification {
     String message;

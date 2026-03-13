@@ -1,4 +1,4 @@
-package cn.pupperclient.utils;
+package cn.pupperclient.utils.math;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

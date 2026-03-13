@@ -15,8 +15,8 @@ import cn.pupperclient.PupperClient;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import cn.pupperclient.libraries.resourcepack.ResourcePackConverter;
-import cn.pupperclient.utils.JsonUtils;
-import cn.pupperclient.utils.Multithreading;
+import cn.pupperclient.utils.misc.JsonUtils;
+import cn.pupperclient.utils.thread.Multithreading;
 import cn.pupperclient.utils.file.FileLocation;
 
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;

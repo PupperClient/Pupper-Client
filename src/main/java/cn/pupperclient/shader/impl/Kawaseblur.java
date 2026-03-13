@@ -3,7 +3,7 @@ package cn.pupperclient.shader.impl;
 import cn.pupperclient.management.mod.impl.settings.SystemSettings;
 import cn.pupperclient.shader.*;
 
-import cn.pupperclient.utils.TimerUtils;
+import cn.pupperclient.utils.time.TimerUtils;
 import it.unimi.dsi.fastutil.ints.IntDoubleImmutablePair;
 import net.minecraft.client.MinecraftClient;
 

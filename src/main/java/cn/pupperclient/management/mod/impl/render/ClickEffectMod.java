@@ -9,7 +9,7 @@ import cn.pupperclient.management.mod.settings.impl.BooleanSetting;
 import cn.pupperclient.management.mod.settings.impl.ColorSetting;
 import cn.pupperclient.management.mod.settings.impl.NumberSetting;
 import cn.pupperclient.skia.font.Icon;
-import cn.pupperclient.utils.RippleEffect;
+import cn.pupperclient.utils.render.RippleEffect;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;

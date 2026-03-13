@@ -7,8 +7,8 @@ import cn.pupperclient.animation.Duration;
 import cn.pupperclient.animation.cubicbezier.impl.EaseEmphasizedDecelerate;
 import cn.pupperclient.animation.other.DummyAnimation;
 import cn.pupperclient.skia.Skia;
-import cn.pupperclient.utils.ColorUtils;
-import cn.pupperclient.utils.MathUtils;
+import cn.pupperclient.utils.color.ColorUtils;
+import cn.pupperclient.utils.math.MathUtils;
 
 public class PressAnimation {
 

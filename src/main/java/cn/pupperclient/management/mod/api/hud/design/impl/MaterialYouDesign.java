@@ -6,7 +6,7 @@ import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.color.api.ColorPalette;
 import cn.pupperclient.management.mod.api.hud.design.HUDDesign;
 import cn.pupperclient.skia.Skia;
-import cn.pupperclient.utils.ColorUtils;
+import cn.pupperclient.utils.color.ColorUtils;
 
 import io.github.humbleui.skija.Font;
 
