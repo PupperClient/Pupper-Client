@@ -62,13 +62,9 @@ public class MainMenuGui extends SimpleSoarGui {
     private final ScrollHelper backgroundScrollHelper = new ScrollHelper();
     private float parallaxX = 0;
     private float parallaxY = 0;
-    private final NotificationManager notificationManager;
-    private boolean toolsAvailable = false;
-    private boolean toolsChecked = false;
 
     public MainMenuGui() {
         super(false);
-        this.notificationManager = new NotificationManager();
     }
 
     @Override
@@ -76,87 +72,6 @@ public class MainMenuGui extends SimpleSoarGui {
         updateLayout();
         loadBackgroundSettings();
         initCustomizationComponents();
-
-//        if (!toolsChecked) {
-//            checkTools();
-//        }
-    }
-
-    private void checkTools() {
-        toolsChecked = true;
-
-        if (!PupperClient.firstLaunch) {
-            toolsAvailable = true;
-            ExternalToolManager toolManager = PupperClient.getInstance().getToolManager();
-            if (SystemSettings.getInstance().getFFmpegPath() == null || SystemSettings.getInstance().getYtdlpPath() == null) {
-                SystemSettings.getInstance().getFfmpegPathSetting().setFile(toolManager.getFfmpegPath());
-                SystemSettings.getInstance().getYtdlpPathSetting().setFile(toolManager.getYtDlpPath());
-            }
-            updateAllButtonStates();
-        }
-
-        PupperClient.LOGGER.info("开始检查工具...");
-        Multithreading.runAsync(() -> {
-            try {
-                ExternalToolManager toolManager = PupperClient.getInstance().getToolManager();
-                if (toolManager != null) {
-                    toolManager.checkAndInstallTools(new ToolInstallCallback() {
-                        @Override
-                        public void onProgress(PupperClient.MusicToolStatus status, float progress, String message) {
-                            Multithreading.runMainThread(() -> {
-                                PupperClient.LOGGER.info("工具检查进度: {} - {}% - {}", status, progress * 100, message);
-                                notificationManager.showToolCheckNotification(status, progress, message);
-                            });
-                        }
-
-                        @Override
-                        public void onComplete(boolean success) {
-                            Multithreading.runMainThread(() -> {
-                                PupperClient.LOGGER.info("工具检查完成: {}", success ? "成功" : "失败");
-                                toolsAvailable = success;
-                                PupperClient.MusicToolStatus finalStatus = success ? PupperClient.MusicToolStatus.INSTALLED : PupperClient.MusicToolStatus.FAILED;
-                                notificationManager.showToolCheckNotification(finalStatus, 1f,
-                                    success ? "工具安装完成" : "工具安装失败");
-
-                                if (success){
-                                    SystemSettings.getInstance().getFfmpegPathSetting().setFile(toolManager.getFfmpegPath());
-                                    SystemSettings.getInstance().getYtdlpPathSetting().setFile(toolManager.getYtDlpPath());
-                                }
-
-                                updateAllButtonStates();
-                            });
-                        }
-                    });
-                } else {
-                    PupperClient.LOGGER.warn("工具管理器为空");
-                    Multithreading.runMainThread(() -> {
-                        toolsAvailable = false;
-                        updateAllButtonStates();
-                    });
-                }
-            } catch (Exception e) {
-                PupperClient.LOGGER.error("工具检查失败: {}", e.getMessage());
-                Multithreading.runMainThread(() -> {
-                    notificationManager.showToolCheckNotification(PupperClient.MusicToolStatus.FAILED, 0f, "工具检查失败: " + e.getMessage());
-                    toolsAvailable = false;
-                    updateAllButtonStates();
-                });
-            }
-        });
-    }
-
-    private void updateAllButtonStates() {
-        PupperClient.LOGGER.info("update: toolsAvailable = {}", toolsAvailable);
-
-        for (MainMenuButton button : buttons) {
-            boolean isSettingsOrBackground = button == settingsButton || button == backgroundButton;
-            boolean shouldEnable = toolsAvailable || isSettingsOrBackground;
-            button.setEnabled(shouldEnable);
-        }
-
-        if (client != null && client.currentScreen != null) {
-            client.currentScreen.init(client, client.getWindow().getWidth(), client.getWindow().getHeight());
-        }
     }
 
     private void loadBackgroundSettings() {
@@ -190,7 +105,6 @@ public class MainMenuGui extends SimpleSoarGui {
 
         buttons.add(new MainMenuButton("menu.multiplayer", Icon.GROUPS,
             centerX - buttonWidth / 2, centerY - (60 * scaleFactor), buttonWidth, scaleFactor, () -> {
-            //client.setScreen(new MultiplayerGui().build());
             client.setScreen(new MultiplayerScreen(this.build()));
         }));
 
@@ -224,8 +138,7 @@ public class MainMenuGui extends SimpleSoarGui {
         lastWindowHeight = client.getWindow().getHeight();
 
         for (MainMenuButton button : buttons) {
-            boolean isSettingsOrBackground = button == settingsButton || button == backgroundButton;
-            button.setEnabled(toolsAvailable || isSettingsOrBackground);
+            button.setEnabled(true);
         }
     }
 
@@ -382,9 +295,6 @@ public class MainMenuGui extends SimpleSoarGui {
         for (MainMenuButton button : buttons) {
             button.draw((int) mouseX, (int) mouseY);
         }
-
-        // 绘制通知
-        notificationManager.draw(mouseX, mouseY);
 
         backgroundButton.draw((int) mouseX, (int) mouseY);
         settingsButton.draw((int) mouseX, (int) mouseY);
@@ -692,7 +602,6 @@ public class MainMenuGui extends SimpleSoarGui {
 
             float radius = 20 * scaleFactor;
 
-            // 根据启用状态调整颜色
             java.awt.Color bgColor = enabled ? palette.getSurface() :
                 ColorUtils.applyAlpha(palette.getSurface(), 0.5f);
             java.awt.Color textColor = enabled ?

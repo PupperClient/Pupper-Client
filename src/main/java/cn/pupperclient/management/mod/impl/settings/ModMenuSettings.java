@@ -99,6 +99,7 @@ public class ModMenuSettings extends Mod {
 		if (keybindSetting.isPressed()) {
 			mc.setScreen(new GuiModMenu().build());
 		}
+
         if (keybindSetting_music.isPressed()) {
             mc.setScreen(new MusicPlayGui().build());
         }

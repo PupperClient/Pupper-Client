@@ -2,12 +2,10 @@ package cn.pupperclient.gui;
 
 import cn.pupperclient.gui.api.SimpleSoarGui;
 import cn.pupperclient.skia.Skia;
-import cn.pupperclient.skia.font.FontHelper;
 import cn.pupperclient.skia.font.Fonts;
 import cn.pupperclient.skia.font.Icon;
 import cn.pupperclient.utils.mouse.MouseUtils;
 import io.github.humbleui.types.Rect;
-import net.minecraft.client.MinecraftClient;
 
 import java.awt.*;
 
