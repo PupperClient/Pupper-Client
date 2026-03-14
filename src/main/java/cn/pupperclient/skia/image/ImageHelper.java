@@ -113,4 +113,11 @@ public class ImageHelper {
 
 		return null;
 	}
+
+	public void clear() {
+		images.values().forEach(Image::close);
+		images.clear();
+		textures.values().forEach(Image::close);
+		textures.clear();
+	}
 }

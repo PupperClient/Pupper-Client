@@ -40,6 +40,7 @@ public class FontHelper {
     }
 
     public static void clearCache() {
+        typefaceCache.values().forEach(Typeface::close);
         typefaceCache.clear();
     }
 
