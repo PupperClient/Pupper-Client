@@ -174,7 +174,7 @@ public class MusicManager {
                 artist = id3v1Tag.getArtist();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            cn.pupperclient.PupperLogger.error("MusicManager", "Failed to load MP3 tags", e);
         }
 
         String fileHash = FileUtils.getMd5Checksum(f);

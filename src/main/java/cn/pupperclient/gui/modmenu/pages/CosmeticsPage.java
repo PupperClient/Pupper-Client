@@ -87,7 +87,7 @@ public class CosmeticsPage extends Page {
                         byte[] capeData = Files.readAllBytes(capeFile.toPath());
                         PupperClient.getInstance().getCapeManager().loadCape(capeId, capeData);
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        cn.pupperclient.PupperLogger.error("CosmeticsPage", "Failed to load existing cape", e);
                     }
                 }
             }
@@ -114,7 +114,7 @@ public class CosmeticsPage extends Page {
                         Files.copy(selectedFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                         loadExistingCapes();
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        cn.pupperclient.PupperLogger.error("CosmeticsPage", "Failed to copy uploaded cape", e);
                     }
                 } else {
                     System.out.println("Invalid cape format!");

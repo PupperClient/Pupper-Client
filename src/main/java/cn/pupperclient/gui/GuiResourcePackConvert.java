@@ -65,7 +65,7 @@ public class GuiResourcePackConvert extends Screen {
 		try {
 			Files.createDirectories(cacheDir.toPath());
 		} catch (IOException e) {
-			e.printStackTrace();
+			PupperClient.LOGGER.error("Failed to create cache directory", e);
 		}
 		
 		for(File f : detectPacks()) {
@@ -80,7 +80,7 @@ public class GuiResourcePackConvert extends Screen {
 				
 				packs.add(ObjectObjectImmutablePair.of(targetFile, outputFile));
 			} catch (Exception e) {
-				e.printStackTrace();
+				PupperClient.LOGGER.error("Failed to move resource pack", e);
 			}
 		}
 		
@@ -121,7 +121,7 @@ public class GuiResourcePackConvert extends Screen {
 					zipIn.closeEntry();
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
+				PupperClient.LOGGER.error("Failed to detect resource packs", e);
 			}
 		}
 		

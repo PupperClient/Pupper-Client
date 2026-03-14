@@ -96,7 +96,7 @@ public class MusicControlBar extends Component {
 							try {
 								PupperClient.getInstance().getMusicManager().load();
 							} catch (Exception e) {
-								e.printStackTrace();
+								cn.pupperclient.PupperLogger.error("MusicControlBar", "Failed to reload music list", e);
 							}
 						}
 					});

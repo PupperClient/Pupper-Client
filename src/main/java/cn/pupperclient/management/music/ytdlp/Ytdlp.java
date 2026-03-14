@@ -53,7 +53,7 @@ public class Ytdlp {
                 return false;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            PupperLogger.error("YTDLP", "Download failed", e);
             return false;
         }
     }

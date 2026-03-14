@@ -117,7 +117,7 @@ public class MusicPlayer implements Runnable {
             sourceDataLine.drain();
             sourceDataLine.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            cn.pupperclient.PupperLogger.error("MusicPlayer", "Failed to play FLAC file", e);
         }
     }
 
@@ -172,7 +172,7 @@ public class MusicPlayer implements Runnable {
             fis.close();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            cn.pupperclient.PupperLogger.error("MusicPlayer", "Failed to play MP3 file", e);
         }
     }
 
@@ -189,7 +189,7 @@ public class MusicPlayer implements Runnable {
                 audioInputStream.close();
             } catch (Exception ex) {
                 mp3Duration = 0;
-                ex.printStackTrace();
+                cn.pupperclient.PupperLogger.error("MusicPlayer", "Failed to calculate MP3 duration", ex);
             }
         }
     }

@@ -55,10 +55,10 @@ public class ImageHelper {
 					images.put(identifier.getPath(), image);
 					return true;
 				} catch (IOException e) {
-					e.printStackTrace();
+					cn.pupperclient.PupperLogger.error("ImageHelper", "Failed to read identifier bytes", e);
 				}
 			} catch (FileNotFoundException e) {
-				e.printStackTrace();
+				cn.pupperclient.PupperLogger.error("ImageHelper", "Identifier resource not found", e);
 			}
 
 
@@ -88,7 +88,7 @@ public class ImageHelper {
 				images.put(file.getName(), Image.makeDeferredFromEncodedBytes(encoded));
 				return true;
 			} catch (IOException e) {
-				e.printStackTrace();
+				cn.pupperclient.PupperLogger.error("ImageHelper", "Failed to load image from file: " + file.getName(), e);
 				return false;
 			}
 		}

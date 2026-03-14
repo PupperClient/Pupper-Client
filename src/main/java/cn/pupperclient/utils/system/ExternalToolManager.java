@@ -494,7 +494,7 @@ public class ExternalToolManager {
                 }
             });
         } catch (Exception e) {
-            e.printStackTrace();
+            PupperClient.LOGGER.error("Failed to disable SSL certificate checking: {}", e.getMessage(), e);
         }
     }
 }
