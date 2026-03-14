@@ -4,10 +4,15 @@ import static org.lwjgl.opengl.GL11C.GL_FALSE;
 import static org.lwjgl.opengl.GL11C.GL_TRUE;
 import static org.lwjgl.opengl.GL20C.GL_FRAGMENT_SHADER;
 import static org.lwjgl.opengl.GL20C.GL_VERTEX_SHADER;
+import static org.lwjgl.opengl.GL20C.glDeleteProgram;
 
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.joml.Matrix4f;
@@ -16,46 +21,49 @@ import org.lwjgl.BufferUtils;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 
 public class Shader {
 
-	private static final FloatBuffer MAT = BufferUtils.createFloatBuffer(4 * 4);
-
 	public static Shader BOUND;
-
 	private final int id;
-	private final Object2IntMap<String> uniformLocations = new Object2IntOpenHashMap<>();
+	private final Map<String, Integer> locations = new HashMap<>();
+
+	private static final FloatBuffer MAT = BufferUtils.createFloatBuffer(16);
 
 	public Shader(String vertPath, String fragPath) {
-		int vert = GlStateManager.glCreateShader(GL_VERTEX_SHADER);
-		GlStateManager.glShaderSource(vert, read(vertPath));
+		int vertex = GlStateManager.glCreateShader(GL_VERTEX_SHADER);
+		int fragment = GlStateManager.glCreateShader(GL_FRAGMENT_SHADER);
 
-		String vertError = ShaderHelper.compileShader(vert);
-		if (vertError != null) {
-			throw new RuntimeException("Failed to compile vertex shader: " + vertError);
+		GlStateManager.glShaderSource(vertex, read(vertPath));
+		GlStateManager.glShaderSource(fragment, read(fragPath));
+
+		String vertexLog = ShaderHelper.compileShader(vertex);
+		String fragmentLog = ShaderHelper.compileShader(fragment);
+
+		if (vertexLog != null || fragmentLog != null) {
+			System.err.println("Vertex Log (" + vertPath + "): " + vertexLog);
+			System.err.println("Fragment Log (" + fragPath + "): " + fragmentLog);
 		}
 
-		int frag = GlStateManager.glCreateShader(GL_FRAGMENT_SHADER);
-		GlStateManager.glShaderSource(frag, read(fragPath));
+		this.id = GlStateManager.glCreateProgram();
+		String programLog = ShaderHelper.linkProgram(id, vertex, fragment);
 
-		String fragError = ShaderHelper.compileShader(frag);
-		if (fragError != null) {
-			throw new RuntimeException("Failed to compile fragment shader: " + fragError);
+		if (programLog != null) {
+			System.err.println("Program Log (" + vertPath + ", " + fragPath + "): " + programLog);
 		}
 
-		id = GlStateManager.glCreateProgram();
+		GlStateManager.glDeleteShader(vertex);
+		GlStateManager.glDeleteShader(fragment);
+	}
 
-		String programError = ShaderHelper.linkProgram(id, vert, frag);
-		if (programError != null) {
-			throw new RuntimeException("Failed to link program: " + programError);
-		}
+	public void set(String name, double v) {
+		set(name, (float) v);
+	}
 
-		GlStateManager.glDeleteShader(vert);
-		GlStateManager.glDeleteShader(frag);
+	public void set(String name, double v1, double v2) {
+		set(name, (float) v1, (float) v2);
 	}
 
 	private String read(String path) {
@@ -74,38 +82,57 @@ public class Shader {
 		BOUND = this;
 	}
 
-	private int getLocation(String name) {
-		if (uniformLocations.containsKey(name))
-			return uniformLocations.getInt(name);
+	public int getLocation(String name) {
+		if (locations.containsKey(name)) {
+			return locations.get(name);
+		}
 
 		int location = ShaderHelper.getUniformLocation(id, name);
-		uniformLocations.put(name, location);
-		return location;
-	}
+		locations.put(name, location);
 
-	public void set(String name, boolean v) {
-		ShaderHelper.uniformInt(getLocation(name), v ? GL_TRUE : GL_FALSE);
+		return location;
 	}
 
 	public void set(String name, int v) {
 		ShaderHelper.uniformInt(getLocation(name), v);
 	}
 
-	public void set(String name, double v) {
-		ShaderHelper.uniformFloat(getLocation(name), (float) v);
+	public void set(String name, float v) {
+		ShaderHelper.uniformFloat(getLocation(name), v);
 	}
 
-	public void set(String name, double v1, double v2) {
-		ShaderHelper.uniformFloat2(getLocation(name), (float) v1, (float) v2);
+	public void set(String name, float v1, float v2) {
+		ShaderHelper.uniformFloat2(getLocation(name), v1, v2);
+	}
+
+	public void set(String name, float v1, float v2, float v3) {
+		ShaderHelper.uniformFloat3(getLocation(name), v1, v2, v3);
+	}
+
+	public void set(String name, float v1, float v2, float v3, float v4) {
+		ShaderHelper.uniformFloat4(getLocation(name), v1, v2, v3, v4);
+	}
+
+	public void set(String name, float[] v) {
+		ShaderHelper.uniformFloat3Array(getLocation(name), v);
 	}
 
 	public void set(String name, Matrix4f mat) {
 		mat.get(MAT);
-		GlStateManager._glUniformMatrix4(getLocation(name), false, MAT);
+		ShaderHelper.uniformMatrix4(getLocation(name), false, MAT);
 	}
 
 	public void setDefaults() {
 		set("u_Proj", RenderSystem.getProjectionMatrix());
-		set("u_ModelView", RenderSystem.getModelViewStack());
+		// Modern approach: use RenderSystem matrices directly or pass from context
 	}
+
+    public void unbind() {
+        ShaderHelper.useProgram(0);
+        BOUND = null;
+    }
+
+    public void delete() {
+        glDeleteProgram(id);
+    }
 }

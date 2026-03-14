@@ -16,6 +16,7 @@ import org.lwjgl.opengl.GL15C;
 import org.lwjgl.opengl.GL32C;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.util.math.MatrixStack;
 
@@ -71,19 +72,20 @@ public class PostProcessRenderer {
 			indicesPointer = memAddress0(indices);
 
 			vao = GlStateManager._glGenVertexArrays();
-			ShaderHelper.bindVertexArray(vao);
+			RenderSystem.glBindVertexArray(vao);
 
 			vbo = GlStateManager._glGenBuffers();
-			GlStateManager._glBindBuffer(GL15C.GL_ARRAY_BUFFER, vbo);
+			RenderSystem.glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 			ibo = GlStateManager._glGenBuffers();
-			ShaderHelper.bindIndexBuffer(ibo);
-			GlStateManager._enableVertexAttribArray(0);
+			RenderSystem.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+			
+            GlStateManager._enableVertexAttribArray(0);
 			GlStateManager._vertexAttribPointer(0, 2, GL_FLOAT, false, stride, 0);
 
-			ShaderHelper.bindVertexArray(0);
-			GlStateManager._glBindBuffer(GL15C.GL_ARRAY_BUFFER, 0);
-			ShaderHelper.bindIndexBuffer(0);
+			RenderSystem.glBindVertexArray(0);
+			RenderSystem.glBindBuffer(GL_ARRAY_BUFFER, 0);
+			RenderSystem.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		}
 
 		public void begin() {
@@ -134,21 +136,20 @@ public class PostProcessRenderer {
 			}
 
 			if (indicesCount > 0) {
-				GlStateManager._glBindBuffer(GL15C.GL_ARRAY_BUFFER, vbo);
-				GlStateManager._glBufferData(GL_ARRAY_BUFFER, vertices.limit(getVerticesOffset()), GL_DYNAMIC_DRAW);
-				GlStateManager._glBindBuffer(GL15C.GL_ARRAY_BUFFER, 0);
+				RenderSystem.glBindBuffer(GL_ARRAY_BUFFER, vbo);
+				RenderSystem.glBufferData(GL_ARRAY_BUFFER, vertices.limit(getVerticesOffset()), GL_DYNAMIC_DRAW);
+				RenderSystem.glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-				ShaderHelper.bindIndexBuffer(ibo);
-				GlStateManager._glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.limit(indicesCount * 4), GL_DYNAMIC_DRAW);
-				ShaderHelper.bindIndexBuffer(0);
+				RenderSystem.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+				RenderSystem.glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.limit(indicesCount * 4), GL_DYNAMIC_DRAW);
+				RenderSystem.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 			}
 
 			building = false;
 		}
 
 		public void beginRender(MatrixStack matrices) {
-			ShaderHelper.disableCull();
-
+			RenderSystem.disableCull();
 			beganRendering = true;
 		}
 
@@ -163,10 +164,10 @@ public class PostProcessRenderer {
 
 				Shader.BOUND.setDefaults();
 
-				ShaderHelper.bindVertexArray(vao);
-				GlStateManager._drawElements(GL32C.GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0);
+				RenderSystem.glBindVertexArray(vao);
+				RenderSystem.drawElements(GL32C.GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT);
 
-				ShaderHelper.bindVertexArray(0);
+				RenderSystem.glBindVertexArray(0);
 
 				if (!wasBeganRendering)
 					endRender();

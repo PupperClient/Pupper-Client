@@ -18,16 +18,11 @@ import static org.lwjgl.opengl.GL12C.GL_UNPACK_IMAGE_HEIGHT;
 import static org.lwjgl.opengl.GL12C.GL_UNPACK_SKIP_IMAGES;
 import static org.lwjgl.opengl.GL13C.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL15C.GL_ELEMENT_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL20C.GL_COMPILE_STATUS;
-import static org.lwjgl.opengl.GL20C.GL_LINK_STATUS;
-import static org.lwjgl.opengl.GL20C.glUniform1f;
-import static org.lwjgl.opengl.GL20C.glUniform2f;
-import static org.lwjgl.opengl.GL20C.glUniform3f;
-import static org.lwjgl.opengl.GL20C.glUniform3fv;
-import static org.lwjgl.opengl.GL20C.glUniform4f;
-import static org.lwjgl.opengl.GL30C.glGenerateMipmap;
+import static org.lwjgl.opengl.GL20C.*;
+import static org.lwjgl.opengl.GL30C.*;
 
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import cn.pupperclient.mixin.mixins.minecraft.client.render.BufferRendererAccessor;
@@ -55,29 +50,30 @@ public class ShaderHelper {
 	}
 
 	public static String compileShader(int shader) {
-		GlStateManager.glCompileShader(shader);
+		glCompileShader(shader);
 
-		if (GlStateManager.glGetShaderi(shader, GL_COMPILE_STATUS) == GL_FALSE) {
-			return GlStateManager.glGetShaderInfoLog(shader, 512);
+		if (glGetShaderi(shader, GL_COMPILE_STATUS) == GL_FALSE) {
+			return glGetShaderInfoLog(shader, 512);
 		}
 
 		return null;
 	}
 
 	public static String linkProgram(int program, int vertShader, int fragShader) {
-		GlStateManager.glAttachShader(program, vertShader);
-		GlStateManager.glAttachShader(program, fragShader);
-		GlStateManager.glLinkProgram(program);
+		glAttachShader(program, vertShader);
+		glAttachShader(program, fragShader);
+		glLinkProgram(program);
 
-		if (GlStateManager.glGetProgrami(program, GL_LINK_STATUS) == GL_FALSE) {
-			return GlStateManager.glGetProgramInfoLog(program, 512);
+		if (glGetProgrami(program, GL_LINK_STATUS) == GL_FALSE) {
+			return glGetProgramInfoLog(program, 512);
 		}
 
 		return null;
 	}
 
 	public static void useProgram(int program) {
-		GlStateManager._glUseProgram(program);
+		RenderSystem.setShaderGameTime(System.currentTimeMillis(), 0);
+		glUseProgram(program);
 	}
 
 	public static void viewport(int x, int y, int width, int height) {
@@ -85,11 +81,11 @@ public class ShaderHelper {
 	}
 
 	public static int getUniformLocation(int program, String name) {
-		return GlStateManager._glGetUniformLocation(program, name);
+		return glGetUniformLocation(program, name);
 	}
 
 	public static void uniformInt(int location, int v) {
-        RenderSystem.glUniform1i(location, v);
+        glUniform1i(location, v);
 	}
 
 	public static void uniformFloat(int location, float v) {
@@ -111,6 +107,10 @@ public class ShaderHelper {
 	public static void uniformFloat3Array(int location, float[] v) {
 		glUniform3fv(location, v);
 	}
+
+    public static void uniformMatrix4(int location, boolean transpose, FloatBuffer matrices) {
+        glUniformMatrix4fv(location, transpose, matrices);
+    }
 
 	public static void pixelStore(int name, int param) {
 		RenderSystem.pixelStore(name, param);
