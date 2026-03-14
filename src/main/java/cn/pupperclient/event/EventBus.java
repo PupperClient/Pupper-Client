@@ -110,6 +110,9 @@ public class EventBus {
 
         if (listeners != null) {
             for (EventListener<?> listener : listeners) {
+                if (event.isCancelled()) {
+                    break;
+                }
                 try {
                     @SuppressWarnings("unchecked")
                     EventListener<T> castedListener = (EventListener<T>) listener;
@@ -178,7 +181,7 @@ public class EventBus {
         try {
             fieldSubscription = (EventListener<?>) field.get(o);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            cn.pupperclient.PupperLogger.error("EventBus", "Failed to get event handler", e);
         } finally {
             field.setAccessible(accessible);
         }
