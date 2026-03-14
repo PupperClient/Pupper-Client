@@ -32,27 +32,26 @@ import java.nio.ByteBuffer;
 import com.mojang.blaze3d.platform.GlStateManager;
 import cn.pupperclient.mixin.mixins.minecraft.client.render.BufferRendererAccessor;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.AbstractTexture;
 import net.minecraft.util.Identifier;
 
 public class ShaderHelper {
-
 	public static int CURRENT_IBO;
 	private static int prevIbo;
 
-	private ShaderHelper() {
-	}
+	private ShaderHelper() {}
 
 	public static void bindVertexArray(int vao) {
-		GlStateManager._glBindVertexArray(vao);
+		RenderSystem.glBindVertexArray(vao);
 		BufferRendererAccessor.setCurrentVertexBuffer(null);
 	}
 
 	public static void bindIndexBuffer(int ibo) {
 		if (ibo != 0)
 			prevIbo = CURRENT_IBO;
-		GlStateManager._glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo != 0 ? ibo : prevIbo);
+        RenderSystem.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo != 0 ? ibo : prevIbo);
 	}
 
 	public static String compileShader(int shader) {
@@ -82,7 +81,7 @@ public class ShaderHelper {
 	}
 
 	public static void viewport(int x, int y, int width, int height) {
-		GlStateManager._viewport(x, y, width, height);
+        RenderSystem.viewport(x, y, width, height);
 	}
 
 	public static int getUniformLocation(int program, String name) {
@@ -90,7 +89,7 @@ public class ShaderHelper {
 	}
 
 	public static void uniformInt(int location, int v) {
-		GlStateManager._glUniform1i(location, v);
+        RenderSystem.glUniform1i(location, v);
 	}
 
 	public static void uniformFloat(int location, float v) {
@@ -114,11 +113,11 @@ public class ShaderHelper {
 	}
 
 	public static void pixelStore(int name, int param) {
-		GlStateManager._pixelStore(name, param);
+		RenderSystem.pixelStore(name, param);
 	}
 
 	public static void textureParam(int target, int name, int param) {
-		GlStateManager._texParameter(target, name, param);
+        RenderSystem.texParameter(target, name, param);
 	}
 
 	public static void textureImage2D(int target, int level, int internalFormat, int width, int height, int border,
@@ -150,20 +149,20 @@ public class ShaderHelper {
 	}
 
 	public static void enableBlend() {
-		GlStateManager._enableBlend();
-		GlStateManager._blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        RenderSystem.enableBlend();
+        RenderSystem.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
 	public static void disableBlend() {
-		GlStateManager._disableBlend();
+        RenderSystem.disableBlend();
 	}
 
 	public static void enableCull() {
-		GlStateManager._enableCull();
+        RenderSystem.enableCull();
 	}
 
 	public static void disableCull() {
-		GlStateManager._disableCull();
+        RenderSystem.disableCull();
 	}
 
 	public static void enableLineSmooth() {
@@ -181,8 +180,8 @@ public class ShaderHelper {
 	}
 
 	public static void bindTexture(int i, int slot) {
-		GlStateManager._activeTexture(GL_TEXTURE0 + slot);
-		GlStateManager._bindTexture(i);
+        RenderSystem.activeTexture(GL_TEXTURE0 + slot);
+        RenderSystem.bindTexture(i);
 	}
 
 	public static void bindTexture(int i) {
@@ -190,14 +189,10 @@ public class ShaderHelper {
 	}
 
 	public static void resetTextureSlot() {
-		GlStateManager._activeTexture(GL_TEXTURE0);
+        RenderSystem.activeTexture(GL_TEXTURE0);
 	}
 
     public static void generateMipmap(int target) {
         glGenerateMipmap(target);
-    }
-
-    public static void textureParam(int target, int pname, float param) {
-        GlStateManager._texParameter(target, pname, param);
     }
 }

@@ -84,12 +84,12 @@ public class JCefBrowser {
 					try {
 						resourceManager.downloadJcef();
 					} catch (IOException e) {
-						e.printStackTrace();
+						PupperLogger.error("JCEF", "Failed to download JCEF", e);
 					}
 				});
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			PupperLogger.error("JCEF", "Failed to initialize resource manager", e);
 		}
 	}
 
