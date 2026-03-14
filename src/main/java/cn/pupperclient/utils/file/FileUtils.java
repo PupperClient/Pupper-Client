@@ -19,6 +19,7 @@ import java.util.zip.ZipOutputStream;
 public class FileUtils {
 
 	public static void deleteDirectory(Path directory) throws IOException {
+		if (!Files.exists(directory)) return;
 		Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
 			@Override
 			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
@@ -28,9 +29,7 @@ public class FileUtils {
 
 			@Override
 			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-				if (!dir.equals(directory)) {
-					Files.delete(dir);
-				}
+				Files.delete(dir);
 				return FileVisitResult.CONTINUE;
 			}
 		});
@@ -107,40 +106,40 @@ public class FileUtils {
 	}
 	
 	public static String getMd5Checksum(File file) throws IOException, NoSuchAlgorithmException {
-
 		MessageDigest md = MessageDigest.getInstance("MD5");
-		FileInputStream fis = new FileInputStream(file);
-		DigestInputStream dis = new DigestInputStream(fis, md);
+		try (FileInputStream fis = new FileInputStream(file);
+             DigestInputStream dis = new DigestInputStream(fis, md)) {
 
-		byte[] buffer = new byte[8192];
-		int bytesRead;
+			byte[] buffer = new byte[8192];
+			while (dis.read(buffer) != -1) {
+				// md is updated by DigestInputStream
+			}
 
-		while ((bytesRead = dis.read(buffer)) != -1) {
-			md.update(buffer, 0, bytesRead);
+			byte[] digest = md.digest();
+			StringBuilder result = new StringBuilder();
+			for (byte b : digest) {
+				result.append(String.format("%02x", b));
+			}
+			return result.toString();
 		}
-
-		byte[] digest = md.digest();
-
-		StringBuilder result = new StringBuilder();
-		for (byte b : digest) {
-			result.append(String.format("%02x", b));
-		}
-
-		dis.close();
-		fis.close();
-
-		return result.toString();
 	}
 
 	public static void createFile(File file) {
 		try {
-			file.createNewFile();
+            if (file.getParentFile() != null && !file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+			if (!file.exists()) {
+                file.createNewFile();
+            }
 		} catch (IOException e) {
-			e.printStackTrace();
+            cn.pupperclient.PupperLogger.error("FileUtils", "Failed to create file: " + file.getAbsolutePath(), e);
 		}
 	}
 
 	public static void createDir(File file) {
-		file.mkdir();
+		if (!file.exists()) {
+            file.mkdirs();
+        }
 	}
 }
