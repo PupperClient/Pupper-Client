@@ -39,33 +39,33 @@ public class ShaderHelper {
 	private ShaderHelper() {}
 
 	public static void bindVertexArray(int vao) {
-		RenderSystem.glBindVertexArray(vao);
+		GlStateManager._glBindVertexArray(vao);
 		BufferRendererAccessor.setCurrentVertexBuffer(null);
 	}
 
 	public static void bindIndexBuffer(int ibo) {
 		if (ibo != 0)
 			prevIbo = CURRENT_IBO;
-        RenderSystem.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo != 0 ? ibo : prevIbo);
+        GlStateManager._glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo != 0 ? ibo : prevIbo);
 	}
 
 	public static String compileShader(int shader) {
-		glCompileShader(shader);
+		GlStateManager.glCompileShader(shader);
 
-		if (glGetShaderi(shader, GL_COMPILE_STATUS) == GL_FALSE) {
-			return glGetShaderInfoLog(shader, 512);
+		if (GlStateManager.glGetShaderi(shader, GL_COMPILE_STATUS) == GL_FALSE) {
+			return GlStateManager.glGetShaderInfoLog(shader, 512);
 		}
 
 		return null;
 	}
 
 	public static String linkProgram(int program, int vertShader, int fragShader) {
-		glAttachShader(program, vertShader);
-		glAttachShader(program, fragShader);
-		glLinkProgram(program);
+		GlStateManager.glAttachShader(program, vertShader);
+		GlStateManager.glAttachShader(program, fragShader);
+		GlStateManager.glLinkProgram(program);
 
-		if (glGetProgrami(program, GL_LINK_STATUS) == GL_FALSE) {
-			return glGetProgramInfoLog(program, 512);
+		if (GlStateManager.glGetProgrami(program, GL_LINK_STATUS) == GL_FALSE) {
+			return GlStateManager.glGetProgramInfoLog(program, 512);
 		}
 
 		return null;
@@ -73,7 +73,7 @@ public class ShaderHelper {
 
 	public static void useProgram(int program) {
 		RenderSystem.setShaderGameTime(System.currentTimeMillis(), 0);
-		glUseProgram(program);
+		GlStateManager._glUseProgram(program);
 	}
 
 	public static void viewport(int x, int y, int width, int height) {
@@ -81,35 +81,40 @@ public class ShaderHelper {
 	}
 
 	public static int getUniformLocation(int program, String name) {
-		return glGetUniformLocation(program, name);
+		return GlStateManager._glGetUniformLocation(program, name);
 	}
 
 	public static void uniformInt(int location, int v) {
-        glUniform1i(location, v);
+        // No direct RenderSystem wrapper for uniform1i by location, use GlStateManager if available or native
+        // GlStateManager doesn't have uniform1i usually, RenderSystem has it for ShaderInstance but not raw programs
+        // For raw programs, we might need native or a helper. 
+        // Actually, GlStateManager often has _glUniform1i but let's check.
+        // If not, we stay with native for uniforms if no wrapper exists.
+        org.lwjgl.opengl.GL20C.glUniform1i(location, v);
 	}
 
 	public static void uniformFloat(int location, float v) {
-		glUniform1f(location, v);
+		org.lwjgl.opengl.GL20C.glUniform1f(location, v);
 	}
 
 	public static void uniformFloat2(int location, float v1, float v2) {
-		glUniform2f(location, v1, v2);
+		org.lwjgl.opengl.GL20C.glUniform2f(location, v1, v2);
 	}
 
 	public static void uniformFloat3(int location, float v1, float v2, float v3) {
-		glUniform3f(location, v1, v2, v3);
+		org.lwjgl.opengl.GL20C.glUniform3f(location, v1, v2, v3);
 	}
 
 	public static void uniformFloat4(int location, float v1, float v2, float v3, float v4) {
-		glUniform4f(location, v1, v2, v3, v4);
+		org.lwjgl.opengl.GL20C.glUniform4f(location, v1, v2, v3, v4);
 	}
 
 	public static void uniformFloat3Array(int location, float[] v) {
-		glUniform3fv(location, v);
+		org.lwjgl.opengl.GL20C.glUniform3fv(location, v);
 	}
 
     public static void uniformMatrix4(int location, boolean transpose, FloatBuffer matrices) {
-        glUniformMatrix4fv(location, transpose, matrices);
+        org.lwjgl.opengl.GL20C.glUniformMatrix4fv(location, transpose, matrices);
     }
 
 	public static void pixelStore(int name, int param) {
@@ -141,11 +146,11 @@ public class ShaderHelper {
 	}
 
 	public static void enableDepth() {
-		GlStateManager._enableDepthTest();
+		RenderSystem.enableDepthTest();
 	}
 
 	public static void disableDepth() {
-		GlStateManager._disableDepthTest();
+		RenderSystem.disableDepthTest();
 	}
 
 	public static void enableBlend() {

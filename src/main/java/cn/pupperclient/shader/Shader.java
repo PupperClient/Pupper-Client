@@ -127,12 +127,12 @@ public class Shader {
 		// Modern approach: use RenderSystem matrices directly or pass from context
 	}
 
-    public void unbind() {
-        ShaderHelper.useProgram(0);
-        BOUND = null;
-    }
+	public void unbind() {
+		ShaderHelper.useProgram(0);
+		BOUND = null;
+	}
 
-    public void delete() {
-        glDeleteProgram(id);
-    }
+	public void delete() {
+		org.lwjgl.opengl.GL20C.glDeleteProgram(id);
+	}
 }

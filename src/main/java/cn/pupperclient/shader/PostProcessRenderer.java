@@ -72,20 +72,20 @@ public class PostProcessRenderer {
 			indicesPointer = memAddress0(indices);
 
 			vao = GlStateManager._glGenVertexArrays();
-			RenderSystem.glBindVertexArray(vao);
+			GlStateManager._glBindVertexArray(vao);
 
 			vbo = GlStateManager._glGenBuffers();
-			RenderSystem.glBindBuffer(GL_ARRAY_BUFFER, vbo);
+			GlStateManager._glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 			ibo = GlStateManager._glGenBuffers();
-			RenderSystem.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+			GlStateManager._glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 			
             GlStateManager._enableVertexAttribArray(0);
 			GlStateManager._vertexAttribPointer(0, 2, GL_FLOAT, false, stride, 0);
 
-			RenderSystem.glBindVertexArray(0);
-			RenderSystem.glBindBuffer(GL_ARRAY_BUFFER, 0);
-			RenderSystem.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+			GlStateManager._glBindVertexArray(0);
+			GlStateManager._glBindBuffer(GL_ARRAY_BUFFER, 0);
+			GlStateManager._glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		}
 
 		public void begin() {
@@ -136,13 +136,13 @@ public class PostProcessRenderer {
 			}
 
 			if (indicesCount > 0) {
-				RenderSystem.glBindBuffer(GL_ARRAY_BUFFER, vbo);
-				RenderSystem.glBufferData(GL_ARRAY_BUFFER, vertices.limit(getVerticesOffset()), GL_DYNAMIC_DRAW);
-				RenderSystem.glBindBuffer(GL_ARRAY_BUFFER, 0);
+				GlStateManager._glBindBuffer(GL_ARRAY_BUFFER, vbo);
+				GlStateManager._glBufferData(GL_ARRAY_BUFFER, vertices.limit(getVerticesOffset()), GL_DYNAMIC_DRAW);
+				GlStateManager._glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-				RenderSystem.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-				RenderSystem.glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.limit(indicesCount * 4), GL_DYNAMIC_DRAW);
-				RenderSystem.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+				GlStateManager._glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+				GlStateManager._glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.limit(indicesCount * 4), GL_DYNAMIC_DRAW);
+				GlStateManager._glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 			}
 
 			building = false;
@@ -164,10 +164,10 @@ public class PostProcessRenderer {
 
 				Shader.BOUND.setDefaults();
 
-				RenderSystem.glBindVertexArray(vao);
+				GlStateManager._glBindVertexArray(vao);
 				RenderSystem.drawElements(GL32C.GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT);
 
-				RenderSystem.glBindVertexArray(0);
+				GlStateManager._glBindVertexArray(0);
 
 				if (!wasBeganRendering)
 					endRender();
