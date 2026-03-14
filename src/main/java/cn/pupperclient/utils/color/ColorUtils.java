@@ -40,35 +40,38 @@ public class ColorUtils {
 		return new Color(red, green, blue, MathUtils.clamp(alpha, 0, 255));
 	}
 
-	public static Color applyAlpha(Color color, float alpha) {
-		return applyAlpha(color, (int) (alpha * 255));
-	}
+    public static Color applyAlpha(Color color, float alpha) {
+        return applyAlpha(color, (int) (alpha * 255));
+    }
 
-    public static Color interpolateColors(int speed, int index, Color start, Color end) {
+    public static Color interpolate(Color start, Color end, float amount) {
+        amount = MathUtils.clamp(amount, 0, 1);
 
+        float[] startHSB = Color.RGBtoHSB(start.getRed(), start.getGreen(), start.getBlue(), null);
+        float[] endHSB = Color.RGBtoHSB(end.getRed(), end.getGreen(), end.getBlue(), null);
+
+        Color resultColor = Color.getHSBColor(
+            MathUtils.interpolateFloat(startHSB[0], endHSB[0], amount),
+            MathUtils.interpolateFloat(startHSB[1], endHSB[1], amount),
+            MathUtils.interpolateFloat(startHSB[2], endHSB[2], amount)
+        );
+
+        return new Color(
+            resultColor.getRed(),
+            resultColor.getGreen(),
+            resultColor.getBlue(),
+            MathUtils.interpolateInt(start.getAlpha(), end.getAlpha(), amount)
+        );
+    }
+
+    public static Color rainbow(int speed, int index) {
         int angle = (int) (((System.currentTimeMillis()) / speed + index) % 360);
-        angle = (angle >= 180 ? 360 - angle : angle) * 2;
-
-        return ColorUtils.interpolateColorHue(start, end, angle / 360f);
+        return Color.getHSBColor(angle / 360f, 0.6f, 1f);
     }
 
-    private static Color interpolateColorHue(Color color1, Color color2, float amount) {
-
-        amount = Math.min(1, Math.max(0, amount));
-
-        float[] color1HSB = Color.RGBtoHSB(color1.getRed(), color1.getGreen(), color1.getBlue(), null);
-        float[] color2HSB = Color.RGBtoHSB(color2.getRed(), color2.getGreen(), color2.getBlue(), null);
-
-        Color resultColor = Color.getHSBColor(MathUtils.interpolateFloat(color1HSB[0], color2HSB[0], amount), MathUtils.interpolateFloat(color1HSB[1], color2HSB[1], amount), MathUtils.interpolateFloat(color1HSB[2], color2HSB[2], amount));
-
-        return new Color(resultColor.getRed(), resultColor.getGreen(), resultColor.getBlue(), MathUtils.interpolateInt(color1.getAlpha(), color2.getAlpha(), amount));
-    }
-
-    public static Color interpolateColor(Color surfaceContainer, Color surfaceContainerHigh, float hoverValue) {
-        return ColorUtils.interpolateColors(200, 0, surfaceContainer, surfaceContainerHigh);
-    }
-
-    public static Color withAlpha(Color surfaceVariant, float v) {
-        return ColorUtils.applyAlpha(surfaceVariant, v);
+    public static Color oscillate(Color start, Color end, int speed, int index) {
+        int angle = (int) (((System.currentTimeMillis()) / speed + index) % 360);
+        float amount = (angle >= 180 ? 360 - angle : angle) / 180f;
+        return interpolate(start, end, amount);
     }
 }

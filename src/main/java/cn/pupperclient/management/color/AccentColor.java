@@ -33,11 +33,11 @@ public class AccentColor {
     }
 
     public Color getInterpolateColor() {
-        return ColorUtils.interpolateColors(15, 0, color1, color2);
+        return ColorUtils.oscillate(color1, color2, 15, 0);
     }
 
     public Color getInterpolateColor(int index) {
-        return ColorUtils.interpolateColors(15, index, color1, color2);
+        return ColorUtils.oscillate(color1, color2, 15, index);
     }
 
     public SimpleAnimation getAnimation() {

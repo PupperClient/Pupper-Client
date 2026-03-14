@@ -231,7 +231,7 @@ public class CosmeticsPage extends Page {
                 } else {
                     // 如果纹理尚未加载，显示加载状态或占位符
                     Skia.drawRoundedRect(itemX + 5, itemY + 5, itemWidth - 10, itemHeight - 10, 8, 
-                        ColorUtils.withAlpha(palette.getSurfaceVariant(), 0.5f));
+                        ColorUtils.applyAlpha(palette.getSurfaceVariant(), 0.5f));
                     // 可以添加加载中的文字提示
                     String loadingText = "Loading...";
                     float textWidth = Skia.getTextBounds(loadingText, Fonts.getRegular(12)).getWidth();

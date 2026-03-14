@@ -171,7 +171,7 @@ public class MusicPage extends Page {
 
         // 绘制按钮背景
         float hoverValue = refreshButtonAnimation.getValue();
-        Color backgroundColor = ColorUtils.interpolateColor(
+        Color backgroundColor = ColorUtils.interpolate(
             palette.getSurfaceContainer(),
             palette.getSurfaceContainerHigh(),
             hoverValue
