@@ -18,31 +18,25 @@ import static org.lwjgl.opengl.GL12C.GL_UNPACK_IMAGE_HEIGHT;
 import static org.lwjgl.opengl.GL12C.GL_UNPACK_SKIP_IMAGES;
 import static org.lwjgl.opengl.GL13C.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL15C.GL_ELEMENT_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL20C.GL_COMPILE_STATUS;
-import static org.lwjgl.opengl.GL20C.GL_LINK_STATUS;
-import static org.lwjgl.opengl.GL20C.glUniform1f;
-import static org.lwjgl.opengl.GL20C.glUniform2f;
-import static org.lwjgl.opengl.GL20C.glUniform3f;
-import static org.lwjgl.opengl.GL20C.glUniform3fv;
-import static org.lwjgl.opengl.GL20C.glUniform4f;
-import static org.lwjgl.opengl.GL30C.glGenerateMipmap;
+import static org.lwjgl.opengl.GL20C.*;
+import static org.lwjgl.opengl.GL30C.*;
 
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import cn.pupperclient.mixin.mixins.minecraft.client.render.BufferRendererAccessor;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.AbstractTexture;
 import net.minecraft.util.Identifier;
 
 public class ShaderHelper {
-
 	public static int CURRENT_IBO;
 	private static int prevIbo;
 
-	private ShaderHelper() {
-	}
+	private ShaderHelper() {}
 
 	public static void bindVertexArray(int vao) {
 		GlStateManager._glBindVertexArray(vao);
@@ -52,7 +46,7 @@ public class ShaderHelper {
 	public static void bindIndexBuffer(int ibo) {
 		if (ibo != 0)
 			prevIbo = CURRENT_IBO;
-		GlStateManager._glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo != 0 ? ibo : prevIbo);
+        GlStateManager._glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo != 0 ? ibo : prevIbo);
 	}
 
 	public static String compileShader(int shader) {
@@ -78,11 +72,12 @@ public class ShaderHelper {
 	}
 
 	public static void useProgram(int program) {
+		RenderSystem.setShaderGameTime(System.currentTimeMillis(), 0);
 		GlStateManager._glUseProgram(program);
 	}
 
 	public static void viewport(int x, int y, int width, int height) {
-		GlStateManager._viewport(x, y, width, height);
+        RenderSystem.viewport(x, y, width, height);
 	}
 
 	public static int getUniformLocation(int program, String name) {
@@ -90,35 +85,44 @@ public class ShaderHelper {
 	}
 
 	public static void uniformInt(int location, int v) {
-		GlStateManager._glUniform1i(location, v);
+        // No direct RenderSystem wrapper for uniform1i by location, use GlStateManager if available or native
+        // GlStateManager doesn't have uniform1i usually, RenderSystem has it for ShaderInstance but not raw programs
+        // For raw programs, we might need native or a helper. 
+        // Actually, GlStateManager often has _glUniform1i but let's check.
+        // If not, we stay with native for uniforms if no wrapper exists.
+        org.lwjgl.opengl.GL20C.glUniform1i(location, v);
 	}
 
 	public static void uniformFloat(int location, float v) {
-		glUniform1f(location, v);
+		org.lwjgl.opengl.GL20C.glUniform1f(location, v);
 	}
 
 	public static void uniformFloat2(int location, float v1, float v2) {
-		glUniform2f(location, v1, v2);
+		org.lwjgl.opengl.GL20C.glUniform2f(location, v1, v2);
 	}
 
 	public static void uniformFloat3(int location, float v1, float v2, float v3) {
-		glUniform3f(location, v1, v2, v3);
+		org.lwjgl.opengl.GL20C.glUniform3f(location, v1, v2, v3);
 	}
 
 	public static void uniformFloat4(int location, float v1, float v2, float v3, float v4) {
-		glUniform4f(location, v1, v2, v3, v4);
+		org.lwjgl.opengl.GL20C.glUniform4f(location, v1, v2, v3, v4);
 	}
 
 	public static void uniformFloat3Array(int location, float[] v) {
-		glUniform3fv(location, v);
+		org.lwjgl.opengl.GL20C.glUniform3fv(location, v);
 	}
 
+    public static void uniformMatrix4(int location, boolean transpose, FloatBuffer matrices) {
+        org.lwjgl.opengl.GL20C.glUniformMatrix4fv(location, transpose, matrices);
+    }
+
 	public static void pixelStore(int name, int param) {
-		GlStateManager._pixelStore(name, param);
+		RenderSystem.pixelStore(name, param);
 	}
 
 	public static void textureParam(int target, int name, int param) {
-		GlStateManager._texParameter(target, name, param);
+        RenderSystem.texParameter(target, name, param);
 	}
 
 	public static void textureImage2D(int target, int level, int internalFormat, int width, int height, int border,
@@ -142,28 +146,28 @@ public class ShaderHelper {
 	}
 
 	public static void enableDepth() {
-		GlStateManager._enableDepthTest();
+		RenderSystem.enableDepthTest();
 	}
 
 	public static void disableDepth() {
-		GlStateManager._disableDepthTest();
+		RenderSystem.disableDepthTest();
 	}
 
 	public static void enableBlend() {
-		GlStateManager._enableBlend();
-		GlStateManager._blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        RenderSystem.enableBlend();
+        RenderSystem.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
 	public static void disableBlend() {
-		GlStateManager._disableBlend();
+        RenderSystem.disableBlend();
 	}
 
 	public static void enableCull() {
-		GlStateManager._enableCull();
+        RenderSystem.enableCull();
 	}
 
 	public static void disableCull() {
-		GlStateManager._disableCull();
+        RenderSystem.disableCull();
 	}
 
 	public static void enableLineSmooth() {
@@ -181,8 +185,8 @@ public class ShaderHelper {
 	}
 
 	public static void bindTexture(int i, int slot) {
-		GlStateManager._activeTexture(GL_TEXTURE0 + slot);
-		GlStateManager._bindTexture(i);
+        RenderSystem.activeTexture(GL_TEXTURE0 + slot);
+        RenderSystem.bindTexture(i);
 	}
 
 	public static void bindTexture(int i) {
@@ -190,14 +194,10 @@ public class ShaderHelper {
 	}
 
 	public static void resetTextureSlot() {
-		GlStateManager._activeTexture(GL_TEXTURE0);
+        RenderSystem.activeTexture(GL_TEXTURE0);
 	}
 
     public static void generateMipmap(int target) {
         glGenerateMipmap(target);
-    }
-
-    public static void textureParam(int target, int pname, float param) {
-        GlStateManager._texParameter(target, pname, param);
     }
 }

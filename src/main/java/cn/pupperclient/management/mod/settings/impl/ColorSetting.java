@@ -5,7 +5,7 @@ import java.awt.Color;
 import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.mod.Mod;
 import cn.pupperclient.management.mod.settings.Setting;
-import cn.pupperclient.utils.ColorUtils;
+import cn.pupperclient.utils.color.ColorUtils;
 
 public class ColorSetting extends Setting {
 

@@ -3,7 +3,6 @@ package cn.pupperclient.mixin.mixins.minecraft.client;
 import java.io.File;
 import java.io.IOException;
 
-import cn.pupperclient.event.client.WorldChangeEvent;
 import cn.pupperclient.shader.impl.Kawaseblur;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.screen.Screen;
@@ -164,9 +163,4 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 	public File getAssetDir() {
 		return this.assetDir;
 	}
-
-    @Inject(method = "setWorld", at = @At("HEAD"))
-    private void hookWorldChangeEvent(ClientWorld world, CallbackInfo ci) {
-        EventBus.getInstance().post(new WorldChangeEvent(world));
-    }
 }

@@ -41,7 +41,7 @@ public class IRCProtocol implements Protocol<IRCPacket> {
             JsonObject object = JsonParser.parseString(text).getAsJsonObject();
             return packetManager.readPacket(object);
         }catch (Exception e){
-            e.printStackTrace();
+            cn.pupperclient.PupperLogger.error("IRC", "Failed to decode IRC packet", e);
             session.close();
             return null;
         }

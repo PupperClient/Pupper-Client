@@ -28,25 +28,26 @@ import net.minecraft.util.Identifier;
 public class Skia {
 
     private static final ImageHelper imageHelper = new ImageHelper();
+    private static final Paint SHARED_PAINT = new Paint();
 
     public static void drawRect(float x, float y, float width, float height, Color color) {
-        getCanvas().drawRect(Rect.makeXYWH(x, y, width, height), getPaint(color));
+        getCanvas().drawRect(Rect.makeXYWH(x, y, width, height), setupPaint(color));
     }
 
     public static void drawCircle(float x, float y, float radius, Color color) {
-        Paint paint = getPaint(color);
-        getCanvas().drawCircle(x, y, radius, paint);
+        getCanvas().drawCircle(x, y, radius, setupPaint(color));
     }
 
     public static void drawCircle(float x, float y, float radius, float strokeWidth, Color color) {
-        Paint paint = getPaint(color);
+        Paint paint = setupPaint(color);
         paint.setMode(PaintMode.STROKE);
         paint.setStrokeWidth(strokeWidth);
         getCanvas().drawCircle(x, y, radius, paint);
+        paint.setMode(PaintMode.FILL); // Reset
     }
 
     public static void drawRoundedRect(float x, float y, float width, float height, float radius, Color color) {
-        getCanvas().drawRRect(RRect.makeXYWH(x, y, width, height, radius), getPaint(color));
+        getCanvas().drawRRect(RRect.makeXYWH(x, y, width, height, radius), setupPaint(color));
     }
 
     public static void drawRoundedRectVarying(float x, float y, float width, float height, float topLeft,
@@ -55,7 +56,7 @@ public class Skia {
         float[] corners = new float[] { topLeft, topLeft, topRight, topRight, bottomRight, bottomRight, bottomLeft,
             bottomLeft };
 
-        getCanvas().drawRRect(RRect.makeComplexXYWH(x, y, width, height, corners), getPaint(color));
+        getCanvas().drawRRect(RRect.makeComplexXYWH(x, y, width, height, corners), setupPaint(color));
     }
 
     public static void drawBlur(float x, float y, float width, float height) {
@@ -63,13 +64,13 @@ public class Skia {
         if (HUDModSettings.getInstance().getBlurSetting().isEnabled()) {
 
             Window window = MinecraftClient.getInstance().getWindow();
-            Path path = Path.makeRect(Rect.makeXYWH(x, y, width, height));
-
-            save();
-            getCanvas().clipPath(path, ClipMode.INTERSECT, true);
-            drawImage(Kawaseblur.INGAME_BLUR.getTexture(), 0, 0, window.getScaledWidth(), window.getScaledHeight(), 1F,
-                SurfaceOrigin.BOTTOM_LEFT);
-            restore();
+            try (Path path = Path.makeRect(Rect.makeXYWH(x, y, width, height))) {
+                save();
+                getCanvas().clipPath(path, ClipMode.INTERSECT, true);
+                drawImage(Kawaseblur.INGAME_BLUR.getTexture(), 0, 0, window.getScaledWidth(), window.getScaledHeight(), 1F,
+                    SurfaceOrigin.BOTTOM_LEFT);
+                restore();
+            }
         }
     }
 
@@ -78,26 +79,29 @@ public class Skia {
         if (HUDModSettings.getInstance().getBlurSetting().isEnabled()) {
 
             Window window = MinecraftClient.getInstance().getWindow();
-            Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, radius));
-
-            save();
-            getCanvas().clipPath(path, ClipMode.INTERSECT, true);
-            drawImage(Kawaseblur.INGAME_BLUR.getTexture(), 0, 0, window.getScaledWidth(), window.getScaledHeight(), 1F,
-                SurfaceOrigin.BOTTOM_LEFT);
-            restore();
+            try (Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, radius))) {
+                save();
+                getCanvas().clipPath(path, ClipMode.INTERSECT, true);
+                drawImage(Kawaseblur.INGAME_BLUR.getTexture(), 0, 0, window.getScaledWidth(), window.getScaledHeight(), 1F,
+                    SurfaceOrigin.BOTTOM_LEFT);
+                restore();
+            }
         }
     }
 
     public static void drawShadow(float x, float y, float width, float height, float radius) {
 
-        Paint paint = getPaint(new Color(0, 0, 0, 120));
+        try (Paint paint = new Paint();
+             ImageFilter blur = ImageFilter.makeBlur(2.5F, 2.5F, FilterTileMode.DECAL)) {
+            
+            paint.setARGB(120, 0, 0, 0);
+            paint.setImageFilter(blur);
 
-        paint.setImageFilter(ImageFilter.makeBlur(2.5F, 2.5F, FilterTileMode.DECAL));
-
-        save();
-        clip(x, y, width, height, radius, ClipMode.DIFFERENCE);
-        getCanvas().drawRRect(RRect.makeXYWH(x, y, width, height, radius), paint);
-        restore();
+            save();
+            clip(x, y, width, height, radius, ClipMode.DIFFERENCE);
+            getCanvas().drawRRect(RRect.makeXYWH(x, y, width, height, radius), paint);
+            restore();
+        }
     }
 
     public static void drawOutline(float x, float y, float width, float height, float radius, float strokeWidth,
@@ -105,14 +109,16 @@ public class Skia {
 
         float halfStroke = strokeWidth / 2;
 
-        Path path = Path.makeRRect(RRect.makeXYWH(x + halfStroke, y + halfStroke, width - strokeWidth, height - strokeWidth,
+        try (Path path = Path.makeRRect(RRect.makeXYWH(x + halfStroke, y + halfStroke, width - strokeWidth, height - strokeWidth,
             radius - halfStroke));
+             Paint paint = new Paint()) {
 
-        Paint paint = getPaint(color);
-        paint.setStrokeWidth(strokeWidth);
-        paint.setMode(PaintMode.STROKE);
+            paint.setARGB(color.getAlpha(), color.getRed(), color.getGreen(), color.getBlue());
+            paint.setStrokeWidth(strokeWidth);
+            paint.setMode(PaintMode.STROKE);
 
-        getCanvas().drawPath(path, paint);
+            getCanvas().drawPath(path, paint);
+        }
     }
 
     public static void drawImage(String path, float x, float y, float width, float height) {
@@ -128,9 +134,10 @@ public class Skia {
                                  SurfaceOrigin origin) {
 
         if (imageHelper.load(textureId, width, height, origin)) {
-            Paint paint = new Paint();
-            paint.setAlpha((int) (255 * alpha));
-            getCanvas().drawImageRect(imageHelper.get(textureId), Rect.makeXYWH(x, y, width, height), paint);
+            try (Paint paint = new Paint()) {
+                paint.setAlpha((int) (255 * alpha));
+                getCanvas().drawImageRect(imageHelper.get(textureId), Rect.makeXYWH(x, y, width, height), paint);
+            }
         }
     }
 
@@ -157,42 +164,42 @@ public class Skia {
 
     public static void drawRoundedImage(int textureId, float x, float y, float width, float height, float radius) {
 
-        Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, radius));
-
-        save();
-        getCanvas().clipPath(path, ClipMode.INTERSECT, true);
-        drawImage(textureId, x, y, width, height);
-        restore();
+        try (Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, radius))) {
+            save();
+            getCanvas().clipPath(path, ClipMode.INTERSECT, true);
+            drawImage(textureId, x, y, width, height);
+            restore();
+        }
     }
 
     public static void drawRoundedImage(String filePath, float x, float y, float width, float height, float radius) {
 
-        Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, radius));
-
-        save();
-        getCanvas().clipPath(path, ClipMode.INTERSECT, true);
-        drawImage(filePath, x, y, width, height);
-        restore();
+        try (Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, radius))) {
+            save();
+            getCanvas().clipPath(path, ClipMode.INTERSECT, true);
+            drawImage(filePath, x, y, width, height);
+            restore();
+        }
     }
 
     public static void drawRoundedImage(File file, float x, float y, float width, float height, float radius) {
 
-        Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, radius));
-
-        save();
-        getCanvas().clipPath(path, ClipMode.INTERSECT, true);
-        drawImage(file, x, y, width, height);
-        restore();
+        try (Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, radius))) {
+            save();
+            getCanvas().clipPath(path, ClipMode.INTERSECT, true);
+            drawImage(file, x, y, width, height);
+            restore();
+        }
     }
 
     public static void drawRoundedImage(int textureId, float x, float y, float width, float height, float radius,
                                         float alpha, SurfaceOrigin origin) {
-        Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, radius));
-
-        save();
-        getCanvas().clipPath(path, ClipMode.INTERSECT, true);
-        drawImage(textureId, x, y, width, height, alpha, origin);
-        restore();
+        try (Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, radius))) {
+            save();
+            getCanvas().clipPath(path, ClipMode.INTERSECT, true);
+            drawImage(textureId, x, y, width, height, alpha, origin);
+            restore();
+        }
     }
 
     public static void drawRoundedImage(int textureId, float x, float y, float width, float height, float radius,
@@ -203,17 +210,17 @@ public class Skia {
     public static void drawPlayerHead(File file, float x, float y, float width, float height, float radius) {
         if (imageHelper.load(file)) {
 
-            Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, radius));
+            try (Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, radius))) {
+                Rect srcRect = Rect.makeXYWH(8, 8, 8, 8);
+                Rect srcRect1 = Rect.makeXYWH(40, 8, 8, 8);
+                Rect dstRect = Rect.makeXYWH(x, y, width, height);
 
-            Rect srcRect = Rect.makeXYWH(8, 8, 8, 8);
-            Rect srcRect1 = Rect.makeXYWH(40, 8, 8, 8);
-            Rect dstRect = Rect.makeXYWH(x, y, width, height);
-
-            save();
-            getCanvas().clipPath(path, ClipMode.INTERSECT, true);
-            getCanvas().drawImageRect(imageHelper.get(file.getName()), srcRect, dstRect, null, false);
-            getCanvas().drawImageRect(imageHelper.get(file.getName()), srcRect1, dstRect, null, false);
-            restore();
+                save();
+                getCanvas().clipPath(path, ClipMode.INTERSECT, true);
+                getCanvas().drawImageRect(imageHelper.get(file.getName()), srcRect, dstRect, null, false);
+                getCanvas().drawImageRect(imageHelper.get(file.getName()), srcRect1, dstRect, null, false);
+                restore();
+            }
         }
     }
 
@@ -290,22 +297,24 @@ public class Skia {
     public static void drawArc(float x, float y, float radius, float startAngle, float endAngle, float strokeWidth,
                                Color color) {
 
-        Paint paint = getPaint(color);
+        Paint paint = setupPaint(color);
         paint.setStrokeWidth(strokeWidth);
         paint.setMode(PaintMode.STROKE);
 
         getCanvas().drawArc(x - radius, y - radius, x + radius, y + radius, startAngle - 90, endAngle, false, paint);
+        paint.setMode(PaintMode.FILL); // Reset
     }
 
     public static void drawLine(float x, float y, float endX, float endY, float width, Color color) {
 
-        Paint paint = getPaint(color);
+        Paint paint = setupPaint(color);
 
         paint.setStroke(true);
         paint.setStrokeWidth(width);
         paint.setAntiAlias(true);
 
         getCanvas().drawLine(x, y, endX, endY, paint);
+        paint.setStroke(false); // Reset
     }
 
     public static void drawGradientRoundedRect(float x, float y, float width, float height, float radius, Color color1,
@@ -316,28 +325,29 @@ public class Skia {
         double tick = (currentTime * speed) % (2 * Math.PI);
         float max = Math.max(width, height);
 
-        Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, radius));
+        try (Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, radius))) {
+            float startX = x + width / 2 - (max / 2) * (float) Math.cos(tick);
+            float startY = y + height / 2 - (max / 2) * (float) Math.sin(tick);
+            float endX = x + width / 2 + (max / 2) * (float) Math.cos(tick);
+            float endY = y + height / 2 + (max / 2) * (float) Math.sin(tick);
 
-        float startX = x + width / 2 - (max / 2) * (float) Math.cos(tick);
-        float startY = y + height / 2 - (max / 2) * (float) Math.sin(tick);
-        float endX = x + width / 2 + (max / 2) * (float) Math.cos(tick);
-        float endY = y + height / 2 + (max / 2) * (float) Math.sin(tick);
+            int skColor1 = io.github.humbleui.skija.Color.makeARGB(color1.getAlpha(), color1.getRed(), color1.getGreen(),
+                color1.getBlue());
+            int skColor2 = io.github.humbleui.skija.Color.makeARGB(color2.getAlpha(), color2.getRed(), color2.getGreen(),
+                color2.getBlue());
 
-        int skColor1 = io.github.humbleui.skija.Color.makeARGB(color1.getAlpha(), color1.getRed(), color1.getGreen(),
-            color1.getBlue());
-        int skColor2 = io.github.humbleui.skija.Color.makeARGB(color2.getAlpha(), color2.getRed(), color2.getGreen(),
-            color2.getBlue());
+            int skColorMid = io.github.humbleui.skija.Color.makeARGB(color1.getAlpha(),
+                (color1.getRed() + color2.getRed()) / 2, (color1.getGreen() + color2.getGreen()) / 2,
+                (color1.getBlue() + color2.getBlue()) / 2);
 
-        int skColorMid = io.github.humbleui.skija.Color.makeARGB(color1.getAlpha(),
-            (color1.getRed() + color2.getRed()) / 2, (color1.getGreen() + color2.getGreen()) / 2,
-            (color1.getBlue() + color2.getBlue()) / 2);
+            try (Paint paint = new Paint();
+                 Shader shader = Shader.makeLinearGradient(new Point(startX, startY), new Point(endX, endY),
+                     new int[] { skColor1, skColorMid, skColor2 }, new float[] { 0, 0.5f, 1 })) {
 
-        Paint paint = new Paint();
-
-        paint.setShader(Shader.makeLinearGradient(new Point(startX, startY), new Point(endX, endY),
-            new int[] { skColor1, skColorMid, skColor2 }, new float[] { 0, 0.5f, 1 }));
-
-        getCanvas().drawPath(path, paint);
+                paint.setShader(shader);
+                getCanvas().drawPath(path, paint);
+            }
+        }
     }
 
     public static void clipPath(Path path, ClipMode mode, boolean arg) {
@@ -350,8 +360,9 @@ public class Skia {
 
     public static void clip(float x, float y, float width, float height, float radius, ClipMode mode) {
 
-        Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, radius));
-        clipPath(path, mode, true);
+        try (Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, radius))) {
+            clipPath(path, mode, true);
+        }
     }
 
     public static void clip(float x, float y, float width, float height, float topLeft, float topRight,
@@ -360,8 +371,9 @@ public class Skia {
         float[] corners = new float[] { topLeft, topLeft, topRight, topRight, bottomRight, bottomRight, bottomLeft,
             bottomLeft };
 
-        Path path = Path.makeRRect(RRect.makeComplexXYWH(x, y, width, height, corners));
-        clipPath(path, ClipMode.INTERSECT, true);
+        try (Path path = Path.makeRRect(RRect.makeComplexXYWH(x, y, width, height, corners))) {
+            clipPath(path, ClipMode.INTERSECT, true);
+        }
     }
 
     public static void clip(float x, float y, float width, float height, float radius) {
@@ -370,13 +382,13 @@ public class Skia {
 
     public static void drawText(String text, float x, float y, Color color, Font font) {
         Rect bounds = font.measureText(text);
-        getCanvas().drawString(text, x - bounds.getLeft(), y - bounds.getTop(), font, getPaint(color));
+        getCanvas().drawString(text, x - bounds.getLeft(), y - bounds.getTop(), font, setupPaint(color));
     }
 
     public static void drawCenteredText(String text, float x, float y, Color color, Font font) {
         Rect bounds = font.measureText(text);
         getCanvas().drawString(text, x - bounds.getLeft() - (bounds.getWidth() / 2), y - bounds.getTop(), font,
-            getPaint(color));
+            setupPaint(color));
     }
 
     public static void drawHeightCenteredText(String text, float x, float y, Color color, Font font) {
@@ -386,7 +398,7 @@ public class Skia {
 
         float textCenterY = y + (metrics.getAscent() - metrics.getDescent()) / 2 - metrics.getAscent();
 
-        getCanvas().drawString(text, x - bounds.getLeft(), textCenterY, font, getPaint(color));
+        getCanvas().drawString(text, x - bounds.getLeft(), textCenterY, font, setupPaint(color));
     }
 
     public static void drawFullCenteredText(String text, float x, float y, Color color, Font font) {
@@ -398,7 +410,7 @@ public class Skia {
         float textCenterX = x - bounds.getLeft() - (bounds.getWidth() / 2);
         float textCenterY = y + (metrics.getAscent() - metrics.getDescent()) / 2 - metrics.getAscent();
 
-        getCanvas().drawString(text, textCenterX, textCenterY, font, getPaint(color));
+        getCanvas().drawString(text, textCenterX, textCenterY, font, setupPaint(color));
     }
 
     public static Rect getTextBounds(String text, Font font) {
@@ -423,10 +435,9 @@ public class Skia {
         return text + (isRemoved ? "..." : "");
     }
 
-    public static Paint getPaint(Color color) {
-        Paint paint = new Paint();
-        paint.setARGB(color.getAlpha(), color.getRed(), color.getGreen(), color.getBlue());
-        return paint;
+    public static Paint setupPaint(Color color) {
+        SHARED_PAINT.setARGB(color.getAlpha(), color.getRed(), color.getGreen(), color.getBlue());
+        return SHARED_PAINT;
     }
 
     public static void save() {
@@ -472,11 +483,10 @@ public class Skia {
     }
 
     public static void setAlpha(int alpha) {
-
-        Paint paint = new Paint();
-        paint.setAlpha(alpha);
-
-        getCanvas().saveLayer(null, paint);
+        try (Paint paint = new Paint()) {
+            paint.setAlpha(alpha);
+            getCanvas().saveLayer(null, paint);
+        }
     }
 
     public static Canvas getCanvas() {

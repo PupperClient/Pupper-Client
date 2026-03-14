@@ -24,8 +24,8 @@ import cn.pupperclient.management.music.lyric.LyricsManager;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.font.Fonts;
 import cn.pupperclient.skia.font.Icon;
-import cn.pupperclient.utils.ColorUtils;
-import cn.pupperclient.utils.TimerUtils;
+import cn.pupperclient.utils.color.ColorUtils;
+import cn.pupperclient.utils.time.TimerUtils;
 
 import io.github.humbleui.skija.Bitmap;
 import io.github.humbleui.skija.FilterTileMode;

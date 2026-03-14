@@ -10,7 +10,7 @@ import cn.pupperclient.event.client.RenderSkiaEvent;
 import cn.pupperclient.management.mod.api.hud.SimpleHUDMod;
 import cn.pupperclient.management.mod.settings.impl.KeybindSetting;
 import cn.pupperclient.skia.font.Icon;
-import cn.pupperclient.utils.TimerUtils;
+import cn.pupperclient.utils.time.TimerUtils;
 
 import net.minecraft.client.util.InputUtil;
 

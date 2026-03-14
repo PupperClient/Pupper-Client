@@ -6,9 +6,12 @@ import static org.lwjgl.opengl.GL30C.GL_COLOR_ATTACHMENT0;
 import static org.lwjgl.opengl.GL30C.GL_FRAMEBUFFER;
 import static org.lwjgl.opengl.GL30C.glGenerateMipmap;
 
+import java.nio.ByteBuffer;
+
 import org.lwjgl.opengl.GL30C;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.Window;
@@ -40,17 +43,17 @@ public class Framebuffer {
         ShaderHelper.bindTexture(texture);
         ShaderHelper.defaultPixelStore();
 
-        ShaderHelper.textureParam(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        ShaderHelper.textureParam(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        RenderSystem.texParameter(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        RenderSystem.texParameter(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-        ShaderHelper.textureParam(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        ShaderHelper.textureParam(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        RenderSystem.texParameter(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        RenderSystem.texParameter(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         width = Math.max(1, (int) (window.getFramebufferWidth() * sizeMulti));
         height = Math.max(1, (int) (window.getFramebufferHeight() * sizeMulti));
 
-        ShaderHelper.textureImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null);
-        ShaderHelper.framebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (ByteBuffer) null);
+        GlStateManager._glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
 
         unbind();
     }
@@ -61,11 +64,11 @@ public class Framebuffer {
             bind();
             ShaderHelper.bindTexture(texture);
 
-            ShaderHelper.textureParam(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-            ShaderHelper.textureParam(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            RenderSystem.texParameter(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            RenderSystem.texParameter(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-            ShaderHelper.textureParam(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            ShaderHelper.textureParam(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            RenderSystem.texParameter(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            RenderSystem.texParameter(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
             unbind();
         }
@@ -75,26 +78,36 @@ public class Framebuffer {
         if (mipmapEnabled && sizeMulti < 1.0) {
             bind();
             ShaderHelper.bindTexture(texture);
-            glGenerateMipmap(GL_TEXTURE_2D);
+            ShaderHelper.generateMipmap(GL_TEXTURE_2D);
             unbind();
         }
     }
 
     public void bind() {
-        GlStateManager._glBindFramebuffer(GL30C.GL_FRAMEBUFFER, id);
+        GlStateManager._glBindFramebuffer(GL_FRAMEBUFFER, id);
     }
 
     public void setViewport() {
-        ShaderHelper.viewport(0, 0, width, height);
+        RenderSystem.viewport(0, 0, width, height);
     }
 
     public void unbind() {
         MinecraftClient.getInstance().getFramebuffer().beginWrite(false);
     }
 
+    public void delete() {
+        if (id != 0) {
+            GlStateManager._glDeleteFramebuffers(id);
+            id = 0;
+        }
+        if (texture != 0) {
+            GlStateManager._deleteTexture(texture);
+            texture = 0;
+        }
+    }
+
     public void resize() {
-        GlStateManager._glDeleteFramebuffers(id);
-        GlStateManager._deleteTexture(texture);
+        delete();
         init();
         if (mipmapEnabled) {
             enableMipmap();

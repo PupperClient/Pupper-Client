@@ -10,7 +10,7 @@ import cn.pupperclient.management.color.api.ColorPalette;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.ui.component.Component;
 import cn.pupperclient.ui.component.handler.impl.SwitchHandler;
-import cn.pupperclient.utils.ColorUtils;
+import cn.pupperclient.utils.color.ColorUtils;
 import cn.pupperclient.utils.mouse.MouseUtils;
 
 public class Switch extends Component {

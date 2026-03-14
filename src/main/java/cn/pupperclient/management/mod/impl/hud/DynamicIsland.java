@@ -10,7 +10,7 @@ import cn.pupperclient.management.mod.settings.impl.StringSetting;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.font.Fonts;
 import cn.pupperclient.skia.font.Icon;
-import cn.pupperclient.utils.IMinecraft;
+import cn.pupperclient.utils.minecraft.interfaces.IMinecraft;
 import io.github.humbleui.skija.FontMetrics;
 import io.github.humbleui.types.Rect;
 import org.jetbrains.annotations.NotNull;

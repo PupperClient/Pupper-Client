@@ -8,107 +8,90 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 
-public class SimpleSoarGui {
-	public MinecraftClient client = MinecraftClient.getInstance();
-	private final boolean mcScale;
+/**
+ * Base class for all PupperClient GUIs.
+ * Directly extends Minecraft's Screen to ensure better compatibility and standard lifecycle.
+ */
+public abstract class SimpleSoarGui extends Screen {
+    
+    protected final MinecraftClient client = MinecraftClient.getInstance();
+    protected final boolean mcScale;
 
-	public SimpleSoarGui(boolean mcScale) {
-		this.mcScale = mcScale;
-	}
+    protected SimpleSoarGui(boolean mcScale) {
+        super(Text.empty());
+        this.mcScale = mcScale;
+    }
 
-	public void init() {
-	}
+    @Override
+    protected void init() {
+        // Base init logic if any
+    }
 
-	public void draw(double mouseX, double mouseY) {
-	}
+    /**
+     * Custom draw logic using Skia.
+     */
+    public abstract void draw(double mouseX, double mouseY);
 
-	public void mousePressed(double mouseX, double mouseY, int button) {
-	}
+    @Override
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        SkiaContext.draw((skiaContext) -> {
+            Skia.save();
+            
+            if (mcScale) {
+                Skia.scale((float) client.getWindow().getScaleFactor());
+            }
 
-	public void mouseReleased(double mouseX, double mouseY, int button) {
-	}
+            // Standardize mouse coordinates based on scaling
+            double finalMouseX = mcScale ? mouseX : client.mouse.getX();
+            double finalMouseY = mcScale ? mouseY : client.mouse.getY();
+            
+            draw(finalMouseX, finalMouseY);
+            
+            Skia.restore();
+        });
+    }
 
-	public void mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-	}
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        double finalMouseX = mcScale ? mouseX : client.mouse.getX();
+        double finalMouseY = mcScale ? mouseY : client.mouse.getY();
+        return onMousePressed(finalMouseX, finalMouseY, button);
+    }
 
-	public void charTyped(char chr, int modifiers) {
-	}
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        double finalMouseX = mcScale ? mouseX : client.mouse.getX();
+        double finalMouseY = mcScale ? mouseY : client.mouse.getY();
+        return onMouseReleased(finalMouseX, finalMouseY, button);
+    }
 
-	public void keyPressed(int keyCode, int scanCode, int modifiers) {
-	}
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        double finalMouseX = mcScale ? mouseX : client.mouse.getX();
+        double finalMouseY = mcScale ? mouseY : client.mouse.getY();
+        return onMouseScrolled(finalMouseX, finalMouseY, horizontalAmount, verticalAmount);
+    }
 
-	public Screen build() {
-		return new Screen(Text.empty()) {
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        return onKeyPressed(keyCode, scanCode, modifiers);
+    }
 
-			@Override
-			public void init() {
-				SimpleSoarGui.this.init();
-			}
+    @Override
+    public boolean charTyped(char chr, int modifiers) {
+        return onCharTyped(chr, modifiers);
+    }
 
-			@Override
-			public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    // Abstract or hook methods for subclasses to implement without overriding Screen methods directly
+    
+    public boolean onMousePressed(double mouseX, double mouseY, int button) { return false; }
+    public boolean onMouseReleased(double mouseX, double mouseY, int button) { return false; }
+    public boolean onMouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) { return false; }
+    public boolean onKeyPressed(int keyCode, int scanCode, int modifiers) { return super.keyPressed(keyCode, scanCode, modifiers); }
+    public boolean onCharTyped(char chr, int modifiers) { return super.charTyped(chr, modifiers); }
 
-				SkiaContext.draw((skiaContext) -> {
-
-					Skia.save();
-
-					if (mcScale) {
-                        if (client != null) {
-                            Skia.scale((float) client.getWindow().getScaleFactor());
-                        }
-                    }
-
-                    if (client != null) {
-                        SimpleSoarGui.this.draw(mcScale ? mouseX : client.mouse.getX(),
-                                mcScale ? mouseY : client.mouse.getY());
-                    }
-                    Skia.restore();
-				});
-			}
-
-			@Override
-			public boolean mouseClicked(double mouseX, double mouseY, int button) {
-                if (client != null) {
-                    SimpleSoarGui.this.mousePressed(mcScale ? mouseX : client.mouse.getX(),
-                            mcScale ? mouseY : client.mouse.getY(), button);
-                }
-                return true;
-			}
-
-			@Override
-			public boolean mouseReleased(double mouseX, double mouseY, int button) {
-                if (client != null) {
-                    SimpleSoarGui.this.mouseReleased(mcScale ? mouseX : client.mouse.getX(),
-                            mcScale ? mouseY : (int) client.mouse.getY(), button);
-                }
-                return true;
-			}
-
-			@Override
-			public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-                if (client != null) {
-                    SimpleSoarGui.this.mouseScrolled(mcScale ? mouseX : client.mouse.getX(),
-                            mcScale ? mouseY : (int) client.mouse.getY(), horizontalAmount, verticalAmount);
-                }
-                return true;
-			}
-
-			@Override
-			public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-				SimpleSoarGui.this.keyPressed(keyCode, scanCode, modifiers);
-				return true;
-			}
-
-			@Override
-			public boolean charTyped(char chr, int modifiers) {
-				SimpleSoarGui.this.charTyped(chr, modifiers);
-				return true;
-			}
-
-			@Override
-			public boolean shouldPause() {
-				return false;
-			}
-		};
-	}
+    @Override
+    public boolean shouldPause() {
+        return false;
+    }
 }

@@ -21,7 +21,7 @@ import cn.pupperclient.skia.font.Fonts;
 import cn.pupperclient.skia.font.Icon;
 import cn.pupperclient.ui.component.handler.impl.ButtonHandler;
 import cn.pupperclient.ui.component.impl.IconButton;
-import cn.pupperclient.utils.SearchUtils;
+import cn.pupperclient.utils.misc.SearchUtils;
 import cn.pupperclient.utils.mouse.MouseUtils;
 
 public class ProfilePage extends Page {

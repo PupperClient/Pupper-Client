@@ -13,7 +13,7 @@ import cn.pupperclient.libraries.material3.hct.Hct;
 import cn.pupperclient.libraries.material3.quantize.QuantizerCelebi;
 import cn.pupperclient.libraries.material3.scheme.SchemeTonalSpot;
 import cn.pupperclient.libraries.material3.score.Score;
-import cn.pupperclient.utils.ImageUtils;
+import cn.pupperclient.utils.render.ImageUtils;
 
 public class Material3 {
 

@@ -29,7 +29,6 @@
     "minecraft.client.sound.MixinSoundSystem",
     "minecraft.client.util.MixinWindow",
     "minecraft.entity.MixinAbstractClientPlayerEntity",
-    "minecraft.entity.MixinClientPlayerEntity",
     "minecraft.entity.MixinEntity",
     "minecraft.entity.MixinLivingEntity",
     "minecraft.entity.MixinPlayerEntity",
@@ -42,9 +41,5 @@
   ],
   "injectors": {
     "defaultRequire": 1
-  },
-  "mixins": [
-    "minecraft.network.MixinClientPlayerInteractionManager",
-    "minecraft.world.MixinItem"
-  ]
+  }
 }

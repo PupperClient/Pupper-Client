@@ -15,7 +15,7 @@ import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.config.Config;
 import cn.pupperclient.management.config.ConfigManager;
 import cn.pupperclient.management.config.ConfigType;
-import cn.pupperclient.utils.JsonUtils;
+import cn.pupperclient.utils.misc.JsonUtils;
 import cn.pupperclient.utils.file.FileLocation;
 
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
@@ -49,14 +49,14 @@ public class ProfileManager {
             try {
                 Files.copy(((File) icon).toPath(), iconFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
-                e.printStackTrace();
+                cn.pupperclient.PupperLogger.error("ProfileManager", "Failed to copy custom icon", e);
             }
         }
 
         try (FileWriter writer = new FileWriter(new File(profileDir, "info.json"))) {
             writer.write(infoJson.toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            cn.pupperclient.PupperLogger.error("ProfileManager", "Failed to save profile info", e);
         }
 
         // 保存各个配置
@@ -67,7 +67,7 @@ public class ProfileManager {
             try (FileWriter writer = new FileWriter(new File(profileDir, t.getId() + ".json"))) {
                 writer.write(c.getJsonObject().toString());
             } catch (IOException e) {
-                e.printStackTrace();
+                cn.pupperclient.PupperLogger.error("ProfileManager", "Failed to save profile config: " + t.getId(), e);
             }
         }
     }
@@ -126,7 +126,7 @@ public class ProfileManager {
                 profiles.add(new Profile(name, author, configs, icon, serverIp));
 
             } catch (IOException e) {
-                e.printStackTrace();
+                cn.pupperclient.PupperLogger.error("ProfileManager", "Failed to read profiles", e);
             }
         }
     }

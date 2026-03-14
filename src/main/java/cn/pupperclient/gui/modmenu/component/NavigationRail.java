@@ -24,7 +24,7 @@ import cn.pupperclient.skia.font.Icon;
 import cn.pupperclient.ui.component.Component;
 import cn.pupperclient.ui.component.handler.impl.ButtonHandler;
 import cn.pupperclient.ui.component.impl.IconButton;
-import cn.pupperclient.utils.ColorUtils;
+import cn.pupperclient.utils.color.ColorUtils;
 import cn.pupperclient.utils.language.I18n;
 import cn.pupperclient.utils.mouse.MouseUtils;
 
@@ -63,7 +63,7 @@ public class NavigationRail extends Component {
         editButton.setHandler(new ButtonHandler() {
             @Override
             public void onAction() {
-                parent.close(new GuiEditHUD(ModMenuSettings.getInstance().getModMenu()).build());
+                parent.close(new GuiEditHUD(ModMenuSettings.getInstance().getModMenu()));
             }
         });
     }

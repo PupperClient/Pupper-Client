@@ -38,6 +38,7 @@ public class MusicPlayer implements Runnable {
     private static final int FFT_SIZE = 1024;
     private float[] fftBuffer = new float[FFT_SIZE];
     private float[] magnitudes = new float[SPECTRUM_BANDS];
+    private byte[] mp3Buffer = new byte[8192]; // Reuse buffer for MP3
 
     private Runnable runnable;
 
@@ -83,8 +84,8 @@ public class MusicPlayer implements Runnable {
     }
 
     private void playFlacFile() {
-        try {
-            decoder = new FLACDecoder(new FileInputStream(currentMusic.getAudio()));
+        try (FileInputStream fis = new FileInputStream(currentMusic.getAudio())) {
+            decoder = new FLACDecoder(fis);
             streamInfo = decoder.readStreamInfo();
             audioFormat = new AudioFormat(streamInfo.getSampleRate(),
                 streamInfo.getBitsPerSample() == 24 ? 16 : streamInfo.getBitsPerSample(),
@@ -106,7 +107,7 @@ public class MusicPlayer implements Runnable {
                 }
 
                 ByteData pcm = decoder.decodeFrame(frame, byteData);
-                updateSpectrum(pcm.getData());
+                updateSpectrum(pcm.getData(), pcm.getLen());
                 sourceDataLine.write(pcm.getData(), 0, pcm.getLen());
             }
 
@@ -117,14 +118,13 @@ public class MusicPlayer implements Runnable {
             sourceDataLine.drain();
             sourceDataLine.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            cn.pupperclient.PupperLogger.error("MusicPlayer", "Failed to play FLAC file", e);
         }
     }
 
     private void playMp3File() {
-        try {
-            FileInputStream fis = new FileInputStream(currentMusic.getAudio());
-            BufferedInputStream bis = new BufferedInputStream(fis);
+        try (FileInputStream fis = new FileInputStream(currentMusic.getAudio());
+             BufferedInputStream bis = new BufferedInputStream(fis)) {
 
             calculateMp3Duration(currentMusic.getAudio());
 
@@ -152,9 +152,11 @@ public class MusicPlayer implements Runnable {
 
                 SampleBuffer output = (SampleBuffer) mp3Decoder.decodeFrame(mp3Header, bitstream);
                 if (output != null) {
-                    byte[] buffer = toByteArray(output.getBuffer(), output.getBufferLength());
-                    updateSpectrum(buffer);
-                    sourceDataLine.write(buffer, 0, buffer.length);
+                    int length = output.getBufferLength();
+                    ensureMp3Buffer(length * 2);
+                    fillMp3Buffer(output.getBuffer(), length);
+                    updateSpectrum(mp3Buffer, length * 2);
+                    sourceDataLine.write(mp3Buffer, 0, length * 2);
                 }
 
                 bitstream.closeFrame();
@@ -169,10 +171,22 @@ public class MusicPlayer implements Runnable {
             sourceDataLine.drain();
             sourceDataLine.close();
             bitstream.close();
-            fis.close();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            cn.pupperclient.PupperLogger.error("MusicPlayer", "Failed to play MP3 file", e);
+        }
+    }
+
+    private void ensureMp3Buffer(int length) {
+        if (mp3Buffer.length < length) {
+            mp3Buffer = new byte[length];
+        }
+    }
+
+    private void fillMp3Buffer(short[] samples, int length) {
+        for (int i = 0; i < length; i++) {
+            mp3Buffer[i * 2] = (byte) (samples[i] & 0xFF);
+            mp3Buffer[i * 2 + 1] = (byte) ((samples[i] >> 8) & 0xFF);
         }
     }
 
@@ -181,35 +195,24 @@ public class MusicPlayer implements Runnable {
             com.mpatric.mp3agic.Mp3File mp3 = new com.mpatric.mp3agic.Mp3File(mp3File);
             mp3Duration = (float) mp3.getLengthInSeconds();
         } catch (Exception e) {
-            try {
-                AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(mp3File);
+            try (AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(mp3File)) {
                 AudioFormat format = audioInputStream.getFormat();
                 long frames = audioInputStream.getFrameLength();
                 mp3Duration = (float) (frames / format.getFrameRate());
-                audioInputStream.close();
             } catch (Exception ex) {
                 mp3Duration = 0;
-                ex.printStackTrace();
+                cn.pupperclient.PupperLogger.error("MusicPlayer", "Failed to calculate MP3 duration", ex);
             }
         }
     }
-    private byte[] toByteArray(short[] samples, int length) {
-        byte[] buffer = new byte[length * 2];
-        for (int i = 0; i < length; i++) {
-            buffer[i * 2] = (byte) (samples[i] & 0xFF);
-            buffer[i * 2 + 1] = (byte) ((samples[i] >> 8) & 0xFF);
-        }
-        return buffer;
-    }
 
-    private void updateSpectrum(byte[] audioData) {
+    private void updateSpectrum(byte[] audioData, int length) {
 
-        for (int i = 0; i < Math.min(audioData.length / 2, FFT_SIZE); i++) {
+        int samples = Math.min(length / 2, FFT_SIZE);
+        for (int i = 0; i < samples; i++) {
             int index = i * 2;
-            if (index + 1 < audioData.length) {
-                short sample = (short) ((audioData[index + 1] << 8) | (audioData[index] & 0xFF));
-                fftBuffer[i] = sample / 32768.0f;
-            }
+            short sample = (short) ((audioData[index + 1] << 8) | (audioData[index] & 0xFF));
+            fftBuffer[i] = sample / 32768.0f;
         }
 
         for (int i = 0; i < SPECTRUM_BANDS; i++) {

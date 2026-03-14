@@ -21,7 +21,7 @@ import cn.pupperclient.ui.component.Component;
 import cn.pupperclient.ui.component.handler.impl.ButtonHandler;
 import cn.pupperclient.ui.component.impl.IconButton;
 import cn.pupperclient.ui.component.impl.text.TextField;
-import cn.pupperclient.utils.Multithreading;
+import cn.pupperclient.utils.thread.Multithreading;
 import cn.pupperclient.utils.mouse.MouseUtils;
 
 public class MusicControlBar extends Component {
@@ -96,7 +96,7 @@ public class MusicControlBar extends Component {
 							try {
 								PupperClient.getInstance().getMusicManager().load();
 							} catch (Exception e) {
-								e.printStackTrace();
+								cn.pupperclient.PupperLogger.error("MusicControlBar", "Failed to reload music list", e);
 							}
 						}
 					});

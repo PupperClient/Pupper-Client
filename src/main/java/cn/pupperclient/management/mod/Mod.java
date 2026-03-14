@@ -5,7 +5,7 @@ import cn.pupperclient.event.EventBus;
 
 import cn.pupperclient.event.mod.ModStateChangeEvent;
 import cn.pupperclient.management.keybind.KeybindManager;
-import cn.pupperclient.utils.IMinecraft;
+import cn.pupperclient.utils.minecraft.interfaces.IMinecraft;
 import cn.pupperclient.utils.language.I18n;
 
 public class Mod implements IMinecraft {

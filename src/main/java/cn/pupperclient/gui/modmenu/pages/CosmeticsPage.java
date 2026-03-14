@@ -14,10 +14,10 @@ import cn.pupperclient.skia.font.Icon;
 import cn.pupperclient.ui.component.Component;
 import cn.pupperclient.ui.component.handler.impl.ButtonHandler;
 import cn.pupperclient.ui.component.impl.IconButton;
-import cn.pupperclient.utils.ColorUtils;
-import cn.pupperclient.utils.Multithreading;
+import cn.pupperclient.utils.color.ColorUtils;
+import cn.pupperclient.utils.thread.Multithreading;
 import cn.pupperclient.utils.file.FileLocation;
-import cn.pupperclient.utils.file.dialog.SoarFileDialog;
+import cn.pupperclient.utils.file.FileDialog;
 import cn.pupperclient.utils.language.I18n;
 import cn.pupperclient.utils.mouse.MouseUtils;
 import net.minecraft.util.Identifier;
@@ -87,7 +87,7 @@ public class CosmeticsPage extends Page {
                         byte[] capeData = Files.readAllBytes(capeFile.toPath());
                         PupperClient.getInstance().getCapeManager().loadCape(capeId, capeData);
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        cn.pupperclient.PupperLogger.error("CosmeticsPage", "Failed to load existing cape", e);
                     }
                 }
             }
@@ -96,7 +96,7 @@ public class CosmeticsPage extends Page {
 
     private void uploadCape() {
         Multithreading.runAsync(() -> {
-            var result = SoarFileDialog.chooseFile("Select Cape", "png");
+            var result = FileDialog.chooseFile("Select Cape", "png");
 
             if (result.left()) {
                 File selectedFile = result.right();
@@ -114,7 +114,7 @@ public class CosmeticsPage extends Page {
                         Files.copy(selectedFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                         loadExistingCapes();
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        cn.pupperclient.PupperLogger.error("CosmeticsPage", "Failed to copy uploaded cape", e);
                     }
                 } else {
                     System.out.println("Invalid cape format!");
@@ -231,7 +231,7 @@ public class CosmeticsPage extends Page {
                 } else {
                     // 如果纹理尚未加载，显示加载状态或占位符
                     Skia.drawRoundedRect(itemX + 5, itemY + 5, itemWidth - 10, itemHeight - 10, 8, 
-                        ColorUtils.withAlpha(palette.getSurfaceVariant(), 0.5f));
+                        ColorUtils.applyAlpha(palette.getSurfaceVariant(), 0.5f));
                     // 可以添加加载中的文字提示
                     String loadingText = "Loading...";
                     float textWidth = Skia.getTextBounds(loadingText, Fonts.getRegular(12)).getWidth();

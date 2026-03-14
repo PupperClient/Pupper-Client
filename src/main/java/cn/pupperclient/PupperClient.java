@@ -16,9 +16,9 @@ import cn.pupperclient.management.music.MusicManager;
 import cn.pupperclient.management.profile.ProfileManager;
 import cn.pupperclient.management.websocket.WebSocketManager;
 import cn.pupperclient.skia.font.Fonts;
-import cn.pupperclient.utils.ExternalToolManager;
-import cn.pupperclient.utils.IMinecraft;
-import cn.pupperclient.utils.Multithreading;
+import cn.pupperclient.utils.system.ExternalToolManager;
+import cn.pupperclient.utils.minecraft.interfaces.IMinecraft;
+import cn.pupperclient.utils.thread.Multithreading;
 import cn.pupperclient.utils.file.FileLocation;
 import cn.pupperclient.utils.language.*;
 import com.viaversion.viafabricplus.ViaFabricPlus;
@@ -73,6 +73,8 @@ public class PupperClient implements IMinecraft {
         if (keybindManager != null) {
             keybindManager.cleanup();
         }
+        cn.pupperclient.skia.Skia.getImageHelper().clear();
+        cn.pupperclient.skia.font.FontHelper.clearCache();
         Multithreading.shutdown();
     }
 
@@ -141,7 +143,7 @@ public class PupperClient implements IMinecraft {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (firstLaunch && client.world != null && !hasAcceptedTerms) {
                 TermsScreen termsScreen = new TermsScreen();
-                client.setScreen(termsScreen.build());
+                client.setScreen(termsScreen);
             }
         });
     }

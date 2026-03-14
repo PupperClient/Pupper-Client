@@ -8,11 +8,9 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
 import cn.pupperclient.PupperClient;
-import cn.pupperclient.management.mod.impl.settings.SystemSettings;
 import com.google.gson.JsonObject;
 import cn.pupperclient.animation.SimpleAnimation;
 import cn.pupperclient.gui.api.SimpleSoarGui;
-import cn.pupperclient.management.Notification.NotificationManager;
 import cn.pupperclient.management.color.api.ColorPalette;
 import cn.pupperclient.management.config.ConfigType;
 import cn.pupperclient.management.mod.impl.settings.ModMenuSettings;
@@ -25,13 +23,11 @@ import cn.pupperclient.ui.component.impl.IconButton;
 import cn.pupperclient.ui.component.impl.Switch;
 import cn.pupperclient.ui.component.handler.impl.ButtonHandler;
 import cn.pupperclient.ui.component.handler.impl.SwitchHandler;
-import cn.pupperclient.utils.ColorUtils;
-import cn.pupperclient.utils.ExternalToolManager;
-import cn.pupperclient.utils.ToolInstallCallback;
+import cn.pupperclient.utils.color.ColorUtils;
 import cn.pupperclient.utils.language.I18n;
 import cn.pupperclient.utils.mouse.MouseUtils;
-import cn.pupperclient.utils.Multithreading;
-import cn.pupperclient.utils.file.dialog.SoarFileDialog;
+import cn.pupperclient.utils.thread.Multithreading;
+import cn.pupperclient.utils.file.FileDialog;
 import cn.pupperclient.utils.file.FileLocation;
 import cn.pupperclient.utils.mouse.ScrollHelper;
 import com.terraformersmc.modmenu.gui.ModsScreen;
@@ -62,13 +58,9 @@ public class MainMenuGui extends SimpleSoarGui {
     private final ScrollHelper backgroundScrollHelper = new ScrollHelper();
     private float parallaxX = 0;
     private float parallaxY = 0;
-    private final NotificationManager notificationManager;
-    private boolean toolsAvailable = false;
-    private boolean toolsChecked = false;
 
     public MainMenuGui() {
         super(false);
-        this.notificationManager = new NotificationManager();
     }
 
     @Override
@@ -76,87 +68,6 @@ public class MainMenuGui extends SimpleSoarGui {
         updateLayout();
         loadBackgroundSettings();
         initCustomizationComponents();
-
-//        if (!toolsChecked) {
-//            checkTools();
-//        }
-    }
-
-    private void checkTools() {
-        toolsChecked = true;
-
-        if (!PupperClient.firstLaunch) {
-            toolsAvailable = true;
-            ExternalToolManager toolManager = PupperClient.getInstance().getToolManager();
-            if (SystemSettings.getInstance().getFFmpegPath() == null || SystemSettings.getInstance().getYtdlpPath() == null) {
-                SystemSettings.getInstance().getFfmpegPathSetting().setFile(toolManager.getFfmpegPath());
-                SystemSettings.getInstance().getYtdlpPathSetting().setFile(toolManager.getYtDlpPath());
-            }
-            updateAllButtonStates();
-        }
-
-        PupperClient.LOGGER.info("开始检查工具...");
-        Multithreading.runAsync(() -> {
-            try {
-                ExternalToolManager toolManager = PupperClient.getInstance().getToolManager();
-                if (toolManager != null) {
-                    toolManager.checkAndInstallTools(new ToolInstallCallback() {
-                        @Override
-                        public void onProgress(PupperClient.MusicToolStatus status, float progress, String message) {
-                            Multithreading.runMainThread(() -> {
-                                PupperClient.LOGGER.info("工具检查进度: {} - {}% - {}", status, progress * 100, message);
-                                notificationManager.showToolCheckNotification(status, progress, message);
-                            });
-                        }
-
-                        @Override
-                        public void onComplete(boolean success) {
-                            Multithreading.runMainThread(() -> {
-                                PupperClient.LOGGER.info("工具检查完成: {}", success ? "成功" : "失败");
-                                toolsAvailable = success;
-                                PupperClient.MusicToolStatus finalStatus = success ? PupperClient.MusicToolStatus.INSTALLED : PupperClient.MusicToolStatus.FAILED;
-                                notificationManager.showToolCheckNotification(finalStatus, 1f,
-                                    success ? "工具安装完成" : "工具安装失败");
-
-                                if (success){
-                                    SystemSettings.getInstance().getFfmpegPathSetting().setFile(toolManager.getFfmpegPath());
-                                    SystemSettings.getInstance().getYtdlpPathSetting().setFile(toolManager.getYtDlpPath());
-                                }
-
-                                updateAllButtonStates();
-                            });
-                        }
-                    });
-                } else {
-                    PupperClient.LOGGER.warn("工具管理器为空");
-                    Multithreading.runMainThread(() -> {
-                        toolsAvailable = false;
-                        updateAllButtonStates();
-                    });
-                }
-            } catch (Exception e) {
-                PupperClient.LOGGER.error("工具检查失败: {}", e.getMessage());
-                Multithreading.runMainThread(() -> {
-                    notificationManager.showToolCheckNotification(PupperClient.MusicToolStatus.FAILED, 0f, "工具检查失败: " + e.getMessage());
-                    toolsAvailable = false;
-                    updateAllButtonStates();
-                });
-            }
-        });
-    }
-
-    private void updateAllButtonStates() {
-        PupperClient.LOGGER.info("update: toolsAvailable = {}", toolsAvailable);
-
-        for (MainMenuButton button : buttons) {
-            boolean isSettingsOrBackground = button == settingsButton || button == backgroundButton;
-            boolean shouldEnable = toolsAvailable || isSettingsOrBackground;
-            button.setEnabled(shouldEnable);
-        }
-
-        if (client != null && client.currentScreen != null) {
-            client.currentScreen.init(client, client.getWindow().getWidth(), client.getWindow().getHeight());
-        }
     }
 
     private void loadBackgroundSettings() {
@@ -186,25 +97,24 @@ public class MainMenuGui extends SimpleSoarGui {
         float buttonWidth = 240 * scaleFactor;
 
         buttons.add(new MainMenuButton("menu.singleplayer", Icon.HOME,
-            centerX - buttonWidth / 2, centerY - (120 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new SelectWorldScreen(this.build()))));
+            centerX - buttonWidth / 2, centerY - (120 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new SelectWorldScreen(this))));
 
         buttons.add(new MainMenuButton("menu.multiplayer", Icon.GROUPS,
             centerX - buttonWidth / 2, centerY - (60 * scaleFactor), buttonWidth, scaleFactor, () -> {
-            //client.setScreen(new MultiplayerGui().build());
-            client.setScreen(new MultiplayerScreen(this.build()));
+            client.setScreen(new MultiplayerScreen(this));
         }));
 
         buttons.add(new MainMenuButton("menu.realms", Icon.DNS,
-            centerX - buttonWidth / 2, centerY, buttonWidth, scaleFactor, () -> client.setScreen(new RealmsMainScreen(this.build()))));
+            centerX - buttonWidth / 2, centerY, buttonWidth, scaleFactor, () -> client.setScreen(new RealmsMainScreen(this))));
 
         buttons.add(new MainMenuButton("menu.ias", Icon.ACCOUNT_BALANCE,
-            centerX - buttonWidth / 2, centerY + (60 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new AccountScreen(this.build()))));
+            centerX - buttonWidth / 2, centerY + (60 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new AccountScreen(this))));
 
         buttons.add(new MainMenuButton("menu.modmenu", Icon.LIST,
-            centerX - buttonWidth / 2, centerY + (120 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new ModsScreen(this.build()))));
+            centerX - buttonWidth / 2, centerY + (120 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new ModsScreen(this))));
 
         buttons.add(new MainMenuButton("menu.options", Icon.SETTINGS,
-            centerX - buttonWidth / 2, centerY + (180 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new OptionsScreen(this.build(), client.options))));
+            centerX - buttonWidth / 2, centerY + (180 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new OptionsScreen(this, client.options))));
 
         buttons.add(new MainMenuButton("menu.quit", Icon.CLOSE,
             centerX - buttonWidth / 2, centerY + (240 * scaleFactor), buttonWidth, scaleFactor, () -> client.scheduleStop()));
@@ -224,8 +134,7 @@ public class MainMenuGui extends SimpleSoarGui {
         lastWindowHeight = client.getWindow().getHeight();
 
         for (MainMenuButton button : buttons) {
-            boolean isSettingsOrBackground = button == settingsButton || button == backgroundButton;
-            button.setEnabled(toolsAvailable || isSettingsOrBackground);
+            button.setEnabled(true);
         }
     }
 
@@ -278,7 +187,7 @@ public class MainMenuGui extends SimpleSoarGui {
             @Override
             public void onAction() {
                 Multithreading.runAsync(() -> {
-                    ObjectObjectImmutablePair<Boolean, File> result = SoarFileDialog.chooseFile("Select Background Image", "png", "jpg");
+                    ObjectObjectImmutablePair<Boolean, File> result = FileDialog.chooseFile("Select Background Image", "png", "jpg");
 
                     if (result.left()) {
                         File selectedFile = result.right();
@@ -382,9 +291,6 @@ public class MainMenuGui extends SimpleSoarGui {
         for (MainMenuButton button : buttons) {
             button.draw((int) mouseX, (int) mouseY);
         }
-
-        // 绘制通知
-        notificationManager.draw(mouseX, mouseY);
 
         backgroundButton.draw((int) mouseX, (int) mouseY);
         settingsButton.draw((int) mouseX, (int) mouseY);
@@ -537,9 +443,9 @@ public class MainMenuGui extends SimpleSoarGui {
     }
 
     @Override
-    public void mousePressed(double mouseX, double mouseY, int button) {
+    public boolean onMousePressed(double mouseX, double mouseY, int button) {
         if (isWindowMinimized()) {
-            return;
+            return false;
         }
 
         if (showBackgroundWindow) {
@@ -569,13 +475,13 @@ public class MainMenuGui extends SimpleSoarGui {
                     break;
                 }
             }
-            return;
+            return true;
         }
 
         if (showCustomizationWindow) {
             darkModeSwitch.mousePressed(mouseX, mouseY, button);
             exitCustomizationButton.mousePressed(mouseX, mouseY, button);
-            return;
+            return true;
         }
 
         for (MainMenuButton menuButton : buttons) {
@@ -584,24 +490,25 @@ public class MainMenuGui extends SimpleSoarGui {
 
         backgroundButton.mousePressed((int) mouseX, (int) mouseY, button);
         settingsButton.mousePressed((int) mouseX, (int) mouseY, button);
+        return true;
     }
 
     @Override
-    public void mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean onMouseReleased(double mouseX, double mouseY, int button) {
         if (isWindowMinimized()) {
-            return;
+            return false;
         }
 
         if (showBackgroundWindow) {
             exitBackgroundButton.mouseReleased(mouseX, mouseY, button);
             addBackgroundButton.mouseReleased(mouseX, mouseY, button);
-            return;
+            return true;
         }
 
         if (showCustomizationWindow) {
             darkModeSwitch.mouseReleased(mouseX, mouseY, button);
             exitCustomizationButton.mouseReleased(mouseX, mouseY, button);
-            return;
+            return true;
         }
 
         for (MainMenuButton menuButton : buttons) {
@@ -610,10 +517,11 @@ public class MainMenuGui extends SimpleSoarGui {
 
         backgroundButton.mouseReleased((int) mouseX, (int) mouseY, button);
         settingsButton.mouseReleased((int) mouseX, (int) mouseY, button);
+        return true;
     }
 
     @Override
-    public void charTyped(char chr, int modifiers) {
+    public boolean onCharTyped(char chr, int modifiers) {
         if (showBackgroundWindow) {
             exitBackgroundButton.charTyped(chr, modifiers);
             addBackgroundButton.charTyped(chr, modifiers);
@@ -623,10 +531,11 @@ public class MainMenuGui extends SimpleSoarGui {
             darkModeSwitch.charTyped(chr, modifiers);
             exitCustomizationButton.charTyped(chr, modifiers);
         }
+        return true;
     }
 
     @Override
-    public void keyPressed(int keyCode, int scanCode, int modifiers) {
+    public boolean onKeyPressed(int keyCode, int scanCode, int modifiers) {
         if (showBackgroundWindow) {
             exitBackgroundButton.keyPressed(keyCode, scanCode, modifiers);
             addBackgroundButton.keyPressed(keyCode, scanCode, modifiers);
@@ -636,6 +545,7 @@ public class MainMenuGui extends SimpleSoarGui {
             darkModeSwitch.keyPressed(keyCode, scanCode, modifiers);
             exitCustomizationButton.keyPressed(keyCode, scanCode, modifiers);
         }
+        return super.onKeyPressed(keyCode, scanCode, modifiers);
     }
 
     static class BackgroundItem {
@@ -692,7 +602,6 @@ public class MainMenuGui extends SimpleSoarGui {
 
             float radius = 20 * scaleFactor;
 
-            // 根据启用状态调整颜色
             java.awt.Color bgColor = enabled ? palette.getSurface() :
                 ColorUtils.applyAlpha(palette.getSurface(), 0.5f);
             java.awt.Color textColor = enabled ?

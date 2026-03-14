@@ -3,7 +3,7 @@ package cn.pupperclient.management.mod.settings.impl;
 import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.mod.Mod;
 import cn.pupperclient.management.mod.settings.Setting;
-import cn.pupperclient.utils.MathUtils;
+import cn.pupperclient.utils.math.MathUtils;
 
 public class NumberSetting extends Setting {
 

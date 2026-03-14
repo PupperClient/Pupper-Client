@@ -5,7 +5,7 @@ import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.client.KeyEvent;
 import cn.pupperclient.management.mod.Mod;
 import cn.pupperclient.management.mod.ModManager;
-import cn.pupperclient.utils.IMinecraft;
+import cn.pupperclient.utils.minecraft.interfaces.IMinecraft;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;

@@ -9,7 +9,7 @@ import cn.pupperclient.management.mod.settings.impl.ComboSetting;
 import cn.pupperclient.management.mod.settings.impl.FileSetting;
 import cn.pupperclient.management.mod.settings.impl.StringSetting;
 import cn.pupperclient.skia.font.Icon;
-import cn.pupperclient.utils.OS;
+import cn.pupperclient.utils.system.OS;
 
 public class SystemSettings extends Mod {
 

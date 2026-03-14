@@ -7,7 +7,7 @@ import cn.pupperclient.management.mod.settings.impl.ComboSetting;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.font.Fonts;
 import cn.pupperclient.skia.font.Icon;
-import cn.pupperclient.utils.JNAWindowChecker;
+import cn.pupperclient.utils.system.JNAWindowChecker;
 import io.github.humbleui.skija.FontMetrics;
 import io.github.humbleui.types.Rect;
 

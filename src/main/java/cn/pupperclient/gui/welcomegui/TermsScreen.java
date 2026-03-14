@@ -107,15 +107,17 @@ public class TermsScreen extends SimpleSoarGui {
     }
 
     @Override
-    public void mousePressed(double mouseX, double mouseY, int button) {
+    public boolean onMousePressed(double mouseX, double mouseY, int button) {
         acceptButton.mousePressed(mouseX, mouseY, button);
         declineButton.mousePressed(mouseX, mouseY, button);
+        return true;
     }
 
     @Override
-    public void mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean onMouseReleased(double mouseX, double mouseY, int button) {
         acceptButton.mouseReleased(mouseX, mouseY, button);
         declineButton.mouseReleased(mouseX, mouseY, button);
+        return true;
     }
 
     // 添加一个方法来检查是否已经接受条款

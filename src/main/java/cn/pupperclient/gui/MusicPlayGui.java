@@ -2,12 +2,10 @@ package cn.pupperclient.gui;
 
 import cn.pupperclient.gui.api.SimpleSoarGui;
 import cn.pupperclient.skia.Skia;
-import cn.pupperclient.skia.font.FontHelper;
 import cn.pupperclient.skia.font.Fonts;
 import cn.pupperclient.skia.font.Icon;
 import cn.pupperclient.utils.mouse.MouseUtils;
 import io.github.humbleui.types.Rect;
-import net.minecraft.client.MinecraftClient;
 
 import java.awt.*;
 
@@ -45,7 +43,7 @@ public class MusicPlayGui extends SimpleSoarGui {
     }
 
     @Override
-    public void mousePressed(double mouseX, double mouseY, int button) {
+    public boolean onMousePressed(double mouseX, double mouseY, int button) {
         int windowWidth = client.getWindow().getWidth();
         int windowHeight = client.getWindow().getHeight();
 
@@ -67,5 +65,6 @@ public class MusicPlayGui extends SimpleSoarGui {
         } else if (MouseUtils.isInside(mouseX, mouseY, startX + 1285, startY + 19, icon_FULLSCREEN_rect.getWidth() + 1, icon_FULLSCREEN_rect.getHeight() + 1)) {
             isfullscreen = !isfullscreen;
         }
+        return true;
     }
 }

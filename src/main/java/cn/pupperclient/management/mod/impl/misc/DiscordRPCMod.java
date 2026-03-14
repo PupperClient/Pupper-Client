@@ -74,7 +74,7 @@ public class DiscordRPCMod extends Mod {
 		try {
 			client.connect();
 		} catch (NoDiscordClientException e) {
-			e.printStackTrace();
+			cn.pupperclient.PupperLogger.error("DiscordRPC", "Failed to connect to Discord IPC", e);
 		}
 	}
 

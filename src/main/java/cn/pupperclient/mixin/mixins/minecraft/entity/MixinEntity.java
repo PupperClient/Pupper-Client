@@ -1,6 +1,6 @@
 package cn.pupperclient.mixin.mixins.minecraft.entity;
 
-import cn.pupperclient.utils.SoundEventHelper;
+import cn.pupperclient.utils.misc.SoundEventHelper;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.Vec3d;
