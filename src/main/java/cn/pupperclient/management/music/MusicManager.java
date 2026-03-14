@@ -17,7 +17,7 @@ import cn.pupperclient.libraries.flac.metadata.Metadata;
 import cn.pupperclient.libraries.flac.metadata.Picture;
 import cn.pupperclient.libraries.flac.metadata.VorbisComment;
 import cn.pupperclient.utils.render.ImageUtils;
-import cn.pupperclient.utils.math.RandomUtils;
+import cn.pupperclient.utils.math.MathUtils;
 import cn.pupperclient.utils.file.FileLocation;
 import cn.pupperclient.utils.file.FileUtils;
 
@@ -35,7 +35,7 @@ public class MusicManager {
         try {
             load();
         } catch (Exception e) {
-            e.printStackTrace();
+            cn.pupperclient.PupperLogger.error("MusicManager", "Failed to load music", e);
         }
 
         this.musicPlayer = new MusicPlayer(() -> {
@@ -45,7 +45,7 @@ public class MusicManager {
             if (repeat) {
                 nextMusic = currentMusic;
             } else if (shuffle) {
-                nextMusic = musics.get(RandomUtils.getRandomInt(0, musics.size() - 1));
+                nextMusic = musics.get(MathUtils.getRandomInt(0, musics.size() - 1));
             } else {
                 nextMusic = null;
             }
@@ -65,8 +65,10 @@ public class MusicManager {
             public void run() {
                 while (true) {
                     try {
-                        Thread.sleep(0);
+                        Thread.sleep(10);
                     } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        break;
                     }
                     musicPlayer.run();
                 }

@@ -2,13 +2,11 @@ package cn.pupperclient.utils.math;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class MathUtils {
-    public static final Random random = new Random();
 
 	public static float roundToPlace(double value, int places) {
-
 		if (places < 0) {
 			throw new IllegalArgumentException();
 		}
@@ -35,14 +33,22 @@ public class MathUtils {
     }
 
     public static float interpolateFloat(float oldValue, float newValue, double interpolationValue){
-        return interpolate(oldValue, newValue, (float) interpolationValue).floatValue();
+        return interpolate(oldValue, newValue, interpolationValue).floatValue();
     }
 
     public static int interpolateInt(int oldValue, int newValue, double interpolationValue){
-        return interpolate(oldValue, newValue, (float) interpolationValue).intValue();
+        return interpolate(oldValue, newValue, interpolationValue).intValue();
     }
 
-    public static double getRandomDoubleInRange(double minDouble, double maxDouble) {
-        return minDouble >= maxDouble ? minDouble : random.nextDouble() * (maxDouble - minDouble) + minDouble;
+    public static double getRandomDouble(double min, double max) {
+        return min >= max ? min : ThreadLocalRandom.current().nextDouble(min, max);
+    }
+
+    public static int getRandomInt(int min, int max) {
+        return min >= max ? min : ThreadLocalRandom.current().nextInt(min, max + 1);
+    }
+
+    public static long getRandomLong(long min, long max) {
+        return min >= max ? min : ThreadLocalRandom.current().nextLong(min, max + 1);
     }
 }
