@@ -63,7 +63,7 @@ public class NavigationRail extends Component {
         editButton.setHandler(new ButtonHandler() {
             @Override
             public void onAction() {
-                parent.close(new GuiEditHUD(ModMenuSettings.getInstance().getModMenu()).build());
+                parent.close(new GuiEditHUD(ModMenuSettings.getInstance().getModMenu()));
             }
         });
     }

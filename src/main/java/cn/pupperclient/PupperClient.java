@@ -143,7 +143,7 @@ public class PupperClient implements IMinecraft {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (firstLaunch && client.world != null && !hasAcceptedTerms) {
                 TermsScreen termsScreen = new TermsScreen();
-                client.setScreen(termsScreen.build());
+                client.setScreen(termsScreen);
             }
         });
     }

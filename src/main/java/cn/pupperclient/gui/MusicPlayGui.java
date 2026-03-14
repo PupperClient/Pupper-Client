@@ -43,7 +43,7 @@ public class MusicPlayGui extends SimpleSoarGui {
     }
 
     @Override
-    public void mousePressed(double mouseX, double mouseY, int button) {
+    public boolean onMousePressed(double mouseX, double mouseY, int button) {
         int windowWidth = client.getWindow().getWidth();
         int windowHeight = client.getWindow().getHeight();
 
@@ -65,5 +65,6 @@ public class MusicPlayGui extends SimpleSoarGui {
         } else if (MouseUtils.isInside(mouseX, mouseY, startX + 1285, startY + 19, icon_FULLSCREEN_rect.getWidth() + 1, icon_FULLSCREEN_rect.getHeight() + 1)) {
             isfullscreen = !isfullscreen;
         }
+        return true;
     }
 }

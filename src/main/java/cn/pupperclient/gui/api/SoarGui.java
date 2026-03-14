@@ -125,7 +125,7 @@ public abstract class SoarGui extends SimpleSoarGui {
 	}
 
 	@Override
-	public void mousePressed(double mouseX, double mouseY, int button) {
+	public boolean onMousePressed(double mouseX, double mouseY, int button) {
 
 		if (currentPage != null) {
 			currentPage.mousePressed(mouseX, mouseY, button);
@@ -134,10 +134,11 @@ public abstract class SoarGui extends SimpleSoarGui {
 		for (Component c : components) {
 			c.mousePressed(mouseX, mouseY, button);
 		}
+        return true;
 	}
 
 	@Override
-	public void mouseReleased(double mouseX, double mouseY, int button) {
+	public boolean onMouseReleased(double mouseX, double mouseY, int button) {
 
 		if (currentPage != null) {
 			currentPage.mouseReleased(mouseX, mouseY, button);
@@ -146,17 +147,19 @@ public abstract class SoarGui extends SimpleSoarGui {
 		for (Component c : components) {
 			c.mouseReleased(mouseX, mouseY, button);
 		}
+        return true;
 	}
 
 	@Override
-	public void mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+	public boolean onMouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
 		if (currentPage != null) {
 			currentPage.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
 		}
+        return true;
 	}
 
 	@Override
-	public void charTyped(char chr, int modifiers) {
+	public boolean onCharTyped(char chr, int modifiers) {
 
 		if (currentPage != null) {
 			currentPage.charTyped(chr, modifiers);
@@ -165,13 +168,15 @@ public abstract class SoarGui extends SimpleSoarGui {
 		for (Component c : components) {
 			c.charTyped(chr, modifiers);
 		}
+        return true;
 	}
 
 	@Override
-	public void keyPressed(int keyCode, int scanCode, int modifiers) {
+	public boolean onKeyPressed(int keyCode, int scanCode, int modifiers) {
 
 		if (keyCode == GLFW.GLFW_KEY_ESCAPE && inOutAnimation.getEnd() == 1 && closable) {
 			close();
+            return true;
 		}
 
 		if (currentPage != null) {
@@ -181,6 +186,7 @@ public abstract class SoarGui extends SimpleSoarGui {
 		for (Component c : components) {
 			c.keyPressed(keyCode, scanCode, modifiers);
 		}
+        return true;
 	}
 
 	public void close(Screen nextScreen) {

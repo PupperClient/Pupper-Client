@@ -97,24 +97,24 @@ public class MainMenuGui extends SimpleSoarGui {
         float buttonWidth = 240 * scaleFactor;
 
         buttons.add(new MainMenuButton("menu.singleplayer", Icon.HOME,
-            centerX - buttonWidth / 2, centerY - (120 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new SelectWorldScreen(this.build()))));
+            centerX - buttonWidth / 2, centerY - (120 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new SelectWorldScreen(this))));
 
         buttons.add(new MainMenuButton("menu.multiplayer", Icon.GROUPS,
             centerX - buttonWidth / 2, centerY - (60 * scaleFactor), buttonWidth, scaleFactor, () -> {
-            client.setScreen(new MultiplayerScreen(this.build()));
+            client.setScreen(new MultiplayerScreen(this));
         }));
 
         buttons.add(new MainMenuButton("menu.realms", Icon.DNS,
-            centerX - buttonWidth / 2, centerY, buttonWidth, scaleFactor, () -> client.setScreen(new RealmsMainScreen(this.build()))));
+            centerX - buttonWidth / 2, centerY, buttonWidth, scaleFactor, () -> client.setScreen(new RealmsMainScreen(this))));
 
         buttons.add(new MainMenuButton("menu.ias", Icon.ACCOUNT_BALANCE,
-            centerX - buttonWidth / 2, centerY + (60 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new AccountScreen(this.build()))));
+            centerX - buttonWidth / 2, centerY + (60 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new AccountScreen(this))));
 
         buttons.add(new MainMenuButton("menu.modmenu", Icon.LIST,
-            centerX - buttonWidth / 2, centerY + (120 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new ModsScreen(this.build()))));
+            centerX - buttonWidth / 2, centerY + (120 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new ModsScreen(this))));
 
         buttons.add(new MainMenuButton("menu.options", Icon.SETTINGS,
-            centerX - buttonWidth / 2, centerY + (180 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new OptionsScreen(this.build(), client.options))));
+            centerX - buttonWidth / 2, centerY + (180 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new OptionsScreen(this, client.options))));
 
         buttons.add(new MainMenuButton("menu.quit", Icon.CLOSE,
             centerX - buttonWidth / 2, centerY + (240 * scaleFactor), buttonWidth, scaleFactor, () -> client.scheduleStop()));
@@ -443,9 +443,9 @@ public class MainMenuGui extends SimpleSoarGui {
     }
 
     @Override
-    public void mousePressed(double mouseX, double mouseY, int button) {
+    public boolean onMousePressed(double mouseX, double mouseY, int button) {
         if (isWindowMinimized()) {
-            return;
+            return false;
         }
 
         if (showBackgroundWindow) {
@@ -475,13 +475,13 @@ public class MainMenuGui extends SimpleSoarGui {
                     break;
                 }
             }
-            return;
+            return true;
         }
 
         if (showCustomizationWindow) {
             darkModeSwitch.mousePressed(mouseX, mouseY, button);
             exitCustomizationButton.mousePressed(mouseX, mouseY, button);
-            return;
+            return true;
         }
 
         for (MainMenuButton menuButton : buttons) {
@@ -490,24 +490,25 @@ public class MainMenuGui extends SimpleSoarGui {
 
         backgroundButton.mousePressed((int) mouseX, (int) mouseY, button);
         settingsButton.mousePressed((int) mouseX, (int) mouseY, button);
+        return true;
     }
 
     @Override
-    public void mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean onMouseReleased(double mouseX, double mouseY, int button) {
         if (isWindowMinimized()) {
-            return;
+            return false;
         }
 
         if (showBackgroundWindow) {
             exitBackgroundButton.mouseReleased(mouseX, mouseY, button);
             addBackgroundButton.mouseReleased(mouseX, mouseY, button);
-            return;
+            return true;
         }
 
         if (showCustomizationWindow) {
             darkModeSwitch.mouseReleased(mouseX, mouseY, button);
             exitCustomizationButton.mouseReleased(mouseX, mouseY, button);
-            return;
+            return true;
         }
 
         for (MainMenuButton menuButton : buttons) {
@@ -516,10 +517,11 @@ public class MainMenuGui extends SimpleSoarGui {
 
         backgroundButton.mouseReleased((int) mouseX, (int) mouseY, button);
         settingsButton.mouseReleased((int) mouseX, (int) mouseY, button);
+        return true;
     }
 
     @Override
-    public void charTyped(char chr, int modifiers) {
+    public boolean onCharTyped(char chr, int modifiers) {
         if (showBackgroundWindow) {
             exitBackgroundButton.charTyped(chr, modifiers);
             addBackgroundButton.charTyped(chr, modifiers);
@@ -529,10 +531,11 @@ public class MainMenuGui extends SimpleSoarGui {
             darkModeSwitch.charTyped(chr, modifiers);
             exitCustomizationButton.charTyped(chr, modifiers);
         }
+        return true;
     }
 
     @Override
-    public void keyPressed(int keyCode, int scanCode, int modifiers) {
+    public boolean onKeyPressed(int keyCode, int scanCode, int modifiers) {
         if (showBackgroundWindow) {
             exitBackgroundButton.keyPressed(keyCode, scanCode, modifiers);
             addBackgroundButton.keyPressed(keyCode, scanCode, modifiers);
@@ -542,6 +545,7 @@ public class MainMenuGui extends SimpleSoarGui {
             darkModeSwitch.keyPressed(keyCode, scanCode, modifiers);
             exitCustomizationButton.keyPressed(keyCode, scanCode, modifiers);
         }
+        return super.onKeyPressed(keyCode, scanCode, modifiers);
     }
 
     static class BackgroundItem {

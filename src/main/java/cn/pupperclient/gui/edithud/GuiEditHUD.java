@@ -52,10 +52,11 @@ public class GuiEditHUD extends SimpleSoarGui {
 	}
 
 	@Override
-	public void mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+	public boolean onMouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
 		if (selectedMod.isEmpty()) {
 			handleMouseWheel(mouseX, mouseY, verticalAmount);
 		}
+        return true;
 	}
 
 	private void updateModPosition(ObjectObjectImmutablePair<HUDMod, GrabOffset> mod, double mouseX, double mouseY) {
@@ -80,7 +81,7 @@ public class GuiEditHUD extends SimpleSoarGui {
 	}
 
 	@Override
-	public void mousePressed(double mouseX, double mouseY, int button) {
+	public boolean onMousePressed(double mouseX, double mouseY, int button) {
 		getHoveredMod(mouseX, mouseY).ifPresent(mod -> {
 			if (button == GLFW.GLFW_MOUSE_BUTTON_MIDDLE) {
 				mod.getPosition().setScale(1.0F);
@@ -93,19 +94,23 @@ public class GuiEditHUD extends SimpleSoarGui {
 
 			snapping = button == 0;
 		});
+        return true;
 	}
 
 	@Override
-	public void mouseReleased(double mouseX, double mouseY, int button) {
+	public boolean onMouseReleased(double mouseX, double mouseY, int button) {
 		selectedMod = Optional.empty();
+        return true;
 	}
 
 	@Override
-	public void keyPressed(int keyCode, int scanCode, int modifiers) {
+	public boolean onKeyPressed(int keyCode, int scanCode, int modifiers) {
 		if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
 			HUDCore.isEditing = false;
 			client.setScreen(prevScreen);
+            return true;
 		}
+        return super.onKeyPressed(keyCode, scanCode, modifiers);
 	}
 
 	private Optional<HUDMod> getHoveredMod(double mouseX, double mouseY) {
