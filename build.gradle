@@ -69,8 +69,6 @@ dependencies {
     modImplementation 'net.java.dev.jna:jna:5.12.1'
     modImplementation 'net.java.dev.jna:jna-platform:5.12.1'
 
-    modJij 'com.github.CCBlueX:mcef:3.0.0-1.21.4'
-
     def lwjglNfdDeps = [
             "org.lwjgl:lwjgl-nfd:$lwjglVersion",
             "org.lwjgl:lwjgl-nfd::natives-linux",
