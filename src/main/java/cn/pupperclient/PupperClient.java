@@ -4,7 +4,6 @@ import cn.pupperclient.animation.Delta;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.server.PacketHandler;
 import cn.pupperclient.gui.welcomegui.TermsScreen;
-import cn.pupperclient.libraries.browser.JCefBrowser;
 import cn.pupperclient.management.cape.CapeManager;
 import cn.pupperclient.management.color.ColorManager;
 import cn.pupperclient.management.command.PupperCommand;
@@ -79,7 +78,6 @@ public class PupperClient implements IMinecraft {
     }
 
     private void initializeResources() {
-        JCefBrowser.download();
         Fonts.loadAll();
         FileLocation.init();
         I18n.setLanguage(Language.ENGLISH);

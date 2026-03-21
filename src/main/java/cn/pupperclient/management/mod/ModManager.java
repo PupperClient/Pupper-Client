@@ -66,7 +66,6 @@ public class ModManager {
         mods.add(new ServerIPDisplayMod());
         mods.add(new SpeedometerMod());
         mods.add(new StopwatchMod());
-        mods.add(new WebBrowserMod());
         mods.add(new WeatherDisplayMod());
         mods.add(new YawDisplayMod());
         mods.add(new WatermarkMod());

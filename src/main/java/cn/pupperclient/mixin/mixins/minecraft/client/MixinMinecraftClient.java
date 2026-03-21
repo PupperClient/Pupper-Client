@@ -21,7 +21,6 @@ import cn.pupperclient.PupperClient;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.client.ClientTickEvent;
 import cn.pupperclient.event.client.GameLoopEvent;
-import cn.pupperclient.libraries.browser.JCefBrowser;
 import cn.pupperclient.management.config.ConfigType;
 import cn.pupperclient.management.mod.impl.player.HitDelayFixMod;
 import cn.pupperclient.management.mod.impl.player.OldAnimationsMod;
@@ -90,7 +89,6 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 	@Inject(method = "stop", at = @At("HEAD"))
 	public void onStop(CallbackInfo ci) {
 		PupperClient.getInstance().getConfigManager().save(ConfigType.MOD);
-		JCefBrowser.close();
 	}
 
 	@Inject(method = "handleBlockBreaking", at = @At("HEAD"))
