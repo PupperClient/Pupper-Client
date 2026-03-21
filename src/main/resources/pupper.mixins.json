@@ -9,7 +9,6 @@
     "minecraft.client.MixinMouse",
     "minecraft.client.gui.MixinBossBarHud",
     "minecraft.client.gui.MixinChatHud",
-    "minecraft.client.gui.MixinChatScreen",
     "minecraft.client.gui.MixinLanguageScreen",
     "minecraft.client.gui.MixinMultiplayerScreen",
     "minecraft.client.gui.MixinPackScreen",
