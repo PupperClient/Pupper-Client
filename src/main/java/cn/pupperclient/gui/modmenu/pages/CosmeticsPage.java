@@ -20,9 +20,11 @@ import cn.pupperclient.utils.file.FileLocation;
 import cn.pupperclient.utils.file.FileDialog;
 import cn.pupperclient.utils.language.I18n;
 import cn.pupperclient.utils.mouse.MouseUtils;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
+import io.github.humbleui.skija.Font;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -106,18 +108,18 @@ public class CosmeticsPage extends Page {
                     File targetFile = new File(FileLocation.CAPES_DIR, processedName);
 
                     if (targetFile.exists()) {
-                        System.out.println("Cape already exists!");
+                        PupperClient.LOGGER.warn("Cape already exists: {}", processedName);
                         return;
                     }
 
                     try {
                         Files.copy(selectedFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                        loadExistingCapes();
+                        MinecraftClient.getInstance().execute(this::loadExistingCapes);
                     } catch (IOException e) {
                         cn.pupperclient.PupperLogger.error("CosmeticsPage", "Failed to copy uploaded cape", e);
                     }
                 } else {
-                    System.out.println("Invalid cape format!");
+                    PupperClient.LOGGER.warn("Invalid cape format: {}", selectedFile.getAbsolutePath());
                 }
             }
         });
@@ -156,12 +158,11 @@ public class CosmeticsPage extends Page {
         ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
         float categoryBarY = y + 56;
         float categoryBarHeight = 24;
-        float categoryBarMarginBottom = 16;
         float categoryX = x + 26;
 
         for (Category category : Category.values()) {
             String categoryName = category.getName();
-            float textWidth = getEstimatedTextWidth(categoryName);
+            float textWidth = getTextWidth(categoryName, Fonts.getRegular(16));
             float padding = 20.0f;
             float buttonWidth = textWidth + padding;
             boolean isSelected = category == selectedCategory;
@@ -175,20 +176,8 @@ public class CosmeticsPage extends Page {
         }
     }
 
-    private float getEstimatedTextWidth(String text) {
-        float width = 0;
-        float wideCharWidth = 16.0f;
-        float narrowCharWidth = 8.5f;
-        for (char c : text.toCharArray()) {
-            if (c >= '一' && c <= '\u9FFF' || c >= '\u3000' && c <= '\u303F' ||
-                c >= '\u3040' && c <= 'ゟ' || c >= '゠' && c <= 'ヿ' ||
-                c >= '\uFF00' && c <= '\uFFEF') {
-                width += wideCharWidth;
-            } else {
-                width += narrowCharWidth;
-            }
-        }
-        return width;
+    private float getTextWidth(String text, Font font) {
+        return Skia.getTextBounds(text, font).getWidth();
     }
 
     private void drawMd3Style(double mouseX, double mouseY) {
@@ -261,7 +250,7 @@ public class CosmeticsPage extends Page {
 
             for (Category category : Category.values()) {
                 String categoryName = category.getName();
-                float textWidth = getEstimatedTextWidth(categoryName);
+                float textWidth = getTextWidth(categoryName, Fonts.getRegular(16));
                 float padding = 20.0f;
                 float buttonWidth = textWidth + padding;
                 if (MouseUtils.isInside(mouseX, relativeMouseY, categoryX, categoryBarY, buttonWidth, categoryBarHeight)) {

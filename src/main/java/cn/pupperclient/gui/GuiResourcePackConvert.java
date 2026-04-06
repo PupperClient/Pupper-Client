@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ import net.minecraft.util.Colors;
 
 public class GuiResourcePackConvert extends Screen {
 
-	private String progress;
+	private String progress = "Converting...";
 	private Screen prevScreen;
 	
 	public GuiResourcePackConvert(Screen prevScreen) {
@@ -133,11 +134,14 @@ public class GuiResourcePackConvert extends Screen {
 		List<File> files = new ArrayList<>();
 		File packDir = new File(client.runDirectory, "resourcepacks");
 
-		for (File f : packDir.listFiles()) {
-			if (f.getName().endsWith(".zip")) {
-				files.add(f);
-			}
-		}
+		File[] packFiles = packDir.listFiles();
+        if (packFiles != null) {
+            for (File f : packFiles) {
+                if (f.getName().endsWith(".zip")) {
+                    files.add(f);
+                }
+            }
+        }
 
 		return files;
 	}
@@ -149,7 +153,7 @@ public class GuiResourcePackConvert extends Screen {
 		while ((len = zipIn.read(buffer)) > 0) {
 			baos.write(buffer, 0, len);
 		}
-		String jsonString = baos.toString("UTF-8");
+		String jsonString = baos.toString(StandardCharsets.UTF_8);
 		return JsonParser.parseString(jsonString).getAsJsonObject();
 	}
 }
