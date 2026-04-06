@@ -38,7 +38,6 @@ import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
 import com.mojang.realmsclient.RealmsMainScreen;
 import net.minecraft.client.Minecraft;
-import ru.vidtu.ias.screen.AccountScreen;
 
 public class MainMenuGui extends SimpleSoarGui {
 
@@ -112,7 +111,7 @@ public class MainMenuGui extends SimpleSoarGui {
             centerX - buttonWidth / 2, centerY, buttonWidth, scaleFactor, () -> client.setScreen(new RealmsMainScreen(this))));
 
         buttons.add(new MainMenuButton("menu.ias", Icon.ACCOUNT_BALANCE,
-            centerX - buttonWidth / 2, centerY + (60 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new AccountScreen(this))));
+            centerX - buttonWidth / 2, centerY + (60 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new JoinMultiplayerScreen(this))));
 
         buttons.add(new MainMenuButton("menu.modmenu", Icon.LIST,
             centerX - buttonWidth / 2, centerY + (120 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new ModsScreen(this))));
