@@ -15,7 +15,6 @@ import cn.pupperclient.management.music.MusicManager;
 import cn.pupperclient.management.profile.ProfileManager;
 import cn.pupperclient.management.websocket.WebSocketManager;
 import cn.pupperclient.skia.font.Fonts;
-import cn.pupperclient.utils.system.ExternalToolManager;
 import cn.pupperclient.utils.minecraft.interfaces.IMinecraft;
 import cn.pupperclient.utils.thread.Multithreading;
 import cn.pupperclient.utils.file.FileLocation;
@@ -44,8 +43,6 @@ public class PupperClient implements IMinecraft {
     public static final Logger LOGGER = PupperLogger.getLogger();
 
     private final ViaFabricPlusBase viaPlatform = ViaFabricPlus.getImpl();
-    private ExternalToolManager toolManager;
-    private MusicToolStatus musicToolStatus = MusicToolStatus.CHECKING;
     private long launchTime;
 
     private ModManager modManager;
@@ -95,7 +92,6 @@ public class PupperClient implements IMinecraft {
         hypixelManager = new HypixelManager();
         keybindManager = KeybindManager.getInstance();
         keybindManager.initialize();
-        toolManager = new ExternalToolManager();
         PupperCommand.register();
         capeManager = new CapeManager();
     }
@@ -115,11 +111,6 @@ public class PupperClient implements IMinecraft {
             firstLaunch = true;
             createConfigFile(configFile);
         }
-
-        if (!firstLaunch) {
-            setMusicToolStatus(MusicToolStatus.DONE);
-        }
-
         registerTermsScreenCheck();
     }
 
@@ -210,27 +201,7 @@ public class PupperClient implements IMinecraft {
         viaPlatform.setTargetVersion(version);
     }
 
-    public ExternalToolManager getToolManager() {
-        return toolManager;
-    }
-
-    public MusicToolStatus getMusicToolStatus() {
-        return musicToolStatus;
-    }
-
-    public void setMusicToolStatus(MusicToolStatus status) {
-        this.musicToolStatus = status;
-    }
-
     public CapeManager getCapeManager() {
         return capeManager;
-    }
-
-    public enum MusicToolStatus {
-        CHECKING,
-        INSTALLED,
-        DOWNLOADING,
-        FAILED,
-        DONE
     }
 }
