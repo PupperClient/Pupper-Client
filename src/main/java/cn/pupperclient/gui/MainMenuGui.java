@@ -37,6 +37,7 @@ import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.gui.screen.option.OptionsScreen;
 import net.minecraft.client.gui.screen.world.SelectWorldScreen;
 import net.minecraft.client.realms.gui.screen.RealmsMainScreen;
+import net.minecraft.client.MinecraftClient;
 import ru.vidtu.ias.screen.AccountScreen;
 
 public class MainMenuGui extends SimpleSoarGui {
@@ -44,12 +45,9 @@ public class MainMenuGui extends SimpleSoarGui {
     private final List<MainMenuButton> buttons = new ArrayList<>();
     private MainMenuButton settingsButton;
     private MainMenuButton backgroundButton;
-    private float lastWindowWidth = 0;
-    private float lastWindowHeight = 0;
-    private boolean wasMinimized = false;
-    private static boolean showCustomizationWindow = false;
-    private static boolean showBackgroundWindow = false;
-    private static Switch darkModeSwitch;
+    private boolean showCustomizationWindow = false;
+    private boolean showBackgroundWindow = false;
+    private Switch darkModeSwitch;
     private Button exitCustomizationButton;
     private Button exitBackgroundButton;
     private IconButton addBackgroundButton;
@@ -65,9 +63,15 @@ public class MainMenuGui extends SimpleSoarGui {
 
     @Override
     public void init() {
-        updateLayout();
         loadBackgroundSettings();
-        initCustomizationComponents();
+        rebuildLayout();
+        loadExistingBackgrounds();
+    }
+
+    @Override
+    public void resize(MinecraftClient client, int width, int height) {
+        super.resize(client, width, height);
+        rebuildLayout();
     }
 
     private void loadBackgroundSettings() {
@@ -87,7 +91,7 @@ public class MainMenuGui extends SimpleSoarGui {
         PupperClient.getInstance().getConfigManager().save(ConfigType.MOD);
     }
 
-    private void updateLayout() {
+    private void rebuildLayout() {
         buttons.clear();
 
         float scaleFactor = calculateScaleFactor();
@@ -130,12 +134,11 @@ public class MainMenuGui extends SimpleSoarGui {
             client.getWindow().getWidth() - buttonSize - (20 * scaleFactor),
             20 * scaleFactor, buttonSize - 5, scaleFactor, () -> showCustomizationWindow = true);
 
-        lastWindowWidth = client.getWindow().getWidth();
-        lastWindowHeight = client.getWindow().getHeight();
-
         for (MainMenuButton button : buttons) {
             button.setEnabled(true);
         }
+
+        initCustomizationComponents();
     }
 
     private void initCustomizationComponents() {
@@ -196,8 +199,6 @@ public class MainMenuGui extends SimpleSoarGui {
                 });
             }
         });
-
-        loadExistingBackgrounds();
     }
 
     private void loadExistingBackgrounds() {
@@ -206,6 +207,9 @@ public class MainMenuGui extends SimpleSoarGui {
         backgroundItems.add(new BackgroundItem("background.png", null, true));
 
         File backgroundDir = FileLocation.BACKGROUND_DIR;
+        if (!backgroundDir.exists()) {
+            backgroundDir.mkdirs();
+        }
         if (backgroundDir.exists() && backgroundDir.isDirectory()) {
             File[] backgroundFiles = backgroundDir.listFiles((dir, name) ->
                 name.toLowerCase().endsWith(".png") || name.toLowerCase().endsWith(".jpg"));
@@ -225,16 +229,16 @@ public class MainMenuGui extends SimpleSoarGui {
             File targetFile = new File(FileLocation.BACKGROUND_DIR, processedName);
 
             if (targetFile.exists()) {
-                System.out.println("background file already exists!");
+                PupperClient.LOGGER.warn("background file already exists: {}", processedName);
                 return;
             }
 
             Files.copy(selectedFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            loadExistingBackgrounds();
-
-            // 自动选择新添加的背景
-            selectedBackgroundId = processedName;
-            saveBackgroundSettings();
+            client.execute(() -> {
+                loadExistingBackgrounds();
+                selectedBackgroundId = processedName;
+                saveBackgroundSettings();
+            });
 
         } catch (IOException e) {
             PupperClient.LOGGER.error("Error copying background file: {}", e.getMessage(), e);
@@ -268,17 +272,7 @@ public class MainMenuGui extends SimpleSoarGui {
 
     @Override
     public void draw(double mouseX, double mouseY) {
-        boolean currentlyMinimized = isWindowMinimized();
-
-        if (client.getWindow().getWidth() != lastWindowWidth ||
-            client.getWindow().getHeight() != lastWindowHeight ||
-            wasMinimized != currentlyMinimized) {
-            updateLayout();
-            initCustomizationComponents();
-            wasMinimized = currentlyMinimized;
-        }
-
-        if (currentlyMinimized) {
+        if (isWindowMinimized()) {
             return;
         }
 
@@ -335,6 +329,8 @@ public class MainMenuGui extends SimpleSoarGui {
         float panelX = centerX - panelWidth / 2;
         float panelY = centerY - panelHeight / 2;
 
+        backgroundScrollHelper.onUpdate();
+
         Skia.drawRect(0, 0, client.getWindow().getWidth(), client.getWindow().getHeight(),
             ColorUtils.applyAlpha(palette.getSurface(), 0.3f));
 
@@ -382,6 +378,11 @@ public class MainMenuGui extends SimpleSoarGui {
                 Skia.drawOutline(itemX - 2, itemY - 2, itemWidth + 4, itemHeight + 4, 10, 3, palette.getPrimary());
             }
 
+            if (!isSelected && isHovered) {
+                Skia.drawRoundedRect(itemX, itemY, itemWidth, itemHeight, 8,
+                    ColorUtils.applyAlpha(palette.getPrimary(), item.focusAnimation.getValue() * 0.12f));
+            }
+
             if (item.isDefault) {
                 Skia.drawRoundedImage("background.png", itemX, itemY, itemWidth, itemHeight, 8);
             } else if (item.backgroundFile != null && item.backgroundFile.exists()) {
@@ -400,7 +401,6 @@ public class MainMenuGui extends SimpleSoarGui {
     }
 
     private void drawCustomBackground() {
-        // 计算视差效果
         float parallaxStrength = 40;
         float targetParallaxX = (float) (client.mouse.getX() - client.getWindow().getWidth() / 2F) / client.getWindow().getWidth() * parallaxStrength;
         float targetParallaxY = (float) (client.mouse.getY() - client.getWindow().getHeight() / 2F) / client.getWindow().getHeight() * parallaxStrength;
@@ -443,6 +443,15 @@ public class MainMenuGui extends SimpleSoarGui {
     }
 
     @Override
+    public boolean onMouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        if (showBackgroundWindow) {
+            backgroundScrollHelper.onScroll(verticalAmount);
+            return true;
+        }
+        return super.onMouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
+    }
+
+    @Override
     public boolean onMousePressed(double mouseX, double mouseY, int button) {
         if (isWindowMinimized()) {
             return false;
@@ -471,7 +480,7 @@ public class MainMenuGui extends SimpleSoarGui {
 
                 if (MouseUtils.isInside(mouseX, adjustedMouseY, itemX, itemY, itemWidth, itemHeight)) {
                     selectedBackgroundId = item.backgroundId;
-                    saveBackgroundSettings();  // 保存新选择的背景
+                    saveBackgroundSettings();
                     break;
                 }
             }

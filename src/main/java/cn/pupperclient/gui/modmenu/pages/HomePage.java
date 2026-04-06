@@ -1,8 +1,8 @@
 package cn.pupperclient.gui.modmenu.pages;
 
 import java.awt.Color;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import cn.pupperclient.PupperClient;
 import cn.pupperclient.gui.api.SoarGui;
@@ -15,6 +15,8 @@ import cn.pupperclient.skia.font.Icon;
 
 public class HomePage extends Page {
     private String currentTime;
+    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("EEE, MMM d");
 
     public HomePage(SoarGui parent) {
         super(parent, "text.home", Icon.HOME, new RightLeftTransition(true));
@@ -23,9 +25,6 @@ public class HomePage extends Page {
     @Override
     public void init() {
         super.init();
-
-        int buttonSpacing = 20;
-        float buttonY = y + height - 100;
 
         updateTime();
     }
@@ -89,11 +88,8 @@ public class HomePage extends Page {
     }
 
     private void updateTime() {
-        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM d");
-
-        Date now = new Date();
-        currentTime = timeFormat.format(now) + " | " + dateFormat.format(now);
+        LocalDateTime now = LocalDateTime.now();
+        currentTime = TIME_FORMAT.format(now) + " | " + DATE_FORMAT.format(now);
     }
 
     @Override

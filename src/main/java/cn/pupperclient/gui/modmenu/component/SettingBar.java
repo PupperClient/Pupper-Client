@@ -1,6 +1,9 @@
 package cn.pupperclient.gui.modmenu.component;
 
 import java.io.File;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.function.Function;
 
 import cn.pupperclient.PupperClient;
 import cn.pupperclient.animation.SimpleAnimation;
@@ -41,6 +44,112 @@ public class SettingBar extends Component {
 	private String title, description, icon;
 	private Component component;
 
+    private static final Map<Class<? extends Setting>, Function<Setting, Component>> COMPONENT_FACTORIES = new LinkedHashMap<>();
+
+    static {
+        register(BooleanSetting.class, setting -> {
+            BooleanSetting bSetting = (BooleanSetting) setting;
+            Switch switchComp = new Switch(0, 0, bSetting.isEnabled());
+            switchComp.setHandler(new SwitchHandler() {
+                @Override
+                public void onEnabled() {
+                    bSetting.setEnabled(true);
+                }
+
+                @Override
+                public void onDisabled() {
+                    bSetting.setEnabled(false);
+                }
+            });
+            return switchComp;
+        });
+
+        register(NumberSetting.class, setting -> {
+            NumberSetting nSetting = (NumberSetting) setting;
+            Slider slider = new Slider(0, 0, 200, nSetting.getValue(), nSetting.getMinValue(), nSetting.getMaxValue(), nSetting.getStep());
+            slider.setHandler(new SliderHandler() {
+                @Override
+                public void onValueChanged(Object value) {
+                    nSetting.setValue((Float) value);
+                }
+            });
+            return slider;
+        });
+
+        register(ComboSetting.class, setting -> {
+            ComboSetting cSetting = (ComboSetting) setting;
+            ComboButton button = new ComboButton(0, 0, cSetting.getOptions(), cSetting.getOption());
+            button.setHandler(new ComboButtonHandler() {
+                @Override
+                public void onChanged(String option) {
+                    cSetting.setOption(option);
+                }
+            });
+            return button;
+        });
+
+        register(KeybindSetting.class, setting -> {
+            KeybindSetting kSetting = (KeybindSetting) setting;
+            Keybind bind = new Keybind(0, 0, kSetting.getKey());
+            bind.setHandler(new KeybindHandler() {
+                @Override
+                public void onBinded(InputUtil.Key key) {
+                    kSetting.setKey(key);
+                }
+            });
+            return bind;
+        });
+
+        register(HctColorSetting.class, setting -> {
+            HctColorSetting hSetting = (HctColorSetting) setting;
+            HctColorPicker picker = new HctColorPicker(0, 0, hSetting.getHct());
+            picker.setHandler(new HctColorPickerHandler() {
+                @Override
+                public void onPicking(Hct hct) {
+                    hSetting.setHct(hct);
+                }
+            });
+            return picker;
+        });
+
+        register(StringSetting.class, setting -> {
+            StringSetting sSetting = (StringSetting) setting;
+            TextField textField = new TextField(0, 0, 150, sSetting.getValue());
+            textField.setHandler(new TextHandler() {
+                @Override
+                public void onTyped(String value) {
+                    sSetting.setValue(value);
+                }
+            });
+            return textField;
+        });
+
+        register(FileSetting.class, setting -> {
+            FileSetting fSetting = (FileSetting) setting;
+            FileSelector fileSelector = new FileSelector(0, 0, fSetting.getFile(), fSetting.getExtensions());
+            fileSelector.setHandler(new FileSelectorHandler() {
+                @Override
+                public void onSelect(File file) {
+                    fSetting.setFile(file);
+                }
+            });
+            return fileSelector;
+        });
+    }
+
+    private static void register(Class<? extends Setting> settingClass, Function<Setting, Component> factory) {
+        COMPONENT_FACTORIES.put(settingClass, factory);
+    }
+
+    private static Component createComponent(Setting setting) {
+        for (Map.Entry<Class<? extends Setting>, Function<Setting, Component>> entry : COMPONENT_FACTORIES.entrySet()) {
+            if (entry.getKey().isInstance(setting)) {
+                return entry.getValue().apply(setting);
+            }
+        }
+        return null;
+    }
+
 	public SettingBar(Setting setting, float x, float y, float width) {
 		super(x, y);
 		this.title = setting.getName();
@@ -48,123 +157,7 @@ public class SettingBar extends Component {
 		this.icon = setting.getIcon();
 		this.width = width;
 		this.height = 68;
-
-		if (setting instanceof BooleanSetting) {
-
-			BooleanSetting bSetting = (BooleanSetting) setting;
-			Switch switchComp = new Switch(x, y, bSetting.isEnabled());
-
-			switchComp.setHandler(new SwitchHandler() {
-
-				@Override
-				public void onEnabled() {
-					bSetting.setEnabled(true);
-				}
-
-				@Override
-				public void onDisabled() {
-					bSetting.setEnabled(false);
-				}
-			});
-
-			component = switchComp;
-		}
-
-		if (setting instanceof NumberSetting) {
-
-			NumberSetting nSetting = (NumberSetting) setting;
-			Slider slider = new Slider(0, 0, 200, nSetting.getValue(), nSetting.getMinValue(), nSetting.getMaxValue(),
-					nSetting.getStep());
-
-			slider.setHandler(new SliderHandler() {
-				@Override
-				public void onValueChanged(Object value) {
-                    nSetting.setValue((Float) value);
-				}
-			});
-
-			component = slider;
-		}
-
-		if (setting instanceof ComboSetting) {
-
-			ComboSetting cSetting = (ComboSetting) setting;
-			ComboButton button = new ComboButton(0, 0, cSetting.getOptions(), cSetting.getOption());
-
-			button.setHandler(new ComboButtonHandler() {
-
-				@Override
-				public void onChanged(String option) {
-					cSetting.setOption(option);
-				}
-			});
-
-			component = button;
-		}
-
-		if (setting instanceof KeybindSetting) {
-
-			KeybindSetting kSetting = (KeybindSetting) setting;
-			Keybind bind = new Keybind(0, 0, kSetting.getKey());
-
-			bind.setHandler(new KeybindHandler() {
-
-				@Override
-				public void onBinded(InputUtil.Key key) {
-					kSetting.setKey(key);
-				}
-			});
-
-			component = bind;
-		}
-
-		if (setting instanceof HctColorSetting) {
-
-			HctColorSetting hSetting = (HctColorSetting) setting;
-			HctColorPicker picker = new HctColorPicker(0, 0, hSetting.getHct());
-
-			picker.setHandler(new HctColorPickerHandler() {
-
-				@Override
-				public void onPicking(Hct hct) {
-					hSetting.setHct(hct);
-				}
-			});
-
-			component = picker;
-		}
-
-		if (setting instanceof StringSetting) {
-
-			StringSetting sSetting = (StringSetting) setting;
-			TextField textField = new TextField(0, 0, 150, sSetting.getValue());
-
-			textField.setHandler(new TextHandler() {
-
-				@Override
-				public void onTyped(String value) {
-					sSetting.setValue(value);
-				}
-			});
-
-			component = textField;
-		}
-		
-		if(setting instanceof FileSetting) {
-			
-			FileSetting fSetting = (FileSetting) setting;
-			FileSelector fileSelector = new FileSelector(0, 0, fSetting.getFile(), fSetting.getExtensions());
-			
-			fileSelector.setHandler(new FileSelectorHandler() {
-
-				@Override
-				public void onSelect(File file) {
-					fSetting.setFile(file);
-				}
-			});
-			
-			component = fileSelector;
-		}
+        component = createComponent(setting);
 	}
 
 	@Override
