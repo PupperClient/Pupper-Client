@@ -2,7 +2,7 @@
 	"schemaVersion": 1,
 	"id": "pupper",
 	"version": "${version}",
-	"accessWidener": "pupper.accesswidener",
+	"accessWidener": "pupper.classtweaker",
 	"name": "PupperClient",
 	"icon": "assets/pupper/logo.png",
 	"description": "Better, Faster Minecraft Client",

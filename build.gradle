@@ -1,9 +1,8 @@
 plugins {
-    id 'fabric-loom' version '1.15-SNAPSHOT'
-    id "me.modmuss50.mod-publish-plugin" version "1.1.0"
+    id 'net.fabricmc.fabric-loom' version '1.15-SNAPSHOT'
 }
 
-project.ext.lwjglVersion = "3.3.3"
+project.ext.lwjglVersion = "3.4.1"
 version = project.mod_version
 group = project.maven_group
 
@@ -12,7 +11,7 @@ base {
 }
 
 loom {
-    accessWidenerPath = file("src/main/resources/pupper.accesswidener")
+    accessWidenerPath = file("src/main/resources/pupper.classtweaker")
 }
 
 repositories {
@@ -27,47 +26,42 @@ repositories {
 }
 
 configurations {
-    jij
     modJij
     include.extendsFrom modJij
-    modImplementation.extendsFrom modJij
+    implementation.extendsFrom modJij
 }
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings loom.officialMojangMappings()
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
-    modImplementation "com.viaversion:viafabricplus-api:4.5.1"
-    modRuntimeOnly "maven.modrinth:sodium:mc26.1.1-0.8.9-fabric"
-    modRuntimeOnly "maven.modrinth:iris:1.10.9+26.1-fabric"
-    modRuntimeOnly "maven.modrinth:sodium-extra:mc26.1.1-0.8.6-fabric"
-    modRuntimeOnly "maven.modrinth:lithium:mc26.1.1-0.23.0-fabric"
+    implementation  "com.viaversion:viafabricplus-api:4.5.1"
+    runtimeOnly "maven.modrinth:sodium:mc26.1.1-0.8.9-fabric"
+    runtimeOnly "maven.modrinth:iris:1.10.9+26.1-fabric"
+    // runtimeOnly "maven.modrinth:sodium-extra:mc26.1.1-0.8.6-fabric"
+    runtimeOnly "maven.modrinth:lithium:mc26.1.1-0.23.0-fabric"
     // modImplementation "maven.modrinth:in-game-account-switcher:WBbjirJP"
-    modImplementation "com.viaversion:viafabricplus:4.5.1"
-    modRuntimeOnly "maven.modrinth:immediatelyfast:1.15.1+26.1.1-fabric"
-    modRuntimeOnly "maven.modrinth:entityculling:YSbzFHRt"
-    modImplementation "maven.modrinth:modmenu:18.0.0-alpha.8"
+    implementation "com.viaversion:viafabricplus:4.5.1"
+    runtimeOnly "maven.modrinth:immediatelyfast:1.15.1+26.1.1-fabric"
+    runtimeOnly "maven.modrinth:entityculling:YSbzFHRt"
+    implementation "maven.modrinth:modmenu:18.0.0-alpha.8"
 
-    jij 'io.github.smartboot.socket:aio-core:1.7.1'
-    jij 'com.github.ben-manes.caffeine:caffeine:3.1.8'
-    jij 'io.github.humbleui:types:0.2.0'
-    jij 'io.github.humbleui:skija-windows-x64:0.143.2'
-    jij 'io.github.humbleui:skija-linux-x64:0.143.2'
-    jij 'io.github.humbleui:skija-linux-arm64:0.143.2'
-    jij 'io.github.humbleui:skija-macos-x64:0.143.2'
-    jij 'com.kohlschutter.junixsocket:junixsocket-common:2.10.1'
-    jij 'org.java-websocket:Java-WebSocket:1.6.0'
-    jij 'com.mpatric:mp3agic:0.9.1'
-    jij 'javazoom:jlayer:1.0.1'
-    jij 'com.googlecode.soundlibs:mp3spi:1.9.5.4'
-    jij 'org:jaudiotagger:2.0.3'
-    jij 'com.googlecode.soundlibs:jlayer:1.0.1.4'
-    jij "net.lenni0451:MCPing:1.4.2"
-    jij "net.lenni0451:Reflect:1.4.0"
-    modImplementation 'net.java.dev.jna:jna:5.12.1'
-    modImplementation 'net.java.dev.jna:jna-platform:5.12.1'
+    modJij 'io.github.smartboot.socket:aio-core:1.7.1'
+    modJij 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+    modJij 'io.github.humbleui:types:0.2.0'
+    modJij 'io.github.humbleui:skija-windows-x64:0.116.4'
+    modJij 'com.kohlschutter.junixsocket:junixsocket-common:2.10.1'
+    modJij 'org.java-websocket:Java-WebSocket:1.6.0'
+    modJij 'com.mpatric:mp3agic:0.9.1'
+    modJij 'javazoom:jlayer:1.0.1'
+    modJij 'com.googlecode.soundlibs:mp3spi:1.9.5.4'
+    modJij 'org:jaudiotagger:2.0.3'
+    modJij 'com.googlecode.soundlibs:jlayer:1.0.1.4'
+    modJij "net.lenni0451:MCPing:1.4.2"
+    modJij "net.lenni0451:Reflect:1.4.0"
+    implementation 'net.java.dev.jna:jna:5.12.1'
+    implementation 'net.java.dev.jna:jna-platform:5.12.1'
 
     def lwjglNfdDeps = [
             "org.lwjgl:lwjgl-nfd:$lwjglVersion",
@@ -78,17 +72,7 @@ dependencies {
     ]
 
     lwjglNfdDeps.each { dep ->
-        jij dep
-        implementation dep
-        include dep
-    }
-
-    afterEvaluate {
-        configurations.jij.incoming.resolutionResult.allDependencies.each {
-            dependencies.include(dependencies.implementation(dependencies.compileOnlyApi(it.requested.toString()) {
-                transitive = false
-            }))
-        }
+        modJij dep
     }
 }
 
@@ -113,33 +97,6 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
     withSourcesJar()
-}
-
-publishMods {
-    file = remapJar.archiveFile
-    changelog = providers.environmentVariable("CHANGELOG").getOrElse("No changelog provided")
-    type = STABLE
-    modLoaders.add("fabric")
-
-    modrinth {
-        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
-        projectId = "zN1WBfNk"
-
-        minecraftVersions.add(project.minecraft_version)
-
-        requires("fabric-api")
-        requires("viafabricplus")
-        requires("in-game-account-switcher")
-        requires("modmenu")
-
-        optional("sodium", "iris")
-    }
-
-    github {
-        accessToken = providers.environmentVariable("GITHUB_TOKEN")
-        repository = "PupperClient/Pupper-Client"
-        commitish = "main"
-        tagName = project.mod_version
-    }
 }
