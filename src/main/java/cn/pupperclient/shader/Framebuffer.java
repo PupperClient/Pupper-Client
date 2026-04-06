@@ -7,14 +7,12 @@ import static org.lwjgl.opengl.GL30C.GL_FRAMEBUFFER;
 import static org.lwjgl.opengl.GL30C.glGenerateMipmap;
 
 import java.nio.ByteBuffer;
-
+import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL30C;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.Window;
 
 public class Framebuffer {
 
@@ -34,7 +32,7 @@ public class Framebuffer {
     }
 
     private void init() {
-        Window window = MinecraftClient.getInstance().getWindow();
+        Window window = Minecraft.getInstance().getWindow();
 
         id = GlStateManager.glGenFramebuffers();
         bind();
@@ -49,8 +47,8 @@ public class Framebuffer {
         RenderSystem.texParameter(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         RenderSystem.texParameter(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        width = Math.max(1, (int) (window.getFramebufferWidth() * sizeMulti));
-        height = Math.max(1, (int) (window.getFramebufferHeight() * sizeMulti));
+        width = Math.max(1, (int) (window.getWidth() * sizeMulti));
+        height = Math.max(1, (int) (window.getHeight() * sizeMulti));
 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (ByteBuffer) null);
         GlStateManager._glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
@@ -92,7 +90,7 @@ public class Framebuffer {
     }
 
     public void unbind() {
-        MinecraftClient.getInstance().getFramebuffer().beginWrite(false);
+        Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
     }
 
     public void delete() {

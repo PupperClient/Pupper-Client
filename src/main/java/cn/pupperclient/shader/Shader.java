@@ -13,16 +13,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.io.IOUtils;
 import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.Identifier;
 
 public class Shader {
 
@@ -69,8 +67,8 @@ public class Shader {
 	private String read(String path) {
 		try {
 			return IOUtils.toString(
-					MinecraftClient.getInstance().getResourceManager()
-							.getResource(Identifier.of("pupper", "shaders/" + path)).get().getInputStream(),
+					Minecraft.getInstance().getResourceManager()
+							.getResource(ResourceLocation.fromNamespaceAndPath("pupper", "shaders/" + path)).get().open(),
 					StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			throw new IllegalStateException("Could not read shader '" + path + "'", e);

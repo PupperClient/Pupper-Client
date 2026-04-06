@@ -1,16 +1,16 @@
 package cn.pupperclient.event.client;
 
 import cn.pupperclient.event.Event;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
 
 public class TotemEvent extends Event {
-    private final PlayerEntity player;
+    private final Player player;
 
-    public TotemEvent(PlayerEntity entity) {
+    public TotemEvent(Player entity) {
         player = entity;
     }
 
-    public PlayerEntity getPlayer() {
+    public Player getPlayer() {
         return player;
     }
 }

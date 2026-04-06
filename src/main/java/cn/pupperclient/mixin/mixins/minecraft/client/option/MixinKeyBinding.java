@@ -10,21 +10,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import cn.pupperclient.management.mod.impl.player.SnapTapMod;
 import cn.pupperclient.mixin.interfaces.IMixinKeyBinding;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.KeyMapping;
 
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
-
-@Mixin(KeyBinding.class)
+@Mixin(KeyMapping.class)
 public class MixinKeyBinding implements IMixinKeyBinding {
 
 	@Shadow
 	@Final
-	private InputUtil.Key defaultKey;
+	private InputConstants.Key defaultKey;
 
 	@Shadow
-	private boolean pressed;
+	private boolean isDown;
 
-	@Inject(method = "isPressed", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "isDown", at = @At("HEAD"), cancellable = true)
 	public void onGetPressed(CallbackInfoReturnable<Boolean> cir) {
 
 		SnapTapMod mod = SnapTapMod.getInstance();
@@ -33,8 +32,8 @@ public class MixinKeyBinding implements IMixinKeyBinding {
 			return;
 		}
 
-		if (this.defaultKey.getCode() == InputUtil.GLFW_KEY_A) {
-			if (this.pressed) {
+		if (this.defaultKey.getValue() == InputConstants.KEY_A) {
+			if (this.isDown) {
 				if (mod.getRightPressTime() == 0) {
 					cir.setReturnValue(true);
 					cir.cancel();
@@ -44,8 +43,8 @@ public class MixinKeyBinding implements IMixinKeyBinding {
 				cir.setReturnValue(mod.getRightPressTime() <= mod.getLeftPressTime());
 				cir.cancel();
 			}
-		} else if (this.defaultKey.getCode() == InputUtil.GLFW_KEY_D) {
-			if (this.pressed) {
+		} else if (this.defaultKey.getValue() == InputConstants.KEY_D) {
+			if (this.isDown) {
 				if (mod.getLeftPressTime() == 0) {
 					cir.setReturnValue(true);
 					cir.cancel();
@@ -55,8 +54,8 @@ public class MixinKeyBinding implements IMixinKeyBinding {
 				cir.setReturnValue(mod.getLeftPressTime() <= mod.getRightPressTime());
 				cir.cancel();
 			}
-		} else if (this.defaultKey.getCode() == InputUtil.GLFW_KEY_W) {
-			if (this.pressed) {
+		} else if (this.defaultKey.getValue() == InputConstants.KEY_W) {
+			if (this.isDown) {
 				if (mod.getForwardPressTime() == 0) {
 					cir.setReturnValue(true);
 					cir.cancel();
@@ -66,8 +65,8 @@ public class MixinKeyBinding implements IMixinKeyBinding {
 				cir.setReturnValue(mod.getBackPressTime() <= mod.getForwardPressTime());
 				cir.cancel();
 			}
-		} else if (this.defaultKey.getCode() == InputUtil.GLFW_KEY_S) {
-			if (this.pressed) {
+		} else if (this.defaultKey.getValue() == InputConstants.KEY_S) {
+			if (this.isDown) {
 				if (mod.getBackPressTime() == 0) {
 					cir.setReturnValue(true);
 					cir.cancel();
@@ -80,7 +79,7 @@ public class MixinKeyBinding implements IMixinKeyBinding {
 		}
 	}
 
-	@Inject(method = "setPressed", at = @At("HEAD"))
+	@Inject(method = "setDown", at = @At("HEAD"))
 	public void setPressed(boolean pressed, CallbackInfo ci) {
 
 		SnapTapMod mod = SnapTapMod.getInstance();
@@ -89,25 +88,25 @@ public class MixinKeyBinding implements IMixinKeyBinding {
 			return;
 		}
 
-		if (this.defaultKey.getCode() == InputUtil.GLFW_KEY_A) {
+		if (this.defaultKey.getValue() == InputConstants.KEY_A) {
 			if (pressed) {
 				mod.setLeftPressTime(System.currentTimeMillis());
 			} else {
 				mod.setLeftPressTime(0);
 			}
-		} else if (this.defaultKey.getCode() == InputUtil.GLFW_KEY_D) {
+		} else if (this.defaultKey.getValue() == InputConstants.KEY_D) {
 			if (pressed) {
 				mod.setRightPressTime(System.currentTimeMillis());
 			} else {
 				mod.setRightPressTime(0);
 			}
-		} else if (this.defaultKey.getCode() == InputUtil.GLFW_KEY_W) {
+		} else if (this.defaultKey.getValue() == InputConstants.KEY_W) {
 			if (pressed) {
 				mod.setForwardPressTime(System.currentTimeMillis());
 			} else {
 				mod.setForwardPressTime(0);
 			}
-		} else if (this.defaultKey.getCode() == InputUtil.GLFW_KEY_S) {
+		} else if (this.defaultKey.getValue() == InputConstants.KEY_S) {
 			if (pressed) {
 				mod.setBackPressTime(System.currentTimeMillis());
 			} else {
@@ -118,6 +117,6 @@ public class MixinKeyBinding implements IMixinKeyBinding {
 
 	@Override
 	public boolean getRealIsPressed() {
-		return this.pressed;
+		return this.isDown;
 	}
 }

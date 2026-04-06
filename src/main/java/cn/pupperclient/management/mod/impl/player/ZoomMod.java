@@ -13,8 +13,7 @@ import cn.pupperclient.management.mod.settings.impl.BooleanSetting;
 import cn.pupperclient.management.mod.settings.impl.KeybindSetting;
 import cn.pupperclient.management.mod.settings.impl.NumberSetting;
 import cn.pupperclient.skia.font.Icon;
-
-import net.minecraft.client.util.InputUtil;
+import com.mojang.blaze3d.platform.InputConstants;
 
 public class ZoomMod extends Mod {
 
@@ -38,7 +37,7 @@ public class ZoomMod extends Mod {
 	private BooleanSetting smoothCameraSetting = new BooleanSetting("setting.smoothcamera",
 			"setting.smoothcamera.description", Icon.MOTION_BLUR, this, true);
 	private KeybindSetting keybindSetting = new KeybindSetting("setting.keybind", "setting.keybind.description",
-			Icon.KEYBOARD, this, InputUtil.fromKeyCode(GLFW.GLFW_KEY_C, 0));
+			Icon.KEYBOARD, this, InputConstants.getKey(GLFW.GLFW_KEY_C, 0));
 
 	public ZoomMod() {
 		super("mod.zoom.name", "mod.zoom.description", Icon.ZOOM_IN, ModCategory.PLAYER);
@@ -51,13 +50,13 @@ public class ZoomMod extends Mod {
 			if (!active) {
 				active = true;
 				resetFactor();
-				wasSmooth = mc.options.smoothCameraEnabled;
-				mc.options.smoothCameraEnabled = smoothCameraSetting.isEnabled();
+				wasSmooth = client.options.smoothCamera;
+				client.options.smoothCamera = smoothCameraSetting.isEnabled();
 			}
 		} else if (active) {
 			active = false;
 			setFactor(1);
-			mc.options.smoothCameraEnabled = wasSmooth;
+			client.options.smoothCamera = wasSmooth;
 		}
 	};
 
@@ -66,11 +65,11 @@ public class ZoomMod extends Mod {
 			event.setCancelled(true);
 			if (event.getAmount() < 0) {
 				if (currentFactor < 0.98) {
-					currentFactor += 0.03;
+					currentFactor += 0.03F;
 				}
 			} else if (event.getAmount() > 0) {
 				if (currentFactor > 0.06) {
-					currentFactor -= 0.03;
+					currentFactor -= 0.03F;
 				}
 			}
 		}

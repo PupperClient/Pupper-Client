@@ -9,16 +9,16 @@ import cn.pupperclient.management.mod.Mod;
 import cn.pupperclient.management.mod.ModManager;
 import cn.pupperclient.utils.chat.ChatUtils;
 import cn.pupperclient.utils.language.I18n;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
 
 public class BindCommand {
     private static final ModManager modManager = PupperClient.getInstance().getModManager();
@@ -138,11 +138,11 @@ public class BindCommand {
             String keyName = getKeyName(keyCode);
 
             for (Mod mod : mods) {
-                MutableText message = Text.literal("§b• " + mod.getName() + " §7→ §a" + keyName + " §7(keycode: " + keyCode + ")")
-                    .styled(style -> style
+                MutableComponent message = Component.literal("§b• " + mod.getName() + " §7→ §a" + keyName + " §7(keycode: " + keyCode + ")")
+                    .withStyle(style -> style
                         .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, ".bind " + mod.getName() + " none"))
                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                            Text.literal("Click to clear this keybind").formatted(Formatting.GRAY))));
+                            Component.literal("Click to clear this keybind").withStyle(ChatFormatting.GRAY))));
 
                 ChatUtils.addChatMessage(message);
                 boundCount++;

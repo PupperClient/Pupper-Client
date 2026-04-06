@@ -3,7 +3,7 @@ package cn.pupperclient.management.command.impl;
 import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.mod.impl.misc.IRCChatMod;
 import cn.pupperclient.utils.minecraft.interfaces.IMinecraft;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public class IRCCommand implements IMinecraft {
 
@@ -64,8 +64,8 @@ public class IRCCommand implements IMinecraft {
     }
 
     private static void sendMessage(String message) {
-        if (mc.player != null) {
-            mc.player.sendMessage(Text.of(message), false);
+        if (client.player != null) {
+            client.player.displayClientMessage(Component.nullToEmpty(message), false);
         }
     }
 }

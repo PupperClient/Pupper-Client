@@ -33,11 +33,11 @@ import cn.pupperclient.utils.mouse.ScrollHelper;
 import com.terraformersmc.modmenu.gui.ModsScreen;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 
-import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
-import net.minecraft.client.gui.screen.option.OptionsScreen;
-import net.minecraft.client.gui.screen.world.SelectWorldScreen;
-import net.minecraft.client.realms.gui.screen.RealmsMainScreen;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
+import net.minecraft.client.gui.screens.options.OptionsScreen;
+import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
+import com.mojang.realmsclient.RealmsMainScreen;
+import net.minecraft.client.Minecraft;
 import ru.vidtu.ias.screen.AccountScreen;
 
 public class MainMenuGui extends SimpleSoarGui {
@@ -69,7 +69,7 @@ public class MainMenuGui extends SimpleSoarGui {
     }
 
     @Override
-    public void resize(MinecraftClient client, int width, int height) {
+    public void resize(Minecraft client, int width, int height) {
         super.resize(client, width, height);
         rebuildLayout();
     }
@@ -105,7 +105,7 @@ public class MainMenuGui extends SimpleSoarGui {
 
         buttons.add(new MainMenuButton("menu.multiplayer", Icon.GROUPS,
             centerX - buttonWidth / 2, centerY - (60 * scaleFactor), buttonWidth, scaleFactor, () -> {
-            client.setScreen(new MultiplayerScreen(this));
+            client.setScreen(new JoinMultiplayerScreen(this));
         }));
 
         buttons.add(new MainMenuButton("menu.realms", Icon.DNS,
@@ -121,7 +121,7 @@ public class MainMenuGui extends SimpleSoarGui {
             centerX - buttonWidth / 2, centerY + (180 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new OptionsScreen(this, client.options))));
 
         buttons.add(new MainMenuButton("menu.quit", Icon.CLOSE,
-            centerX - buttonWidth / 2, centerY + (240 * scaleFactor), buttonWidth, scaleFactor, () -> client.scheduleStop()));
+            centerX - buttonWidth / 2, centerY + (240 * scaleFactor), buttonWidth, scaleFactor, client::stop));
 
         float buttonSize = 40 * scaleFactor;
         float buttonSpacing = 10 * scaleFactor;
@@ -402,8 +402,8 @@ public class MainMenuGui extends SimpleSoarGui {
 
     private void drawCustomBackground() {
         float parallaxStrength = 40;
-        float targetParallaxX = (float) (client.mouse.getX() - client.getWindow().getWidth() / 2F) / client.getWindow().getWidth() * parallaxStrength;
-        float targetParallaxY = (float) (client.mouse.getY() - client.getWindow().getHeight() / 2F) / client.getWindow().getHeight() * parallaxStrength;
+        float targetParallaxX = (float) (client.mouseHandler.xpos() - client.getWindow().getWidth() / 2F) / client.getWindow().getWidth() * parallaxStrength;
+        float targetParallaxY = (float) (client.mouseHandler.ypos() - client.getWindow().getHeight() / 2F) / client.getWindow().getHeight() * parallaxStrength;
 
         parallaxX += (targetParallaxX - parallaxX) * 0.1f;
         parallaxY += (targetParallaxY - parallaxY) * 0.1f;

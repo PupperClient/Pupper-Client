@@ -1,14 +1,12 @@
 package cn.pupperclient.management.mod.impl.hud;
 
 import java.text.DecimalFormat;
-
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.client.RenderSkiaEvent;
 import cn.pupperclient.management.mod.api.hud.SimpleHUDMod;
 import cn.pupperclient.skia.font.Icon;
-
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.Vec3d;
 
 public class SpeedometerMod extends SimpleHUDMod {
 
@@ -27,13 +25,13 @@ public class SpeedometerMod extends SimpleHUDMod {
 
 		String suffix = " m/s";
 		
-		if (mc.player != null) {
+		if (client.player != null) {
 			
-			Entity entity = mc.player.getVehicle() == null ? mc.player : mc.player.getVehicle();
-			Vec3d vec = entity.getMovement();
+			Entity entity = client.player.getVehicle() == null ? client.player : client.player.getVehicle();
+			Vec3 vec = entity.getKnownMovement();
 			
-			if (entity.isOnGround() && vec.y < 0) {
-				vec = new Vec3d(vec.x, 0, vec.z);
+			if (entity.onGround() && vec.y < 0) {
+				vec = new Vec3(vec.x, 0, vec.z);
 			}
 			
 			return speedFormat.format(vec.length() * 20) + suffix;

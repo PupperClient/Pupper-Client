@@ -8,14 +8,13 @@ import cn.pupperclient.management.mod.Mod;
 import cn.pupperclient.management.mod.ModCategory;
 import cn.pupperclient.skia.font.Icon;
 import cn.pupperclient.utils.chat.ChatUtils;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityStatuses;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-
 import java.util.HashMap;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundEntityEventPacket;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityEvent;
+import net.minecraft.world.entity.player.Player;
 
 public class TotemTracker extends Mod {
     private static TotemTracker instance;
@@ -42,40 +41,41 @@ public class TotemTracker extends Mod {
 
     @EventListener
     public void onTotem(TotemEvent event) {
-        PlayerEntity player = event.getPlayer();
+        Player player = event.getPlayer();
         char ch = 0;
         int l_Count = 1;
         if (popContainer.containsKey(player.getName().getString())) {
             l_Count = popContainer.get(player.getName().getString());
         }
         if (l_Count == 1) {
-            if (player.equals(mc.player)) {
-                ChatUtils.addChatMessage(Text.of(String.format(Formatting.WHITE + "You(%s)" + Formatting.RESET + " popped " + Formatting.GRAY + "%d" + Formatting.RESET + " totem.", player.getName().getString(), l_Count)));
+            if (player.equals(client.player)) {
+                ChatUtils.addChatMessage(Component.nullToEmpty(String.format(ChatFormatting.WHITE + "You(%s)" + ChatFormatting.RESET + " popped " + ChatFormatting.GRAY + "%d" + ChatFormatting.RESET + " totem.", player.getName().getString(), l_Count)));
             } else {
-                ChatUtils.addChatMessage(Text.of(String.format(Formatting.WHITE + "%s" + Formatting.RESET + " popped " + Formatting.GRAY + "%d" + Formatting.RESET + " totem.", player.getName().getString().replace(String.valueOf(Formatting.FORMATTING_CODE_PREFIX), ""), l_Count)));
+                ChatUtils.addChatMessage(Component.nullToEmpty(String.format(ChatFormatting.WHITE + "%s" + ChatFormatting.RESET + " popped " + ChatFormatting.GRAY + "%d" + ChatFormatting.RESET + " totem.", player.getName().getString().replace(String.valueOf(ChatFormatting.PREFIX_CODE), ""), l_Count)));
             }
         } else {
-            if (player.equals(mc.player)) {
-                ChatUtils.addChatMessage(Text.of(String.format(Formatting.WHITE + "You(%s)" + Formatting.RESET + " popped " + Formatting.GRAY + "%d" + Formatting.RESET + " totem.", player.getName().getString().replace(String.valueOf(Formatting.FORMATTING_CODE_PREFIX), ""), l_Count)));
+            if (player.equals(client.player)) {
+                ChatUtils.addChatMessage(Component.nullToEmpty(String.format(ChatFormatting.WHITE + "You(%s)" + ChatFormatting.RESET + " popped " + ChatFormatting.GRAY + "%d" + ChatFormatting.RESET + " totem.", player.getName().getString().replace(String.valueOf(ChatFormatting.PREFIX_CODE), ""), l_Count)));
             } else {
-                ChatUtils.addChatMessage(Text.of(String.format(Formatting.WHITE + "%s" + Formatting.RESET + " has popped " + Formatting.GRAY + "%d" + Formatting.RESET + " totems.", player.getName().getString(), l_Count)));
+                ChatUtils.addChatMessage(Component.nullToEmpty(String.format(ChatFormatting.WHITE + "%s" + ChatFormatting.RESET + " has popped " + ChatFormatting.GRAY + "%d" + ChatFormatting.RESET + " totems.", player.getName().getString(), l_Count)));
             }
         }
     }
 
     @EventListener(priority = 1001)
     public void onPacketReceive(ReceivePacketEvent event) {
-        if (event.getPacket() instanceof EntityStatusS2CPacket packet) {
-            if (packet.getStatus() == EntityStatuses.USE_TOTEM_OF_UNDYING) {
-                Entity entity = packet.getEntity(mc.world);
-                if(entity instanceof PlayerEntity player) {
+        if (event.getPacket() instanceof ClientboundEntityEventPacket packet) {
+            if (packet.getEventId() == EntityEvent.PROTECTED_FROM_DEATH) {
+                assert client.level != null;
+                Entity entity = packet.getEntity(client.level);
+                if(entity instanceof Player player) {
                     onTotemPop(player);
                 }
             }
         }
     }
 
-    public void onTotemPop(PlayerEntity player) {
+    public void onTotemPop(Player player) {
         int l_Count = 1;
         if (popContainer.containsKey(player.getName().getString())) {
             l_Count = popContainer.get(player.getName().getString());

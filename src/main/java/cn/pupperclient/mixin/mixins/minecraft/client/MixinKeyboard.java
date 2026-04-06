@@ -10,24 +10,23 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.mod.settings.impl.KeybindSetting;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.KeyboardHandler;
 
-import net.minecraft.client.Keyboard;
-import net.minecraft.client.util.InputUtil;
-
-@Mixin(Keyboard.class)
+@Mixin(KeyboardHandler.class)
 public abstract class MixinKeyboard {
 
     @Inject(
-        method = "onKey(JIIII)V",
+        method = "keyPress(JIIII)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/option/KeyBinding;onKeyPressed(Lnet/minecraft/client/util/InputUtil$Key;)V",
+            target = "Lnet/minecraft/client/KeyMapping;click(Lcom/mojang/blaze3d/platform/InputConstants$Key;)V",
             shift = At.Shift.AFTER
         )
     )
     private void onKeyPressed(long window, int key, int scancode, int action, int modifiers, CallbackInfo ci) {
         if (action == GLFW.GLFW_PRESS || action == GLFW.GLFW_REPEAT) {
-            InputUtil.Key inputKey = InputUtil.fromKeyCode(key, scancode);
+            InputConstants.Key inputKey = InputConstants.getKey(key, scancode);
             for (KeybindSetting setting : PupperClient.getInstance().getModManager().getKeybindSettings()) {
                 if (setting.getKey().equals(inputKey)) {
                     setting.setPressed();
@@ -38,16 +37,16 @@ public abstract class MixinKeyboard {
     }
 
     @Inject(
-        method = "onKey(JIIII)V",
+        method = "keyPress(JIIII)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/option/KeyBinding;setKeyPressed(Lnet/minecraft/client/util/InputUtil$Key;Z)V",
+            target = "Lnet/minecraft/client/KeyMapping;set(Lcom/mojang/blaze3d/platform/InputConstants$Key;Z)V",
             shift = At.Shift.AFTER
         )
     )
     private void onKeyReleased(long window, int key, int scancode, int action, int modifiers, CallbackInfo ci) {
         if (action == GLFW.GLFW_RELEASE) {
-            InputUtil.Key inputKey = InputUtil.fromKeyCode(key, scancode);
+            InputConstants.Key inputKey = InputConstants.getKey(key, scancode);
             for (KeybindSetting setting : PupperClient.getInstance().getModManager().getKeybindSettings()) {
                 if (setting.getKey().equals(inputKey)) {
                     setting.setKeyDown(false);
@@ -58,7 +57,7 @@ public abstract class MixinKeyboard {
 
     @Inject(
         at = {@At("HEAD")},
-        method = {"onKey"}
+        method = {"keyPress"}
     )
     private void onKeyPress(long pWindowPointer, int pKey, int pScanCode, int pAction, int pModifiers, CallbackInfo ci) {
         if (pKey != -1 && PupperClient.getInstance() != null && EventBus.getInstance() != null) {

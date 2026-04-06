@@ -1,14 +1,13 @@
 package cn.pupperclient.mixin.mixins.minecraft.client.render;
 
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.VertexBuffer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-import net.minecraft.client.gl.VertexBuffer;
-import net.minecraft.client.render.BufferRenderer;
-
-@Mixin(BufferRenderer.class)
+@Mixin(BufferUploader.class)
 public interface BufferRendererAccessor {
-	@Accessor("currentVertexBuffer")
+	@Accessor("lastImmediateBuffer")
 	static void setCurrentVertexBuffer(VertexBuffer vertexBuffer) {
 	}
 }

@@ -2,7 +2,7 @@ package cn.pupperclient.management.mod.impl.settings;
 
 import java.util.Arrays;
 import java.util.Objects;
-
+import net.minecraft.client.gui.screens.Screen;
 import cn.pupperclient.PupperClient;
 import cn.pupperclient.gui.MusicPlayGui;
 import org.lwjgl.glfw.GLFW;
@@ -22,9 +22,7 @@ import cn.pupperclient.management.mod.settings.impl.NumberSetting;
 import cn.pupperclient.skia.font.Icon;
 import cn.pupperclient.utils.language.I18n;
 import cn.pupperclient.utils.language.Language;
-
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.InputUtil;
+import com.mojang.blaze3d.platform.InputConstants;
 
 public class ModMenuSettings extends Mod {
 
@@ -33,9 +31,9 @@ public class ModMenuSettings extends Mod {
 	private boolean languageInitialized = false;
 
 	private KeybindSetting keybindSetting = new KeybindSetting("setting.keybind", "setting.keybind.description",
-			Icon.KEYBOARD, this, InputUtil.fromKeyCode(GLFW.GLFW_KEY_RIGHT_SHIFT, 0));
+			Icon.KEYBOARD, this, InputConstants.getKey(GLFW.GLFW_KEY_RIGHT_SHIFT, 0));
     private KeybindSetting keybindSetting_music = new KeybindSetting("setting.keybind_music", "setting.keybind_music.description",
-        Icon.KEYBOARD, this, InputUtil.fromKeyCode(GLFW.GLFW_KEY_M, 0));
+        Icon.KEYBOARD, this, InputConstants.getKey(GLFW.GLFW_KEY_M, 0));
 	private BooleanSetting darkModeSetting = new BooleanSetting("setting.darkmode", "setting.darkmode.description",
 			Icon.DARK_MODE, this, false);
 	private HctColorSetting hctColorSetting = new HctColorSetting("setting.color", "setting.color.description",
@@ -97,11 +95,11 @@ public class ModMenuSettings extends Mod {
 		}
 
 		if (keybindSetting.isPressed()) {
-			mc.setScreen(new GuiModMenu());
+			client.setScreen(new GuiModMenu());
 		}
 
         if (keybindSetting_music.isPressed()) {
-            mc.setScreen(new MusicPlayGui());
+            client.setScreen(new MusicPlayGui());
         }
 
 		handleLanguageChange();

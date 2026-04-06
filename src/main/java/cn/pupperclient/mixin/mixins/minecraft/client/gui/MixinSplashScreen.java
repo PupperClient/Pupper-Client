@@ -7,12 +7,6 @@ import io.github.humbleui.skija.Canvas;
 import io.github.humbleui.skija.Font;
 import io.github.humbleui.types.Rect;
 import java.awt.Color;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.SplashOverlay;
-import net.minecraft.client.texture.ResourceTexture;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Util;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,19 +18,25 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Optional;
 import java.util.function.Consumer;
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.LoadingOverlay;
+import net.minecraft.client.renderer.texture.SimpleTexture;
+import net.minecraft.resources.ResourceLocation;
 
-@Mixin(SplashOverlay.class)
+@Mixin(LoadingOverlay.class)
 public abstract class MixinSplashScreen {
 
-    @Shadow @Final private MinecraftClient client;
-    @Shadow @Final private boolean reloading;
-    @Shadow @Final private Consumer<Optional<Throwable>> exceptionHandler;
+    @Shadow @Final private Minecraft minecraft;
+    @Shadow @Final private boolean fadeIn;
+    @Shadow @Final private Consumer<Optional<Throwable>> onFinish;
 
     // Animation timing variables
     @Unique private long soar_animationStartTime = -1L;
     @Unique private long soar_reloadStartTime = -1L;
     @Unique private static final long MAX_RELOAD_TIME = 15_000L;
-    @Unique private static final Identifier CUSTOM_LOGO = Identifier.of("pupper", "logo.png");
+    @Unique private static final ResourceLocation CUSTOM_LOGO = ResourceLocation.fromNamespaceAndPath("pupper", "logo.png");
     @Unique private static final int LOGO_ACTUAL_SIZE = 1080;
     @Unique private static final float LOGO_SCALE = 0.15f;
     @Unique private static final long ANIMATION_TOTAL_TIME = 4500L;
@@ -60,16 +60,16 @@ public abstract class MixinSplashScreen {
 
     @Unique
     private void ensureLogoTexture() {
-        var tm = this.client.getTextureManager();
+        var tm = this.minecraft.getTextureManager();
         if (tm.getTexture(CUSTOM_LOGO) == null) {
-            tm.registerTexture(CUSTOM_LOGO, new ResourceTexture(CUSTOM_LOGO));
+            tm.registerAndLoad(CUSTOM_LOGO, new SimpleTexture(CUSTOM_LOGO));
         }
     }
 
     @Inject(method = "render", at = @At("HEAD"), cancellable = true)
-    private void pupper_takeOverAndRender(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
-        int width = MinecraftClient.getInstance().getWindow().getWidth();
-        int height = MinecraftClient.getInstance().getWindow().getHeight();
+    private void pupper_takeOverAndRender(GuiGraphics context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+        int width = Minecraft.getInstance().getWindow().getScreenWidth();
+        int height = Minecraft.getInstance().getWindow().getScreenHeight();
 
         // Recreate surface if window size changed
         if (lastWindowWidth != width || lastWindowHeight != height) {
@@ -94,8 +94,8 @@ public abstract class MixinSplashScreen {
         ensureLogoTexture();
 
         // Handle reloading state
-        if (this.reloading) {
-            if (this.soar_reloadStartTime == -1L) this.soar_reloadStartTime = Util.getMeasuringTimeMs();
+        if (this.fadeIn) {
+            if (this.soar_reloadStartTime == -1L) this.soar_reloadStartTime = Util.getMillis();
             this.soar_animationStartTime = -1L;
             this.welcomeDisplayed = false;
             this.tapPromptDisplayed = false;
@@ -104,11 +104,11 @@ public abstract class MixinSplashScreen {
             this.tapPromptStartTime = -1L;
             this.tapClickTime = -1L;
 
-            long reloadElapsed = Util.getMeasuringTimeMs() - this.soar_reloadStartTime;
+            long reloadElapsed = Util.getMillis() - this.soar_reloadStartTime;
             if (reloadElapsed > MAX_RELOAD_TIME) {
                 try {
-                    this.client.setOverlay(null);
-                    this.exceptionHandler.accept(Optional.empty());
+                    this.minecraft.setOverlay(null);
+                    this.onFinish.accept(Optional.empty());
                 } catch (Exception ignored) {}
                 this.soar_reloadStartTime = -1L;
                 return;
@@ -120,43 +120,43 @@ public abstract class MixinSplashScreen {
 
         this.soar_reloadStartTime = -1L;
         if (this.soar_animationStartTime == -1L) {
-            this.soar_animationStartTime = Util.getMeasuringTimeMs();
+            this.soar_animationStartTime = Util.getMillis();
         }
 
-        long timePassed = Util.getMeasuringTimeMs() - this.soar_animationStartTime;
+        long timePassed = Util.getMillis() - this.soar_animationStartTime;
 
         // Check if welcome screen should be displayed
         if (timePassed >= ANIMATION_TOTAL_TIME && !welcomeDisplayed) {
             welcomeDisplayed = true;
-            welcomeStartTime = Util.getMeasuringTimeMs();
+            welcomeStartTime = Util.getMillis();
             tapPromptDisplayed = false;
             tapClicked = false;
         }
 
         // Welcome screen logic
         if (welcomeDisplayed) {
-            long welcomeTimePassed = Util.getMeasuringTimeMs() - welcomeStartTime;
+            long welcomeTimePassed = Util.getMillis() - welcomeStartTime;
 
             // Check if tap prompt should be displayed (1-second delay)
             if (!tapPromptDisplayed) {
                 tapPromptDisplayed = true;
-                tapPromptStartTime = Util.getMeasuringTimeMs();
+                tapPromptStartTime = Util.getMillis();
             }
 
             // Check if tap prompt was clicked
-            if (!tapClicked && GLFW.glfwGetMouseButton(this.client.getWindow().getHandle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS) {
+            if (!tapClicked && GLFW.glfwGetMouseButton(this.minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS) {
                 tapClicked = true;
-                tapClickTime = Util.getMeasuringTimeMs();
+                tapClickTime = Util.getMillis();
             }
 
             if (tapClicked) {
-                long clickTimePassed = Util.getMeasuringTimeMs() - tapClickTime;
+                long clickTimePassed = Util.getMillis() - tapClickTime;
 
                 if (clickTimePassed >= CLICK_FADE_DURATION) {
                     // After fade out, close splash screen
                     try {
-                        this.client.setOverlay(null);
-                        this.exceptionHandler.accept(Optional.empty());
+                        this.minecraft.setOverlay(null);
+                        this.onFinish.accept(Optional.empty());
                     } catch (Exception ignored) {}
                     this.soar_animationStartTime = -1L;
                     this.welcomeDisplayed = false;
@@ -175,8 +175,8 @@ public abstract class MixinSplashScreen {
             // Check if timeout (auto exit after display time)
             if (welcomeTimePassed >= WELCOME_DISPLAY_TIME) {
                 try {
-                    this.client.setOverlay(null);
-                    this.exceptionHandler.accept(Optional.empty());
+                    this.minecraft.setOverlay(null);
+                    this.onFinish.accept(Optional.empty());
                 } catch (Exception ignored) {}
                 this.soar_animationStartTime = -1L;
                 this.welcomeDisplayed = false;
@@ -248,7 +248,7 @@ public abstract class MixinSplashScreen {
     @Unique
     private void drawLogo(int x, int y, int size, float alpha) {
         // Draw logo using Skia
-        int textureId = MinecraftClient.getInstance().getTextureManager().getTexture(CUSTOM_LOGO).getGlId();
+        int textureId = Minecraft.getInstance().getTextureManager().getTexture(CUSTOM_LOGO).getId();
         Skia.drawImage(textureId, x, y, size, size, alpha);
     }
 
@@ -309,7 +309,7 @@ public abstract class MixinSplashScreen {
         } else {
             // Before click: TTS text has continuous fade in/out animation
             if (tapPromptDisplayed) {
-                long ttsTimePassed = Util.getMeasuringTimeMs() - tapPromptStartTime;
+                long ttsTimePassed = Util.getMillis() - tapPromptStartTime;
                 ttsAlpha = getTTSAnimationAlpha(ttsTimePassed);
             } else {
                 ttsAlpha = 0f; // Not displayed yet

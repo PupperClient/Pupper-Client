@@ -1,9 +1,8 @@
 package cn.pupperclient.utils.thread;
 
 import java.util.concurrent.*;
-
+import net.minecraft.client.Minecraft;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import net.minecraft.client.MinecraftClient;
 
 public class Multithreading {
     private static final ExecutorService virtualThreadExecutor = Executors.newVirtualThreadPerTaskExecutor();
@@ -25,7 +24,7 @@ public class Multithreading {
     }
 
     public static void runMainThread(Runnable runnable) {
-        MinecraftClient.getInstance().execute(runnable);
+        Minecraft.getInstance().execute(runnable);
     }
 
     public static void submit(Runnable runnable) {

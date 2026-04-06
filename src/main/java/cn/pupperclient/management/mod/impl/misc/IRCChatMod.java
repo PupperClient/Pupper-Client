@@ -12,9 +12,8 @@ import cn.pupperclient.management.mod.settings.impl.NumberSetting;
 import cn.pupperclient.management.mod.settings.impl.StringSetting;
 import cn.pupperclient.skia.font.Icon;
 import cn.pupperclient.utils.minecraft.interfaces.IMinecraft;
-import net.minecraft.text.Text;
-
 import java.io.IOException;
+import net.minecraft.network.chat.Component;
 
 public class IRCChatMod extends Mod implements IMinecraft, IRCHandler {
 
@@ -69,9 +68,9 @@ public class IRCChatMod extends Mod implements IMinecraft, IRCHandler {
     // IRCHandler implementation
     @Override
     public void onMessage(String sender, String message) throws IOException {
-        if (showMessagesSetting.isEnabled() && mc.player != null) {
+        if (showMessagesSetting.isEnabled() && client.player != null) {
             String formattedMessage = String.format("§9[IRC] §b%s§f: %s", sender, message);
-            mc.player.sendMessage(Text.of(formattedMessage), false);
+            client.player.displayClientMessage(Component.nullToEmpty(formattedMessage), false);
         }
     }
 
@@ -81,8 +80,8 @@ public class IRCChatMod extends Mod implements IMinecraft, IRCHandler {
         lastError = message;
         PupperClient.LOGGER.warn("IRC disconnected: {}", message);
 
-        if (mc.player != null) {
-            mc.player.sendMessage(Text.of("§cIRC disconnected: " + message), false);
+        if (client.player != null) {
+            client.player.displayClientMessage(Component.nullToEmpty("§cIRC disconnected: " + message), false);
         }
 
         // Schedule reconnect if auto-connect is enabled
@@ -97,16 +96,16 @@ public class IRCChatMod extends Mod implements IMinecraft, IRCHandler {
         lastError = "";
         PupperClient.LOGGER.info("IRC connected successfully");
 
-        if (mc.player != null) {
-            mc.player.sendMessage(Text.of("§aConnected to IRC server!"), false);
+        if (client.player != null) {
+            client.player.displayClientMessage(Component.nullToEmpty("§aConnected to IRC server!"), false);
         }
     }
 
     @Override
     public String getInGameUsername() {
         // Use Minecraft username if available, otherwise use setting
-        if (mc.player != null) {
-            return mc.player.getGameProfile().getName();
+        if (client.player != null) {
+            return client.player.getGameProfile().getName();
         }
         return usernameSetting.getValue();
     }
@@ -124,7 +123,7 @@ public class IRCChatMod extends Mod implements IMinecraft, IRCHandler {
         }
 
         // Update in-game name periodically if connected
-        if (isConnected && transport != null && mc.player != null) {
+        if (isConnected && transport != null && client.player != null) {
             // This will be handled by the transport's scheduled task
         }
     };
@@ -153,8 +152,8 @@ public class IRCChatMod extends Mod implements IMinecraft, IRCHandler {
                 lastError = e.getMessage();
                 PupperClient.LOGGER.error("Failed to create IRC transport", e);
 
-                if (mc.player != null) {
-                    mc.player.sendMessage(Text.of("§cFailed to connect to IRC: " + e.getMessage()), false);
+                if (client.player != null) {
+                    client.player.displayClientMessage(Component.nullToEmpty("§cFailed to connect to IRC: " + e.getMessage()), false);
                 }
 
                 transport = null;
@@ -210,8 +209,8 @@ public class IRCChatMod extends Mod implements IMinecraft, IRCHandler {
     }
 
     private void sendChatMessage(String message) {
-        if (mc.player != null) {
-            mc.player.sendMessage(Text.of(message), false);
+        if (client.player != null) {
+            client.player.displayClientMessage(Component.nullToEmpty(message), false);
         }
     }
 

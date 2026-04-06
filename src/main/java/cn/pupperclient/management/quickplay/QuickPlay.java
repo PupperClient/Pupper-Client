@@ -1,17 +1,16 @@
 package cn.pupperclient.management.quickplay;
 
 import java.util.ArrayList;
-
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 public class QuickPlay {
 
     private ArrayList<QuickPlayCommand> commands = new ArrayList<QuickPlayCommand>();
 
     private final String name;
-    private final Identifier icon;
+    private final ResourceLocation icon;
 
-    public QuickPlay(String name, Identifier icon) {
+    public QuickPlay(String name, ResourceLocation icon) {
         this.name = name;
         this.icon = icon;
         this.addCommands();
@@ -27,7 +26,7 @@ public class QuickPlay {
         return commands;
     }
 
-    public Identifier getIcon() {
+    public ResourceLocation getIcon() {
         return icon;
     }
 

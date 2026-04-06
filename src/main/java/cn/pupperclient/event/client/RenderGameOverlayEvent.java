@@ -1,18 +1,17 @@
 package cn.pupperclient.event.client;
 
 import cn.pupperclient.event.Event;
-
-import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.GuiGraphics;
 
 public class RenderGameOverlayEvent extends Event {
 	
-	private final DrawContext context;
+	private final GuiGraphics context;
 	
-	public RenderGameOverlayEvent(DrawContext context) {
+	public RenderGameOverlayEvent(GuiGraphics context) {
 		this.context = context;
 	}
 
-	public DrawContext getContext() {
+	public GuiGraphics getContext() {
 		return context;
 	}
 }

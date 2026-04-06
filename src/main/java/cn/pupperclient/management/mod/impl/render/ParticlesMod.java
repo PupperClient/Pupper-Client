@@ -7,15 +7,16 @@ import cn.pupperclient.management.mod.ModCategory;
 import cn.pupperclient.management.mod.settings.impl.BooleanSetting;
 import cn.pupperclient.management.mod.settings.impl.NumberSetting;
 import cn.pupperclient.skia.font.Icon;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.registry.RegistryKeys;
+import java.util.Objects;
 
 public class ParticlesMod extends Mod {
 
@@ -40,27 +41,29 @@ public class ParticlesMod extends Mod {
 
 		int sharpnessAmount = (int) sharpnessAmountSetting.getValue();
 		int criticalsAmount = (int) criticalsAmountSetting.getValue();
-		Entity target = mc.world.getEntityById(event.getEntityId());
-		ClientPlayerEntity player = mc.player;
+		Entity target = client.level.getEntity(event.getEntityId());
+		LocalPlayer player = client.player;
 
-		boolean critical = criticalsSetting.isEnabled() && player.getAttackCooldownProgress(0.5F) > 0.9F
-				&& !player.isOnGround() && !player.isClimbing() && !player.isTouchingWater()
-				&& !player.hasStatusEffect(StatusEffects.BLINDNESS) && !player.hasVehicle()
+		boolean critical = criticalsSetting.isEnabled() && player.getAttackStrengthScale(0.5F) > 0.9F
+				&& !player.onGround() && !player.onClimbable() && !player.isInWater()
+				&& !player.hasEffect(MobEffects.BLINDNESS) && !player.isPassenger()
 				&& target instanceof LivingEntity && !player.isSprinting();
 		boolean alwaysSharpness = alwaysSharpnessSetting.isEnabled();
-		boolean sharpness = sharpnessSetting.isEnabled() && EnchantmentHelper.getLevel(mc.world.getRegistryManager()
-				.getOrThrow(RegistryKeys.ENCHANTMENT).getOrThrow(Enchantments.SHARPNESS), player.getWeaponStack()) > 0;
+		boolean sharpness = sharpnessSetting.isEnabled() && EnchantmentHelper.getItemEnchantmentLevel(client.level.registryAccess()
+            .lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.SHARPNESS), Objects.requireNonNull(player).getWeaponItem()) > 0;
 		boolean alwaysCriticals = alwaysCriticalsSetting.isEnabled();
 
 		if (critical || alwaysCriticals) {
 			for (int i = 0; i < criticalsAmount - 1; i++) {
-				mc.particleManager.addEmitter(target, ParticleTypes.CRIT);
+                assert target != null;
+                client.particleEngine.createTrackingEmitter(target, ParticleTypes.CRIT);
 			}
 		}
 
 		if (alwaysSharpness || sharpness) {
 			for (int i = 0; i < sharpnessAmount - 1; i++) {
-				mc.particleManager.addEmitter(target, ParticleTypes.ENCHANTED_HIT);
+                assert target != null;
+                client.particleEngine.createTrackingEmitter(target, ParticleTypes.ENCHANTED_HIT);
 			}
 		}
 	};

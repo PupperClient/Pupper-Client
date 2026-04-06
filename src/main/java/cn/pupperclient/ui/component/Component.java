@@ -1,12 +1,11 @@
 package cn.pupperclient.ui.component;
 
 import cn.pupperclient.ui.component.handler.ComponentHandler;
-
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 public class Component {
 
-	protected MinecraftClient client = MinecraftClient.getInstance();
+	protected Minecraft client = Minecraft.getInstance();
 	protected ComponentHandler handler;
 	protected float x, y, width, height;
 

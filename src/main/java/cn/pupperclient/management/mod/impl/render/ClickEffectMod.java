@@ -10,10 +10,7 @@ import cn.pupperclient.management.mod.settings.impl.ColorSetting;
 import cn.pupperclient.management.mod.settings.impl.NumberSetting;
 import cn.pupperclient.skia.font.Icon;
 import cn.pupperclient.utils.render.RippleEffect;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.TitleScreen;
-import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
-import net.minecraft.client.util.Window;
+import com.mojang.blaze3d.platform.Window;
 import io.github.humbleui.skija.Canvas;
 import io.github.humbleui.skija.Paint;
 import io.github.humbleui.skija.Shader;
@@ -24,6 +21,9 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 
 public class ClickEffectMod extends Mod {
 
@@ -73,9 +73,9 @@ public class ClickEffectMod extends Mod {
         super.onEnable();
         // 注册事件监听器
         EventBus.getInstance().register(this);
-        Window window = MinecraftClient.getInstance().getWindow();
-        windowWidth = window.getScaledWidth();
-        windowHeight = window.getScaledHeight();
+        Window window = Minecraft.getInstance().getWindow();
+        windowWidth = window.getGuiScaledWidth();
+        windowHeight = window.getGuiScaledHeight();
     }
 
     @Override
@@ -86,8 +86,8 @@ public class ClickEffectMod extends Mod {
     }
 
     public final EventBus.EventListener<MouseClickEvent> onMouseClick = event -> {
-        if ((mc.currentScreen instanceof TitleScreen
-            || mc.currentScreen instanceof MultiplayerScreen)
+        if ((client.screen instanceof TitleScreen
+            || client.screen instanceof JoinMultiplayerScreen)
             && (event.getButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT
             || event.getButton() == GLFW.GLFW_MOUSE_BUTTON_RIGHT)
         ) {
@@ -101,9 +101,9 @@ public class ClickEffectMod extends Mod {
     };
 
     public final EventBus.EventListener<RenderSkiaEvent> onRenderSkia = event -> {
-        Window window = MinecraftClient.getInstance().getWindow();
-        windowWidth = window.getScaledWidth();
-        windowHeight = window.getScaledHeight();
+        Window window = Minecraft.getInstance().getWindow();
+        windowWidth = window.getGuiScaledWidth();
+        windowHeight = window.getGuiScaledHeight();
 
         Iterator<RippleEffect> iterator = ripples.iterator();
         while (iterator.hasNext()) {
@@ -118,8 +118,8 @@ public class ClickEffectMod extends Mod {
     };
 
     private void renderRipple(Canvas canvas, RippleEffect ripple, Color baseColor) {
-        Window window = MinecraftClient.getInstance().getWindow();
-        float windowHeight = window.getScaledHeight();
+        Window window = Minecraft.getInstance().getWindow();
+        float windowHeight = window.getGuiScaledHeight();
 
         float flippedY = windowHeight - ripple.getY();
 

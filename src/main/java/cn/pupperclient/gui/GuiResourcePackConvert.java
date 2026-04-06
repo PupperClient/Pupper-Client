@@ -13,6 +13,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import cn.pupperclient.PupperClient;
+import cn.pupperclient.utils.minecraft.interfaces.IMinecraft;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import cn.pupperclient.libraries.resourcepack.ResourcePackConverter;
@@ -21,18 +22,18 @@ import cn.pupperclient.utils.thread.Multithreading;
 import cn.pupperclient.utils.file.FileLocation;
 
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
-import net.minecraft.util.Colors;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.CommonColors;
 
-public class GuiResourcePackConvert extends Screen {
+public class GuiResourcePackConvert extends Screen implements IMinecraft {
 
 	private String progress = "Converting...";
 	private Screen prevScreen;
 	
 	public GuiResourcePackConvert(Screen prevScreen) {
-		super(Text.of("PackConvert"));
+		super(Component.literal("PackConvert"));
 		this.prevScreen = prevScreen;
 	}
 
@@ -45,17 +46,15 @@ public class GuiResourcePackConvert extends Screen {
             } catch (Exception e) {
                 PupperClient.LOGGER.error("converter error: {}", e.getMessage());
             }
-            if (client != null) {
-                client.setScreen(prevScreen);
-            }
+            client.setScreen(prevScreen);
         });
 		super.init();
 	}
 	
 	@Override
-	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+	public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
 		super.render(context, mouseX, mouseY, delta);
-		context.drawCenteredTextWithShadow(this.textRenderer, Text.of(progress), this.width / 2, this.height / 2 - 50, Colors.WHITE);
+		context.drawCenteredString(this.font, Component.literal(progress), this.width / 2, this.height / 2 - 50, CommonColors.WHITE);
 	}
 	
 	private ResourcePackConverter createConverter() {
@@ -74,7 +73,7 @@ public class GuiResourcePackConvert extends Screen {
 			try {
 				
 				File targetFile = new File(cacheDir, f.getName());
-				File packDir = new File(client.runDirectory, "resourcepacks");
+				File packDir = new File(client.gameDirectory, "resourcepacks");
 				File outputFile = new File(packDir, f.getName());
 				
 				Files.move(f.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
@@ -132,7 +131,7 @@ public class GuiResourcePackConvert extends Screen {
 	private List<File> getOldResourcePacks() {
 
 		List<File> files = new ArrayList<>();
-		File packDir = new File(client.runDirectory, "resourcepacks");
+		File packDir = new File(client.gameDirectory, "resourcepacks");
 
 		File[] packFiles = packDir.listFiles();
         if (packFiles != null) {

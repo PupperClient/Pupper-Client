@@ -8,12 +8,11 @@ import cn.pupperclient.utils.chat.ChatUtils;
 import cn.pupperclient.utils.minecraft.interfaces.IMinecraft;
 import cn.pupperclient.utils.language.I18n;
 import net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
 import java.io.IOException;
 
 public class PupperCommand implements IMinecraft {
@@ -123,16 +122,16 @@ public class PupperCommand implements IMinecraft {
 
     private static void listMods() {
         if (modManager == null) {
-            ChatUtils.addChatMessage(Text.literal("§c" + I18n.get("modManager.notInitialized")));
+            ChatUtils.addChatMessage(Component.literal("§c" + I18n.get("modManager.notInitialized")));
             return;
         }
 
         // 创建标题和刷新按钮
-        MutableText title = Text.literal("=== " + I18n.get("command.help.modlist.title") + " ===")
-            .formatted(Formatting.GOLD);
+        MutableComponent title = Component.literal("=== " + I18n.get("command.help.modlist.title") + " ===")
+            .withStyle(ChatFormatting.GOLD);
 
-        MutableText refreshButton = createClickableText(" [" + I18n.get("command.help.modlist.refresh") + "]", ".list",
-            I18n.get("command.help.modlist.refresh.tip"), Formatting.GREEN);
+        MutableComponent refreshButton = createClickableText(" [" + I18n.get("command.help.modlist.refresh") + "]", ".list",
+            I18n.get("command.help.modlist.refresh.tip"), ChatFormatting.GREEN);
 
         title.append(refreshButton);
         ChatUtils.addChatMessage(title);
@@ -150,44 +149,44 @@ public class PupperCommand implements IMinecraft {
             boolean isEnabled = mod.isEnabled();
             String shortModName = getShortModName(mod.getName());
 
-            MutableText modNameText = Text.literal("• " + modDisplayName)
-                .formatted(Formatting.AQUA);
+            MutableComponent modNameText = Component.literal("• " + modDisplayName)
+                .withStyle(ChatFormatting.AQUA);
 
-            MutableText statusText;
+            MutableComponent statusText;
             if (isEnabled) {
                 statusText = createClickableText(I18n.get("mod.enabled"),
                     ".toggle " + shortModName,
-                    I18n.get("modNameText.c") + " " + modDisplayName, Formatting.GREEN);
+                    I18n.get("modNameText.c") + " " + modDisplayName, ChatFormatting.GREEN);
             } else {
                 statusText = createClickableText(I18n.get("mod.disabled"),
                     ".toggle " + shortModName,
-                    I18n.get("modNameText.d") + " " + modDisplayName, Formatting.RED);
+                    I18n.get("modNameText.d") + " " + modDisplayName, ChatFormatting.RED);
             }
 
-            MutableText modLine = Text.empty()
+            MutableComponent modLine = Component.empty()
                 .append(modNameText)
-                .append(Text.literal(" - ").formatted(Formatting.GRAY))
+                .append(Component.literal(" - ").withStyle(ChatFormatting.GRAY))
                 .append(statusText);
 
             ChatUtils.addChatMessage(modLine);
         }
 
         // 统计信息行
-        MutableText stats = Text.literal(I18n.get("command.help.modlist.stats") + ": ")
-            .formatted(Formatting.GRAY)
-            .append(Text.literal(enabledCount + "/" + totalCount + " " + I18n.get("mod.enabled"))
-                .formatted(enabledCount > 0 ? Formatting.GREEN : Formatting.RED));
+        MutableComponent stats = Component.literal(I18n.get("command.help.modlist.stats") + ": ")
+            .withStyle(ChatFormatting.GRAY)
+            .append(Component.literal(enabledCount + "/" + totalCount + " " + I18n.get("mod.enabled"))
+                .withStyle(enabledCount > 0 ? ChatFormatting.GREEN : ChatFormatting.RED));
 
         ChatUtils.addChatMessage(stats);
     }
 
-    private static MutableText createClickableText(String displayText, String command, String hoverText, Formatting color) {
-        return Text.literal(displayText)
-            .formatted(color)
-            .styled(style -> style
+    private static MutableComponent createClickableText(String displayText, String command, String hoverText, ChatFormatting color) {
+        return Component.literal(displayText)
+            .withStyle(color)
+            .withStyle(style -> style
                 .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command))
                 .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                    Text.literal(hoverText).formatted(Formatting.GRAY))));
+                    Component.literal(hoverText).withStyle(ChatFormatting.GRAY))));
     }
 
     private static String getShortModName(String fullName) {

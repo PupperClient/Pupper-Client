@@ -11,8 +11,7 @@ import cn.pupperclient.management.mod.api.hud.SimpleHUDMod;
 import cn.pupperclient.management.mod.settings.impl.KeybindSetting;
 import cn.pupperclient.skia.font.Icon;
 import cn.pupperclient.utils.time.TimerUtils;
-
-import net.minecraft.client.util.InputUtil;
+import com.mojang.blaze3d.platform.InputConstants;
 
 public class StopwatchMod extends SimpleHUDMod {
 
@@ -22,7 +21,7 @@ public class StopwatchMod extends SimpleHUDMod {
 	private DecimalFormat timeFormat = new DecimalFormat("0.00");
 
 	private KeybindSetting keybindSetting = new KeybindSetting("setting.keybind", "setting.keybind.description",
-			Icon.KEYBOARD, this, InputUtil.fromKeyCode(GLFW.GLFW_KEY_P, 0));
+			Icon.KEYBOARD, this, InputConstants.getKey(GLFW.GLFW_KEY_P, 0));
 
 	public StopwatchMod() {
 		super("mod.stopwatch.name", "mod.stopwatch.description", Icon.TIMER);

@@ -20,12 +20,12 @@ import cn.pupperclient.utils.file.FileLocation;
 import cn.pupperclient.utils.file.FileDialog;
 import cn.pupperclient.utils.language.I18n;
 import cn.pupperclient.utils.mouse.MouseUtils;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 import io.github.humbleui.skija.Font;
 import javax.imageio.ImageIO;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -114,7 +114,7 @@ public class CosmeticsPage extends Page {
 
                     try {
                         Files.copy(selectedFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                        MinecraftClient.getInstance().execute(this::loadExistingCapes);
+                        Minecraft.getInstance().execute(this::loadExistingCapes);
                     } catch (IOException e) {
                         cn.pupperclient.PupperLogger.error("CosmeticsPage", "Failed to copy uploaded cape", e);
                     }
@@ -213,7 +213,7 @@ public class CosmeticsPage extends Page {
             }
 
             if (item.capeFile.exists()) {
-                Identifier capeTexture = PupperClient.getInstance().getCapeManager().getLoadedCape(item.capeId);
+                ResourceLocation capeTexture = PupperClient.getInstance().getCapeManager().getLoadedCape(item.capeId);
                 if (capeTexture != null) {
                     CapeRenderer.renderRoundedCapePreview(capeTexture,
                         itemX + 5, itemY + 5, itemWidth - 10, itemHeight - 10, 8);

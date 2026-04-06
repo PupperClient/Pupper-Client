@@ -1,9 +1,5 @@
 package cn.pupperclient.mixin.mixins.minecraft.entity;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -13,78 +9,81 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import cn.pupperclient.management.mod.impl.hud.JumpResetIndicatorMod;
 import cn.pupperclient.management.mod.impl.player.NoJumpDelayMod;
 import cn.pupperclient.mixin.interfaces.IMixinLivingEntity;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.Hand;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 
 @Mixin(LivingEntity.class)
 public abstract class MixinLivingEntity extends Entity implements IMixinLivingEntity{
 
 	@Shadow
-	private int jumpingCooldown;
+	private int noJumpDelay;
 
 	@Shadow
-	public int handSwingTicks;
+	public int swingTime;
 
 	@Shadow
-	public boolean handSwinging;
+	public boolean swinging;
 
     @Shadow
-	public Hand preferredHand;
+	public InteractionHand swingingArm;
 
-    public MixinLivingEntity(EntityType<?> type, World world) {
+    public MixinLivingEntity(EntityType<?> type, Level world) {
         super(type, world);
     }
 
     @Shadow
-    protected abstract int getHandSwingDuration();
+    protected abstract int getCurrentSwingDuration();
 
     @Shadow
-    public abstract void jump();
+    public abstract void jumpFromGround();
 
     @Shadow
-    public abstract float getYaw(float tickDelta);
+    public abstract float getViewYRot(float tickDelta);
 
     @Shadow
-    protected abstract void initDataTracker(DataTracker.Builder builder);
+    protected abstract void defineSynchedData(SynchedEntityData.Builder builder);
 
-    @Inject(method = "tickMovement", at = @At("HEAD"))
+    @Inject(method = "aiStep", at = @At("HEAD"))
 	public void onNoJumpDelay(CallbackInfo ci) {
 		if (NoJumpDelayMod.getInstance().isEnabled()) {
-			jumpingCooldown = 0;
+			noJumpDelay = 0;
 		}
 	}
 
-	@Inject(method = "jump", at = @At("HEAD"))
+	@Inject(method = "jumpFromGround", at = @At("HEAD"))
 	private void onJump(CallbackInfo info) {
 
 		JumpResetIndicatorMod mod = JumpResetIndicatorMod.getInstance();
-		MinecraftClient client = MinecraftClient.getInstance();
+		Minecraft client = Minecraft.getInstance();
 
 		if ((Object) this == client.player) {
-			mod.setJumpAge(client.player.age);
+			mod.setJumpAge(client.player.tickCount);
 			mod.setLastTime(System.currentTimeMillis());
 		}
 	}
 
-	@Inject(method = "onDamaged", at = @At("HEAD"))
+	@Inject(method = "handleDamageEvent", at = @At("HEAD"))
 	private void onDamage(CallbackInfo info) {
 
 		JumpResetIndicatorMod mod = JumpResetIndicatorMod.getInstance();
-		MinecraftClient client = MinecraftClient.getInstance();
+		Minecraft client = Minecraft.getInstance();
 
 		if ((Object) this == client.player) {
-			mod.setHurtAge(client.player.age);
+			mod.setHurtAge(client.player.tickCount);
 		}
 	}
 
 	@Override
-	public void soarClient_CN$fakeSwingHand(Hand hand) {
-		if (!this.handSwinging || this.handSwingTicks >= this.getHandSwingDuration() / 2 || this.handSwingTicks < 0) {
-			this.handSwingTicks = -1;
-			this.handSwinging = true;
-			this.preferredHand = hand;
+	public void soarClient_CN$fakeSwingHand(InteractionHand hand) {
+		if (!this.swinging || this.swingTime >= this.getCurrentSwingDuration() / 2 || this.swingTime < 0) {
+			this.swingTime = -1;
+			this.swinging = true;
+			this.swingingArm = hand;
 		}
 	}
 }

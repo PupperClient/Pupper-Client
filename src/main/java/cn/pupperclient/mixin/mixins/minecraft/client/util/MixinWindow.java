@@ -7,8 +7,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import cn.pupperclient.skia.context.SkiaContext;
-
-import net.minecraft.client.util.Window;
+import com.mojang.blaze3d.platform.Window;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.stb.STBImage;
@@ -22,7 +21,7 @@ import java.nio.IntBuffer;
 @Mixin(Window.class)
 public class MixinWindow {
 
-	@Inject(method = "onFramebufferSizeChanged", at = @At("RETURN"))
+	@Inject(method = "onFramebufferResize", at = @At("RETURN"))
 	private void onFramebufferSizeChanged(long window, int width, int height, CallbackInfo ci) {
 		SkiaContext.createSurface(width, height);
 	}
@@ -31,7 +30,7 @@ public class MixinWindow {
     private void onWindowInit(CallbackInfo ci) {
         try {
             // 获取窗口句柄
-            long handle = ((Window)(Object)this).getHandle();
+            long handle = ((Window)(Object)this).getWindow();
 
             // 从资源加载图标
             try (InputStream is = getClass().getResourceAsStream("/assets/pupper/logo.png")) {

@@ -4,14 +4,14 @@ import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.client.RenderSkiaEvent;
 import cn.pupperclient.management.mod.api.hud.SimpleHUDMod;
 import cn.pupperclient.skia.font.Icon;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.World;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class FallDamageHelp extends SimpleHUDMod {
     public FallDamageHelp() {
@@ -23,19 +23,19 @@ public class FallDamageHelp extends SimpleHUDMod {
     };
 
     public static boolean willFallToDeath() {
-        MinecraftClient client = MinecraftClient.getInstance();
-        ClientPlayerEntity player = client.player;
+        Minecraft client = Minecraft.getInstance();
+        LocalPlayer player = client.player;
         if (player == null) {
             return false;
         }
 
-        World world = player.getEntityWorld();
+        Level world = player.getCommandSenderWorld();
         double currentY = player.getY();
-        BlockPos playerBlockPos = player.getBlockPos();
+        BlockPos playerBlockPos = player.blockPosition();
 
         for (int offset = 1; offset < 256; offset++) {
             int y = playerBlockPos.getY() - offset;
-            if (y < world.getBottomY()) {
+            if (y < world.getMinY()) {
                 break;
             }
 
@@ -43,14 +43,14 @@ public class FallDamageHelp extends SimpleHUDMod {
             BlockState state = world.getBlockState(checkPos);
             VoxelShape collisionShape = state.getCollisionShape(world, checkPos);
 
-            if (!collisionShape.isEmpty() && collisionShape != VoxelShapes.empty()) {
-                double blockTopY = y + collisionShape.getMax(Direction.Axis.Y);
+            if (!collisionShape.isEmpty() && collisionShape != Shapes.empty()) {
+                double blockTopY = y + collisionShape.max(Direction.Axis.Y);
                 double fallDistance = currentY - blockTopY;
                 return fallDistance >= 23;
             }
         }
 
-        double fallDistance = currentY - world.getBottomY();
+        double fallDistance = currentY - world.getMinY();
         return fallDistance >= 23;
     }
 

@@ -23,6 +23,6 @@ public class Sprint extends Mod {
 
     @EventListener
     public void onTick(ClientTickEvent event) {
-        mc.options.sprintKey.setPressed(true);
+        client.options.keySprint.setDown(true);
     }
 }

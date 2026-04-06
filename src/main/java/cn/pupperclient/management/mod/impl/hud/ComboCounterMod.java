@@ -31,7 +31,7 @@ public class ComboCounterMod extends SimpleHUDMod {
 			combo++;
 			possibleTarget = -1;
 			hitTime = System.currentTimeMillis();
-		} else if (event.getEntityId() == mc.player.getId()) {
+		} else if (event.getEntityId() == client.player.getId()) {
 			combo = 0;
 		}
 	};

@@ -8,8 +8,7 @@ import cn.pupperclient.event.client.RenderSkiaEvent;
 import cn.pupperclient.management.mod.api.hud.HUDMod;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.font.Icon;
-
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 
 public class MouseStrokesMod extends HUDMod {
 
@@ -47,8 +46,8 @@ public class MouseStrokesMod extends HUDMod {
 	public final EventBus.EventListener<PlayerDirectionChangeEvent> onPlayerDirectionChange = event -> {
 		mouseX += (event.getYaw() - event.getPrevYaw()) / 7F;
 		mouseY += (event.getPitch() - event.getPrevPitch()) / 7F;
-		mouseX = MathHelper.clamp(mouseX, -20, 20);
-		mouseY = MathHelper.clamp(mouseY, -20, 20);
+		mouseX = Mth.clamp(mouseX, -20, 20);
+		mouseY = Mth.clamp(mouseY, -20, 20);
 	};
 
 	@Override

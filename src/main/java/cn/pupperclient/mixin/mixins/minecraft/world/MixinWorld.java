@@ -6,13 +6,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import cn.pupperclient.management.mod.impl.misc.WeatherChangerMod;
+import net.minecraft.world.level.Level;
 
-import net.minecraft.world.World;
-
-@Mixin(World.class)
+@Mixin(Level.class)
 public class MixinWorld {
 
-	@Inject(method = "getRainGradient", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "getRainLevel", at = @At("HEAD"), cancellable = true)
 	public void getRainGradient(float delta, CallbackInfoReturnable<Float> cir) {
 		
 		WeatherChangerMod mod = WeatherChangerMod.getInstance();
@@ -33,7 +32,7 @@ public class MixinWorld {
 		}
 	}
 	
-	@Inject(method = "getThunderGradient", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "getThunderLevel", at = @At("HEAD"), cancellable = true)
 	public void getThunderGradient(float delta, CallbackInfoReturnable<Float> cir) {
 		
 		WeatherChangerMod mod = WeatherChangerMod.getInstance();

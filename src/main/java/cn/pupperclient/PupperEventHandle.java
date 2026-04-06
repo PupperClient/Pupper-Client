@@ -3,12 +3,9 @@ package cn.pupperclient;
 import java.util.List;
 
 import cn.pupperclient.event.EventBus;
-import cn.pupperclient.event.EventListener;
-import cn.pupperclient.event.EventType;
 import cn.pupperclient.event.client.*;
 import cn.pupperclient.event.server.impl.GameJoinEvent;
 import cn.pupperclient.management.profile.Profile;
-import net.minecraft.client.MinecraftClient;
 
 public class PupperEventHandle {
 	public final EventBus.EventListener<ClientTickEvent> onClientTick = event -> {

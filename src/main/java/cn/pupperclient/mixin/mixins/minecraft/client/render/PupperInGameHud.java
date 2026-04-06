@@ -1,15 +1,15 @@
 package cn.pupperclient.mixin.mixins.minecraft.client.render;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.hud.InGameHud;
-import net.minecraft.client.option.AttackIndicator;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Arm;
+import net.minecraft.client.AttackIndicatorStatus;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -18,15 +18,15 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(InGameHud.class)
+@Mixin(Gui.class)
 public class PupperInGameHud {
-    @Shadow @Final private MinecraftClient client;
+    @Shadow @Final private Minecraft minecraft;
 
     @Shadow
-    private PlayerEntity getCameraPlayer() {
-        Entity var2 = this.client.getCameraEntity();
-        PlayerEntity var10000;
-        if (var2 instanceof PlayerEntity playerEntity) {
+    private Player getCameraPlayer() {
+        Entity var2 = this.minecraft.getCameraEntity();
+        Player var10000;
+        if (var2 instanceof Player playerEntity) {
             var10000 = playerEntity;
         } else {
             var10000 = null;
@@ -39,34 +39,34 @@ public class PupperInGameHud {
     @Unique private float slotAnimationProgress = 0f;
     @Unique private float offhandAlpha = 0f;
 
-    @Inject(method = "renderHotbar", at = @At("HEAD"), cancellable = true)
-    private void replaceHotbarRender(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
+    @Inject(method = "renderItemHotbar", at = @At("HEAD"), cancellable = true)
+    private void replaceHotbarRender(GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
         ci.cancel(); // 取消原版物品栏绘制
         drawCustomHotbar(context, tickCounter);
     }
 
     @Unique
-    private void drawCustomHotbar(DrawContext context, RenderTickCounter tickCounter) {
-        PlayerEntity playerEntity = this.getCameraPlayer();
+    private void drawCustomHotbar(GuiGraphics context, DeltaTracker tickCounter) {
+        Player playerEntity = this.getCameraPlayer();
         if (playerEntity == null) return;
 
-        ItemStack itemStack = playerEntity.getOffHandStack();
-        Arm arm = playerEntity.getMainArm().getOpposite();
-        int centerX = context.getScaledWindowWidth() / 2;
-        int hotbarY = context.getScaledWindowHeight() - 22;
+        ItemStack itemStack = playerEntity.getOffhandItem();
+        HumanoidArm arm = playerEntity.getMainArm().getOpposite();
+        int centerX = context.guiWidth() / 2;
+        int hotbarY = context.guiHeight() - 22;
 
-        int selectedSlot = playerEntity.getInventory().selectedSlot;
+        int selectedSlot = playerEntity.getInventory().selected;
         updateSlotAnimation(selectedSlot);
         updateOffhandAlpha(playerEntity);
 
-        context.getMatrices().push();
-        context.getMatrices().translate(0.0F, 0.0F, -90.0F);
+        context.pose().pushPose();
+        context.pose().translate(0.0F, 0.0F, -90.0F);
 
         // 绘制自定义白色背景
         drawCustomHotbarBackground(context, centerX, hotbarY, selectedSlot);
 
         // 绘制原版选择框
-        context.drawGuiTexture(RenderLayer::getGuiTextured, InGameHud.HOTBAR_SELECTION_TEXTURE,
+        context.blitSprite(RenderType::guiTextured, Gui.HOTBAR_SELECTION_SPRITE,
             centerX - 91 - 1 + selectedSlot * 20, hotbarY - 1, 24, 23);
 
         // 绘制副手背景（带透明度）
@@ -74,12 +74,12 @@ public class PupperInGameHud {
             drawOffhandBackground(context, centerX, hotbarY, arm, offhandAlpha);
         }
 
-        context.getMatrices().pop();
+        context.pose().popPose();
 
         // 绘制物品（带动画）
         for(int i = 0; i < 9; ++i) {
             int slotX = centerX - 90 + i * 20 + 2;
-            int slotY = context.getScaledWindowHeight() - 16 - 3;
+            int slotY = context.guiHeight() - 16 - 3;
 
             // 计算动画偏移
             float slotOffset = 0;
@@ -89,41 +89,41 @@ public class PupperInGameHud {
                 slotOffset = slotAnimationProgress * 3;
             }
 
-            this.renderHotbarItem(context, slotX, (int)(slotY + slotOffset), tickCounter, playerEntity,
-                playerEntity.getInventory().main.get(i), i + 1);
+            this.renderSlot(context, slotX, (int)(slotY + slotOffset), tickCounter, playerEntity,
+                playerEntity.getInventory().items.get(i), i + 1);
         }
 
         // 绘制副手物品（带透明度）
         if (!itemStack.isEmpty() && offhandAlpha > 0) {
-            int offhandY = context.getScaledWindowHeight() - 16 - 3;
-            if (arm == Arm.LEFT) {
-                this.renderHotbarItem(context, centerX - 91 - 26, offhandY, tickCounter, playerEntity, itemStack, 100);
+            int offhandY = context.guiHeight() - 16 - 3;
+            if (arm == HumanoidArm.LEFT) {
+                this.renderSlot(context, centerX - 91 - 26, offhandY, tickCounter, playerEntity, itemStack, 100);
             } else {
-                this.renderHotbarItem(context, centerX + 91 + 10, offhandY, tickCounter, playerEntity, itemStack, 100);
+                this.renderSlot(context, centerX + 91 + 10, offhandY, tickCounter, playerEntity, itemStack, 100);
             }
         }
 
         // 保留原版攻击冷却指示器
-        if (this.client.options.getAttackIndicator().getValue() == AttackIndicator.HOTBAR) {
-            float f = this.client.player.getAttackCooldownProgress(0.0F);
+        if (this.minecraft.options.attackIndicator().get() == AttackIndicatorStatus.HOTBAR) {
+            float f = this.minecraft.player.getAttackStrengthScale(0.0F);
             if (f < 1.0F) {
-                int indicatorY = context.getScaledWindowHeight() - 20;
+                int indicatorY = context.guiHeight() - 20;
                 int indicatorX = centerX + 91 + 6;
-                if (arm == Arm.RIGHT) {
+                if (arm == HumanoidArm.RIGHT) {
                     indicatorX = centerX - 91 - 22;
                 }
 
                 int progress = (int)(f * 19.0F);
-                context.drawGuiTexture(RenderLayer::getGuiTextured, InGameHud.HOTBAR_ATTACK_INDICATOR_BACKGROUND_TEXTURE,
+                context.blitSprite(RenderType::guiTextured, Gui.HOTBAR_ATTACK_INDICATOR_BACKGROUND_SPRITE,
                     indicatorX, indicatorY, 18, 18);
-                context.drawGuiTexture(RenderLayer::getGuiTextured, InGameHud.HOTBAR_ATTACK_INDICATOR_PROGRESS_TEXTURE,
+                context.blitSprite(RenderType::guiTextured, Gui.HOTBAR_ATTACK_INDICATOR_PROGRESS_SPRITE,
                     18, 18, 0, 18 - progress, indicatorX, indicatorY + 18 - progress, 18, progress);
             }
         }
     }
 
     @Unique
-    private void drawCustomHotbarBackground(DrawContext context, int centerX, int hotbarY, int selectedSlot) {
+    private void drawCustomHotbarBackground(GuiGraphics context, int centerX, int hotbarY, int selectedSlot) {
         int hotbarWidth = 182;
         int hotbarX = centerX - 91;
 
@@ -157,10 +157,10 @@ public class PupperInGameHud {
     }
 
     @Unique
-    private void drawOffhandBackground(DrawContext context, int centerX, int hotbarY, Arm arm, float alpha) {
+    private void drawOffhandBackground(GuiGraphics context, int centerX, int hotbarY, HumanoidArm arm, float alpha) {
         int color = (int)(alpha * 64) << 24 | 0xFFFFFF; // 白色带透明度
 
-        if (arm == Arm.LEFT) {
+        if (arm == HumanoidArm.LEFT) {
             // 左侧副手背景
             context.fill(centerX - 91 - 29, hotbarY - 1,
                 centerX - 91, hotbarY + 23, color);
@@ -189,8 +189,8 @@ public class PupperInGameHud {
     }
 
     @Unique
-    private void updateOffhandAlpha(PlayerEntity player) {
-        ItemStack offhandStack = player.getOffHandStack();
+    private void updateOffhandAlpha(Player player) {
+        ItemStack offhandStack = player.getOffhandItem();
 
         if (!offhandStack.isEmpty()) {
             offhandAlpha = Math.min(offhandAlpha + 0.1f, 1f);
@@ -205,6 +205,6 @@ public class PupperInGameHud {
     }
 
     @Shadow
-    private void renderHotbarItem(DrawContext context, int x, int y, RenderTickCounter tickCounter, PlayerEntity player, ItemStack stack, int seed) {
+    private void renderSlot(GuiGraphics context, int x, int y, DeltaTracker tickCounter, Player player, ItemStack stack, int seed) {
     }
 }

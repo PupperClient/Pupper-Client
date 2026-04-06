@@ -1,26 +1,26 @@
 package cn.pupperclient.utils.chat;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.hud.ChatHud;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 public class ChatUtils {
     private static final String PREFIX = "§7[§bPupper§7] ";
-    private static final String PREFIX_FORMATTED = Formatting.GRAY + "[" + Formatting.AQUA + "Pupper" + Formatting.GRAY + "] ";
-    private static final Text PREFIX_TEXT = Text.literal("[")
-        .formatted(Formatting.GRAY)
-        .append(Text.literal("PupperClient").formatted(Formatting.AQUA))
-        .append(Text.literal("] ").formatted(Formatting.GRAY));
+    private static final String PREFIX_FORMATTED = ChatFormatting.GRAY + "[" + ChatFormatting.AQUA + "Pupper" + ChatFormatting.GRAY + "] ";
+    private static final Component PREFIX_TEXT = Component.literal("[")
+        .withStyle(ChatFormatting.GRAY)
+        .append(Component.literal("PupperClient").withStyle(ChatFormatting.AQUA))
+        .append(Component.literal("] ").withStyle(ChatFormatting.GRAY));
 
 
-    public static void component(Text component) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client == null || client.world == null) return;
+    public static void component(Component component) {
+        Minecraft client = Minecraft.getInstance();
+        if (client == null || client.level == null) return;
 
         client.execute(() -> {
-            ChatHud chat = client.inGameHud.getChatHud();
+            ChatComponent chat = client.gui.getChat();
             if (chat != null) {
                 chat.addMessage(component);
             }
@@ -31,10 +31,10 @@ public class ChatUtils {
         addChatMessage(true, message);
     }
 
-    public static void addChatMessage(Text message) {
+    public static void addChatMessage(Component message) {
         if (message == null || message.getString().isEmpty()) return;
 
-        MutableText fullMessage = Text.empty()
+        MutableComponent fullMessage = Component.empty()
             .append(PREFIX_TEXT)
             .append(message);
 
@@ -45,29 +45,29 @@ public class ChatUtils {
         if (message == null || message.isEmpty()) return;
 
         String formattedMessage = (prefix ? PREFIX : "") + message;
-        component(Text.literal(formattedMessage));
+        component(Component.literal(formattedMessage));
     }
 
-    public static void addFormattedMessage(String message, Formatting... formattings) {
-        MutableText text = Text.literal(PREFIX_FORMATTED).formatted(Formatting.GRAY);
-        text.append(Text.literal(message).formatted(formattings));
+    public static void addFormattedMessage(String message, ChatFormatting... formattings) {
+        MutableComponent text = Component.literal(PREFIX_FORMATTED).withStyle(ChatFormatting.GRAY);
+        text.append(Component.literal(message).withStyle(formattings));
         component(text);
     }
 
     public static void error(String message) {
-        addFormattedMessage(message, Formatting.RED);
+        addFormattedMessage(message, ChatFormatting.RED);
     }
 
     public static void success(String message) {
-        addFormattedMessage(message, Formatting.GREEN);
+        addFormattedMessage(message, ChatFormatting.GREEN);
     }
 
     public static void warning(String message) {
-        addFormattedMessage(message, Formatting.YELLOW);
+        addFormattedMessage(message, ChatFormatting.YELLOW);
     }
 
     public static void info(String message) {
-        addFormattedMessage(message, Formatting.BLUE);
+        addFormattedMessage(message, ChatFormatting.BLUE);
     }
 
 }

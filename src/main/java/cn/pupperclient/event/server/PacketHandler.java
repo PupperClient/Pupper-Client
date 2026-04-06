@@ -9,14 +9,13 @@ import cn.pupperclient.event.server.impl.GameJoinEvent;
 import cn.pupperclient.event.server.impl.ReceiveChatEvent;
 import cn.pupperclient.event.server.impl.SendChatEvent;
 import cn.pupperclient.mixin.mixins.minecraft.network.packet.PlayerInteractEntityC2SPacketAccessor;
-
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
-import net.minecraft.network.packet.s2c.play.ChatMessageS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityDamageS2CPacket;
-import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
-import net.minecraft.network.packet.s2c.play.GameMessageS2CPacket;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundDamageEventPacket;
+import net.minecraft.network.protocol.game.ClientboundLoginPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerChatPacket;
+import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
+import net.minecraft.network.protocol.game.ServerboundChatPacket;
+import net.minecraft.network.protocol.game.ServerboundInteractPacket;
 
 public class PacketHandler {
 
@@ -24,22 +23,22 @@ public class PacketHandler {
 
 		Packet<?> basePacket = packetEvent.getPacket();
 
-		if (basePacket instanceof PlayerInteractEntityC2SPacket) {
+		if (basePacket instanceof ServerboundInteractPacket) {
 
-			PlayerInteractEntityC2SPacket packet = (PlayerInteractEntityC2SPacket) basePacket;
-			PlayerInteractEntityC2SPacket.InteractType type = ((PlayerInteractEntityC2SPacketAccessor) packet)
+			ServerboundInteractPacket packet = (ServerboundInteractPacket) basePacket;
+			ServerboundInteractPacket.ActionType type = ((PlayerInteractEntityC2SPacketAccessor) packet)
 					.getInteractTypeHandler().getType();
 
-			if (type.equals(PlayerInteractEntityC2SPacket.InteractType.ATTACK)) {
+			if (type.equals(ServerboundInteractPacket.ActionType.ATTACK)) {
 				EventBus.getInstance()
 						.post(new AttackEntityEvent(((PlayerInteractEntityC2SPacketAccessor) packet).entityId()));
 			}
 		}
 
-		if (basePacket instanceof ChatMessageC2SPacket) {
+		if (basePacket instanceof ServerboundChatPacket) {
 
-			ChatMessageC2SPacket packet = (ChatMessageC2SPacket) basePacket;
-			SendChatEvent event = new SendChatEvent(packet.chatMessage());
+			ServerboundChatPacket packet = (ServerboundChatPacket) basePacket;
+			SendChatEvent event = new SendChatEvent(packet.message());
 
 			EventBus.getInstance().post(event);
 
@@ -53,16 +52,16 @@ public class PacketHandler {
 
 		Packet<?> basePacket = packetEvent.getPacket();
 
-		if (basePacket instanceof EntityDamageS2CPacket) {
+		if (basePacket instanceof ClientboundDamageEventPacket) {
 
-			EntityDamageS2CPacket packet = (EntityDamageS2CPacket) basePacket;
+			ClientboundDamageEventPacket packet = (ClientboundDamageEventPacket) basePacket;
 
 			EventBus.getInstance().post(new DamageEntityEvent(packet.entityId()));
 		}
 
-		if (basePacket instanceof ChatMessageS2CPacket) {
+		if (basePacket instanceof ClientboundPlayerChatPacket) {
 
-			ChatMessageS2CPacket packet = (ChatMessageS2CPacket) basePacket;
+			ClientboundPlayerChatPacket packet = (ClientboundPlayerChatPacket) basePacket;
 			ReceiveChatEvent event = new ReceiveChatEvent(packet.body().content());
 
 			EventBus.getInstance().post(event);
@@ -72,9 +71,9 @@ public class PacketHandler {
 			}
 		}
 
-		if (basePacket instanceof GameMessageS2CPacket) {
+		if (basePacket instanceof ClientboundSystemChatPacket) {
 
-			GameMessageS2CPacket packet = (GameMessageS2CPacket) basePacket;
+			ClientboundSystemChatPacket packet = (ClientboundSystemChatPacket) basePacket;
 			ReceiveChatEvent event = new ReceiveChatEvent(packet.content().getString());
 
 			EventBus.getInstance().post(event);
@@ -84,7 +83,7 @@ public class PacketHandler {
 			}
 		}
 
-		if (basePacket instanceof GameJoinS2CPacket) {
+		if (basePacket instanceof ClientboundLoginPacket) {
 			EventBus.getInstance().post(new GameJoinEvent());
 		}
 	};

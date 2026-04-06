@@ -64,12 +64,12 @@ public class AutoGGMod extends Mod {
 	private void sendMessage(boolean hypixel) {
 		Multithreading.schedule(() -> {
 			if (hypixel) {
-                if (mc.player != null) {
-                    mc.player.networkHandler.sendChatCommand("achat " + messageSetting.getValue());
+                if (client.player != null) {
+                    client.player.connection.sendCommand("achat " + messageSetting.getValue());
                 }
             } else {
-                if (mc.player != null) {
-                    mc.player.networkHandler.sendChatMessage(messageSetting.getValue());
+                if (client.player != null) {
+                    client.player.connection.sendChat(messageSetting.getValue());
                 }
             }
 		}, (long) delaySetting.getValue(), TimeUnit.SECONDS);

@@ -5,22 +5,21 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.MultiPlayerGameMode;
+import net.minecraft.client.player.LocalPlayer;
 import cn.pupperclient.management.mod.impl.player.OldAnimationsMod;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.network.ClientPlayerInteractionManager;
-
-@Mixin(value = MinecraftClient.class, priority = 2000)
+@Mixin(value = Minecraft.class, priority = 2000)
 public class MixinMinecraftClient {
 
 	@Shadow
-	public ClientPlayerEntity player;
+	public LocalPlayer player;
 	
 	@Shadow
-	public ClientPlayerInteractionManager interactionManager;
+	public MultiPlayerGameMode gameMode;
 	
-    @ModifyExpressionValue(method = "doItemUse", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerInteractionManager;isBreakingBlock()Z"))
+    @ModifyExpressionValue(method = "startUseItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;isDestroying()Z"))
     private boolean injectOldAnimation(boolean original) {
     	
     	if(OldAnimationsMod.getInstance().isEnabled()) {

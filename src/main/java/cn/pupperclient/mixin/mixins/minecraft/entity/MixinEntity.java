@@ -1,9 +1,12 @@
 package cn.pupperclient.mixin.mixins.minecraft.entity;
 
 import cn.pupperclient.utils.misc.SoundEventHelper;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -16,14 +19,10 @@ import cn.pupperclient.event.client.PlayerDirectionChangeEvent;
 import cn.pupperclient.management.mod.impl.player.FreelookMod;
 import cn.pupperclient.mixin.interfaces.IMixinCameraEntity;
 
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.MathHelper;
-
 @Mixin(Entity.class)
 public abstract class MixinEntity implements IMixinCameraEntity {
     @Unique
-    protected Vec3d stuckSpeedMultiplier;
+    protected Vec3 stuckSpeedMultiplier;
 
 	@Unique
 	private float cameraPitch;
@@ -32,49 +31,49 @@ public abstract class MixinEntity implements IMixinCameraEntity {
 	private float cameraYaw;
 
 	@Shadow
-	public abstract float getPitch();
+	public abstract float getXRot();
 
 	@Shadow
-	public abstract float getYaw();
+	public abstract float getYRot();
 
     @Shadow
     public abstract boolean equals(Object o);
 
     @Shadow
-    public abstract float getPitch(float tickDelta);
+    public abstract float getViewXRot(float tickDelta);
 
     @Shadow
-    public abstract float getYaw(float tickDelta);
+    public abstract float getViewYRot(float tickDelta);
 
     @Shadow
-    public abstract Vec3d getRotationVector(float pitch, float yaw);
+    public abstract Vec3 calculateViewVector(float pitch, float yaw);
 
     @Shadow
-    public abstract boolean saveNbt(NbtCompound nbt);
+    public abstract boolean save(CompoundTag nbt);
 
     @Shadow
     public abstract int getId();
 
-    @Inject(method = "changeLookDirection", at = @At("HEAD"))
+    @Inject(method = "turn", at = @At("HEAD"))
 	private void onPlayerDirectionChange(double cursorDeltaX, double cursorDeltaY, CallbackInfo ci) {
 
-		float prevPitch = getPitch();
-		float prevYaw = getYaw();
+		float prevPitch = getXRot();
+		float prevYaw = getYRot();
 		float pitch = prevPitch + (float) (cursorDeltaY * .15);
 		float yaw = prevYaw + (float) (cursorDeltaX * .15);
-		pitch = MathHelper.clamp(pitch, -90.0F, 90.0F);
+		pitch = Mth.clamp(pitch, -90.0F, 90.0F);
 
 		EventBus.getInstance().post(new PlayerDirectionChangeEvent(prevPitch, prevYaw, pitch, yaw));
 	}
 
-	@Inject(method = "changeLookDirection", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "turn", at = @At("HEAD"), cancellable = true)
 	public void changeCameraLookDirection(double xDelta, double yDelta, CallbackInfo ci) {
 		if (FreelookMod.getInstance().isEnabled() && FreelookMod.getInstance().isActive()
-				&& (Entity) (Object) this instanceof ClientPlayerEntity) {
+				&& (Entity) (Object) this instanceof LocalPlayer) {
 			double pitchDelta = (yDelta * 0.15);
 			double yawDelta = (xDelta * 0.15);
 
-			this.cameraPitch = MathHelper.clamp(this.cameraPitch + (float) pitchDelta, -90.0f, 90.0f);
+			this.cameraPitch = Mth.clamp(this.cameraPitch + (float) pitchDelta, -90.0f, 90.0f);
 			this.cameraYaw += (float) yawDelta;
 
 			ci.cancel();
@@ -106,7 +105,7 @@ public abstract class MixinEntity implements IMixinCameraEntity {
 		this.cameraYaw = yaw;
 	}
 
-    @Inject(method = "playSound", at = @At("HEAD"))
+    @Inject(method = "playSound(Lnet/minecraft/sounds/SoundEvent;FF)V", at = @At("HEAD"))
     private void onPlaySound(SoundEvent sound, float volume, float pitch, CallbackInfo ci) {
         SoundEventHelper.lastSoundSource = (Entity) (Object) this;
         SoundEventHelper.lastSoundEvent = sound;

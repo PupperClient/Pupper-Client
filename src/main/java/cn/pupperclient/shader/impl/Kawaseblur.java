@@ -5,7 +5,7 @@ import cn.pupperclient.shader.*;
 
 import cn.pupperclient.utils.time.TimerUtils;
 import it.unimi.dsi.fastutil.ints.IntDoubleImmutablePair;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 public class Kawaseblur {
 
@@ -69,7 +69,7 @@ public class Kawaseblur {
 
         PostProcessRenderer.beginRender();
 
-        renderToFbo(fbos[0], MinecraftClient.getInstance().getFramebuffer().getColorAttachment(), shaderDown,
+        renderToFbo(fbos[0], Minecraft.getInstance().getMainRenderTarget().getColorTextureId(), shaderDown,
             offset);
 
         for (int i = 0; i < iterations; i++) {
@@ -80,7 +80,7 @@ public class Kawaseblur {
             renderToFbo(fbos[i - 1], fbos[i].texture, shaderUp, offset);
         }
 
-        MinecraftClient.getInstance().getFramebuffer().beginWrite(true);
+        Minecraft.getInstance().getMainRenderTarget().bindWrite(true);
         shaderPassthrough.bind();
         ShaderHelper.bindTexture(fbos[0].texture);
         shaderPassthrough.set("uTexture", 0);

@@ -6,6 +6,7 @@ import java.util.List;
 import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.mod.impl.hud.DynamicIsland;
 import com.google.gson.JsonObject;
+import com.mojang.blaze3d.platform.InputConstants;
 import cn.pupperclient.libraries.material3.hct.Hct;
 import cn.pupperclient.management.config.Config;
 import cn.pupperclient.management.config.ConfigType;
@@ -18,8 +19,6 @@ import cn.pupperclient.management.mod.settings.Setting;
 import cn.pupperclient.management.mod.settings.impl.*;
 import cn.pupperclient.utils.color.ColorUtils;
 import cn.pupperclient.utils.misc.JsonUtils;
-
-import net.minecraft.client.util.InputUtil;
 
 public class ModConfig extends Config {
 
@@ -160,10 +159,10 @@ public class ModConfig extends Config {
         String inputType = JsonUtils.getStringProperty(keybindJson, "type", "");
         int keyCode = JsonUtils.getIntProperty(keybindJson, "code", -1);
 
-        InputUtil.Type type = determineInputType(inputType);
+        InputConstants.Type type = determineInputType(inputType);
 
         if (!inputType.isEmpty() && keyCode != -1) {
-            setting.setKey(type.createFromCode(keyCode));
+            setting.setKey(type.getOrCreate(keyCode));
         } else {
             setting.setKey(setting.getDefaultKey());
         }
@@ -264,11 +263,11 @@ public class ModConfig extends Config {
 
     private void saveKeybindSetting(KeybindSetting setting, JsonObject settingsJson) {
         JsonObject keybindJson = new JsonObject();
-        InputUtil.Type type = setting.getKey().getCategory();
+        InputConstants.Type type = setting.getKey().getType();
 
         String saveType = getInputTypeString(type);
         keybindJson.addProperty("type", saveType);
-        keybindJson.addProperty("code", setting.getKey().getCode());
+        keybindJson.addProperty("code", setting.getKey().getValue());
 
         settingsJson.add(setting.getName(), keybindJson);
     }
@@ -287,18 +286,18 @@ public class ModConfig extends Config {
         settingsJson.addProperty(setting.getName(), filePath);
     }
 
-    private InputUtil.Type determineInputType(String inputType) {
+    private InputConstants.Type determineInputType(String inputType) {
         return switch (inputType) {
-            case "key" -> InputUtil.Type.KEYSYM;
-            case "mouse" -> InputUtil.Type.MOUSE;
-            default -> InputUtil.Type.SCANCODE;
+            case "key" -> InputConstants.Type.KEYSYM;
+            case "mouse" -> InputConstants.Type.MOUSE;
+            default -> InputConstants.Type.SCANCODE;
         };
     }
 
-    private String getInputTypeString(InputUtil.Type type) {
-        if (type.equals(InputUtil.Type.KEYSYM)) {
+    private String getInputTypeString(InputConstants.Type type) {
+        if (type.equals(InputConstants.Type.KEYSYM)) {
             return "key";
-        } else if (type.equals(InputUtil.Type.MOUSE)) {
+        } else if (type.equals(InputConstants.Type.MOUSE)) {
             return "mouse";
         } else {
             return "scancode";

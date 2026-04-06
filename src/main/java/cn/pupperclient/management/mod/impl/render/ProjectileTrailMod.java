@@ -2,19 +2,17 @@ package cn.pupperclient.management.mod.impl.render;
 
 import java.util.Arrays;
 import java.util.Objects;
-
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.phys.AABB;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.client.ClientTickEvent;
 import cn.pupperclient.management.mod.Mod;
 import cn.pupperclient.management.mod.ModCategory;
 import cn.pupperclient.management.mod.settings.impl.ComboSetting;
 import cn.pupperclient.skia.font.Icon;
-
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.particle.ParticleEffect;
-import net.minecraft.particle.ParticleType;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.util.math.Box;
 
 public class ProjectileTrailMod extends Mod {
 
@@ -30,24 +28,24 @@ public class ProjectileTrailMod extends Mod {
 
 	public final EventBus.EventListener<ClientTickEvent> onClientTick = event -> {
 
-		if (mc.player != null && mc.world != null) {
+		if (client.player != null && client.level != null) {
 
-			Box box = new Box(mc.player.getPos().add(-150.0, -150.0, -150.0),
-					mc.player.getPos().add(150.0, 150.0, 150.0));
+			AABB box = new AABB(client.player.position().add(-150.0, -150.0, -150.0),
+					client.player.position().add(150.0, 150.0, 150.0));
 
-			for (ProjectileEntity projectile : mc.world.getEntitiesByClass(ProjectileEntity.class, box,
+			for (Projectile projectile : client.level.getEntitiesOfClass(Projectile.class, box,
 					entity -> true)) {
 
-				if (!(projectile.getVelocity().lengthSquared() > 0.01) || projectile.isOnGround()
-						|| mc.world.getBlockState(projectile.getBlockPos()).isSolidBlock(mc.world,
-								projectile.getBlockPos()) && Objects.requireNonNull(projectile.getOwner()).getId() != mc.player.getId()) {
+				if (!(projectile.getDeltaMovement().lengthSqr() > 0.01) || projectile.onGround()
+						|| client.level.getBlockState(projectile.blockPosition()).isRedstoneConductor(client.level,
+								projectile.blockPosition()) && Objects.requireNonNull(projectile.getOwner()).getId() != client.player.getId()) {
 					continue;
 				}
 
 				ParticleType<?> type = getCurrentType();
 
-				if (type != null && type instanceof ParticleEffect) {
-					mc.world.addParticle((ParticleEffect) type, projectile.getX(), projectile.getY(),
+				if (type instanceof ParticleOptions) {
+					client.level.addParticle((ParticleOptions) type, projectile.getX(), projectile.getY(),
 							projectile.getZ(), 0.0, 0.0, 0.0);
 				}
 			}

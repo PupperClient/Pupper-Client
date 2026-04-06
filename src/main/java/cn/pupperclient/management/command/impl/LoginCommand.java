@@ -6,15 +6,14 @@ import cn.pupperclient.utils.chat.ChatUtils;
 import cn.pupperclient.utils.thread.Multithreading;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
 
 public class LoginCommand {
 
@@ -139,11 +138,11 @@ public class LoginCommand {
                         ChatUtils.addChatMessage("§c验证码登录失败: " + errorMsg);
 
                         // 提供重新发送验证码的快捷方式
-                        MutableText retryText = Text.literal("§7[重新发送验证码]")
-                            .styled(style -> style
+                        MutableComponent retryText = Component.literal("§7[重新发送验证码]")
+                            .withStyle(style -> style
                                 .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, ".login send " + phone))
                                 .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                    Text.literal("点击重新发送验证码"))));
+                                    Component.literal("点击重新发送验证码"))));
                         ChatUtils.addChatMessage(retryText);
                     });
                     return;

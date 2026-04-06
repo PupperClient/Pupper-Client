@@ -1,38 +1,30 @@
-accessWidener v2 named
-
-accessible class net/minecraft/network/packet/c2s/play/PlayerInteractEntityC2SPacket$InteractType
-accessible class net/minecraft/network/packet/c2s/play/PlayerInteractEntityC2SPacket$InteractTypeHandler
-accessible class net/minecraft/client/gui/hud/InGameHud$HeartType
-accessible field net/minecraft/client/gui/screen/multiplayer/MultiplayerScreen serverListWidget Lnet/minecraft/client/gui/screen/multiplayer/MultiplayerServerListWidget;
-accessible field net/minecraft/network/packet/c2s/play/ClientCommandC2SPacket mode Lnet/minecraft/network/packet/c2s/play/ClientCommandC2SPacket$Mode;
-accessible method net/minecraft/client/network/ClientPlayerEntity sendSprintingPacket ()V
-accessible field net/minecraft/client/network/ClientPlayerEntity lastSneaking Z
-accessible method net/minecraft/client/network/ClientCommonNetworkHandler send (Lnet/minecraft/network/packet/Packet;Ljava/util/function/BooleanSupplier;Ljava/time/Duration;)V
-
-accessible field net/minecraft/util/PlayerInput jump Z
-accessible field net/minecraft/util/PlayerInput sneak Z
-
-mutable field net/minecraft/util/PlayerInput jump Z
-mutable field net/minecraft/util/PlayerInput sneak Z
-
-accessible field net/minecraft/network/packet/s2c/play/EntityVelocityUpdateS2CPacket velocityX I
-accessible field net/minecraft/network/packet/s2c/play/EntityVelocityUpdateS2CPacket velocityY I
-accessible field net/minecraft/network/packet/s2c/play/EntityVelocityUpdateS2CPacket velocityZ I
-
-mutable field net/minecraft/network/packet/s2c/play/EntityVelocityUpdateS2CPacket velocityX I
-mutable field net/minecraft/network/packet/s2c/play/EntityVelocityUpdateS2CPacket velocityY I
-mutable field net/minecraft/network/packet/s2c/play/EntityVelocityUpdateS2CPacket velocityZ I
-
-accessible field net/minecraft/client/MinecraftClient itemUseCooldown I
-accessible method net/minecraft/client/MinecraftClient doItemUse ()V
-accessible method net/minecraft/client/MinecraftClient doAttack ()Z
-
-accessible method net/minecraft/entity/LivingEntity calcGlidingVelocity (Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;
-accessible field net/minecraft/client/gui/hud/InGameHud HOTBAR_SELECTION_TEXTURE Lnet/minecraft/util/Identifier;
-accessible field net/minecraft/client/gui/hud/InGameHud HOTBAR_ATTACK_INDICATOR_BACKGROUND_TEXTURE Lnet/minecraft/util/Identifier;
-accessible field net/minecraft/client/gui/hud/InGameHud HOTBAR_ATTACK_INDICATOR_PROGRESS_TEXTURE Lnet/minecraft/util/Identifier;
-
-accessible method net/minecraft/client/render/entity/LivingEntityRenderer addFeature (Lnet/minecraft/client/render/entity/feature/FeatureRenderer;)Z
-accessible field net/minecraft/client/render/entity/EntityRenderDispatcher renderers Ljava/util/Map;
-accessible field net/minecraft/client/render/entity/LivingEntityRenderer features Ljava/util/List;
-accessible field net/minecraft/client/render/entity/EntityRenderDispatcher modelRenderers Ljava/util/Map;
+accessWidener	v2	named
+accessible	class	net/minecraft/network/protocol/game/ServerboundInteractPacket$ActionType
+accessible	class	net/minecraft/network/protocol/game/ServerboundInteractPacket$Action
+accessible	class	net/minecraft/client/gui/Gui$HeartType
+accessible	field	net/minecraft/client/gui/screens/multiplayer/JoinMultiplayerScreen	serverSelectionList	Lnet/minecraft/client/gui/screens/multiplayer/ServerSelectionList;
+accessible	field	net/minecraft/network/protocol/game/ServerboundPlayerCommandPacket	action	Lnet/minecraft/network/protocol/game/ServerboundPlayerCommandPacket$Action;
+accessible	method	net/minecraft/client/player/LocalPlayer	sendIsSprintingIfNeeded	()V
+accessible	field	net/minecraft/client/player/LocalPlayer	wasShiftKeyDown	Z
+accessible	method	net/minecraft/client/multiplayer/ClientCommonPacketListenerImpl	sendWhen	(Lnet/minecraft/network/protocol/Packet;Ljava/util/function/BooleanSupplier;Ljava/time/Duration;)V
+accessible	field	net/minecraft/world/entity/player/Input	jump	Z
+accessible	field	net/minecraft/world/entity/player/Input	shift	Z
+mutable	field	net/minecraft/world/entity/player/Input	jump	Z
+mutable	field	net/minecraft/world/entity/player/Input	shift	Z
+accessible	field	net/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket	xa	I
+accessible	field	net/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket	ya	I
+accessible	field	net/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket	za	I
+mutable	field	net/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket	xa	I
+mutable	field	net/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket	ya	I
+mutable	field	net/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket	za	I
+accessible	field	net/minecraft/client/Minecraft	rightClickDelay	I
+accessible	method	net/minecraft/client/Minecraft	startUseItem	()V
+accessible	method	net/minecraft/client/Minecraft	startAttack	()Z
+accessible	method	net/minecraft/world/entity/LivingEntity	updateFallFlyingMovement	(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;
+accessible	field	net/minecraft/client/gui/Gui	HOTBAR_SELECTION_SPRITE	Lnet/minecraft/resources/ResourceLocation;
+accessible	field	net/minecraft/client/gui/Gui	HOTBAR_ATTACK_INDICATOR_BACKGROUND_SPRITE	Lnet/minecraft/resources/ResourceLocation;
+accessible	field	net/minecraft/client/gui/Gui	HOTBAR_ATTACK_INDICATOR_PROGRESS_SPRITE	Lnet/minecraft/resources/ResourceLocation;
+accessible	method	net/minecraft/client/renderer/entity/LivingEntityRenderer	addLayer	(Lnet/minecraft/client/renderer/entity/layers/RenderLayer;)Z
+accessible	field	net/minecraft/client/renderer/entity/EntityRenderDispatcher	renderers	Ljava/util/Map;
+accessible	field	net/minecraft/client/renderer/entity/LivingEntityRenderer	layers	Ljava/util/List;
+accessible	field	net/minecraft/client/renderer/entity/EntityRenderDispatcher	playerRenderers	Ljava/util/Map;

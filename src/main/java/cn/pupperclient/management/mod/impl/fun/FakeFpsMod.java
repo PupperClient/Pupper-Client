@@ -6,11 +6,10 @@ import cn.pupperclient.management.mod.api.hud.SimpleHUDMod;
 import cn.pupperclient.management.mod.settings.impl.ComboSetting;
 import cn.pupperclient.management.mod.settings.impl.NumberSetting;
 import cn.pupperclient.skia.font.Icon;
-import net.minecraft.client.MinecraftClient;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import net.minecraft.client.Minecraft;
 
 public class FakeFpsMod extends SimpleHUDMod {
     private final ComboSetting modeSetting;
@@ -79,7 +78,7 @@ public class FakeFpsMod extends SimpleHUDMod {
 
     @Override
     public String getText() {
-        int realFps = MinecraftClient.getInstance().getCurrentFps();
+        int realFps = Minecraft.getInstance().getFps();
         String mode = modeSetting.getOption();
 
         switch (mode) {

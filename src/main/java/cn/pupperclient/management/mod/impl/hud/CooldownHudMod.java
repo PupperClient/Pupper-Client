@@ -27,8 +27,8 @@ public class CooldownHudMod extends SimpleHUDMod {
     @Override
     public String getText() {
         float cooldownProgress = 0;
-        if (mc.player != null) {
-            cooldownProgress = mc.player.getAttackCooldownProgress(0.0F);
+        if (client.player != null) {
+            cooldownProgress = client.player.getAttackStrengthScale(0.0F);
         }
         boolean isCooldown = cooldownProgress < 1.0f;
         return isCooldown ? ("Cooldown: " + cooldownProgress) : "Done";

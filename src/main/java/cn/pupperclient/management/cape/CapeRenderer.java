@@ -1,21 +1,21 @@
 package cn.pupperclient.management.cape;
 
 import cn.pupperclient.skia.Skia;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.Identifier;
 import io.github.humbleui.skija.ClipMode;
 import io.github.humbleui.skija.Path;
 import io.github.humbleui.skija.SurfaceOrigin;
 import io.github.humbleui.types.RRect;
 import io.github.humbleui.types.Rect;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
 
 public class CapeRenderer {
 
-    public static void renderCapePreview(Identifier capeTexture, float x, float y, float width, float height) {
+    public static void renderCapePreview(ResourceLocation capeTexture, float x, float y, float width, float height) {
         if (capeTexture == null) return;
 
         try {
-            int textureId = MinecraftClient.getInstance().getTextureManager().getTexture(capeTexture).getGlId();
+            int textureId = Minecraft.getInstance().getTextureManager().getTexture(capeTexture).getId();
 
             // 尝试不同的纹理尺寸
             boolean loaded = Skia.getImageHelper().load(textureId, 64, 32, SurfaceOrigin.TOP_LEFT) ||
@@ -47,12 +47,12 @@ public class CapeRenderer {
         }
     }
 
-    public static void renderRoundedCapePreview(Identifier capeTexture, float x, float y,
+    public static void renderRoundedCapePreview(ResourceLocation capeTexture, float x, float y,
                                                 float width, float height, float radius) {
         if (capeTexture == null) return;
 
         try {
-            int textureId = MinecraftClient.getInstance().getTextureManager().getTexture(capeTexture).getGlId();
+            int textureId = Minecraft.getInstance().getTextureManager().getTexture(capeTexture).getId();
 
             // 尝试不同的纹理尺寸
             boolean loaded = Skia.getImageHelper().load(textureId, 64, 32, SurfaceOrigin.TOP_LEFT) ||

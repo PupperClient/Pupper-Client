@@ -6,15 +6,13 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.User;
 import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import cn.pupperclient.management.websocket.client.SoarWebSocketClient;
 import cn.pupperclient.management.websocket.packet.SoarPacket;
 import cn.pupperclient.utils.http.HttpUtils;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.session.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +22,7 @@ public class WebSocketManager {
     private static final int MAX_RETRY_ATTEMPTS = 3;
     private static final int CONNECTION_CHECK_INTERVAL_SECONDS = 10;
 
-    private final MinecraftClient minecraftClient;
+    private final Minecraft minecraftClient;
     private final ScheduledExecutorService scheduler;
 
     private GameProfile currentGameProfile;
@@ -33,7 +31,7 @@ public class WebSocketManager {
     private final boolean isShuttingDown = false;
 
     public WebSocketManager() {
-        this.minecraftClient = MinecraftClient.getInstance();
+        this.minecraftClient = Minecraft.getInstance();
         this.scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
             Thread thread = new Thread(r, "WebSocket-Manager");
             thread.setDaemon(true);
@@ -135,15 +133,15 @@ public class WebSocketManager {
 
 
     private boolean authenticateWithMojang() {
-        Session session = minecraftClient.getSession();
-        if (session == null || session.getAccessToken() == null || session.getUuidOrNull() == null) {
+        User session = minecraftClient.getUser();
+        if (session == null || session.getAccessToken() == null || session.getProfileId() == null) {
             LOGGER.error("Invalid Minecraft session");
             return false;
         }
 
         JsonObject authRequest = new JsonObject();
         authRequest.addProperty("accessToken", session.getAccessToken());
-        authRequest.addProperty("selectedProfile", session.getUuidOrNull().toString().replace("-", ""));
+        authRequest.addProperty("selectedProfile", session.getProfileId().toString().replace("-", ""));
         authRequest.addProperty("serverId", "cbd2c3f65d7ba5cceba0cc9647ff9a85c371f4");
 
         try {

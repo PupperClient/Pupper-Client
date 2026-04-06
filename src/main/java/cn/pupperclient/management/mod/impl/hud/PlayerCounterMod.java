@@ -5,6 +5,8 @@ import cn.pupperclient.event.client.RenderSkiaEvent;
 import cn.pupperclient.management.mod.api.hud.SimpleHUDMod;
 import cn.pupperclient.skia.font.Icon;
 
+import java.util.Objects;
+
 public class PlayerCounterMod extends SimpleHUDMod {
 
 	public PlayerCounterMod() {
@@ -17,7 +19,8 @@ public class PlayerCounterMod extends SimpleHUDMod {
 
 	@Override
 	public String getText() {
-		return "Player: " + mc.world.getPlayers().size();
+        assert client.level != null;
+        return "Player: " + Objects.requireNonNull(client.level.getServer()).getPlayerCount();
 	}
 
 	@Override

@@ -35,8 +35,7 @@ import cn.pupperclient.ui.component.impl.Slider;
 import cn.pupperclient.ui.component.impl.Switch;
 import cn.pupperclient.ui.component.impl.text.TextField;
 import cn.pupperclient.utils.language.I18n;
-
-import net.minecraft.client.util.InputUtil;
+import com.mojang.blaze3d.platform.InputConstants;
 
 public class SettingBar extends Component {
 
@@ -93,7 +92,7 @@ public class SettingBar extends Component {
             Keybind bind = new Keybind(0, 0, kSetting.getKey());
             bind.setHandler(new KeybindHandler() {
                 @Override
-                public void onBinded(InputUtil.Key key) {
+                public void onBinded(InputConstants.Key key) {
                     kSetting.setKey(key);
                 }
             });

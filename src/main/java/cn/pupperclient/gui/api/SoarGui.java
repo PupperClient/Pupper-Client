@@ -19,7 +19,7 @@ import cn.pupperclient.skia.Skia;
 import cn.pupperclient.ui.component.Component;
 
 import io.github.humbleui.skija.SurfaceOrigin;
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screens.Screen;
 
 public abstract class SoarGui extends SimpleSoarGui {
 

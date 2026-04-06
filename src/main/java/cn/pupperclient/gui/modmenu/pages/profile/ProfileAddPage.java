@@ -3,7 +3,7 @@ package cn.pupperclient.gui.modmenu.pages.profile;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
+import net.minecraft.client.Minecraft;
 import cn.pupperclient.PupperClient;
 import org.lwjgl.glfw.GLFW;
 
@@ -27,7 +27,6 @@ import cn.pupperclient.utils.language.I18n;
 import cn.pupperclient.utils.mouse.MouseUtils;
 
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
-import net.minecraft.client.MinecraftClient;
 
 public class ProfileAddPage extends SimplePage {
 
@@ -46,7 +45,7 @@ public class ProfileAddPage extends SimplePage {
 	@Override
 	public void init() {
 
-		MinecraftClient client = MinecraftClient.getInstance();
+		Minecraft client = Minecraft.getInstance();
 
 		components.clear();
 		super.init();

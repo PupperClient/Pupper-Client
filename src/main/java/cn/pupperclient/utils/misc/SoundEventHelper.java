@@ -1,7 +1,7 @@
 package cn.pupperclient.utils.misc;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.sound.SoundEvent;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.entity.Entity;
 
 public class SoundEventHelper {
     public static Entity lastSoundSource;

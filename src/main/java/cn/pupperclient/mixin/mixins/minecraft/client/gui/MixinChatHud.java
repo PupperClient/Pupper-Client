@@ -2,18 +2,18 @@ package cn.pupperclient.mixin.mixins.minecraft.client.gui;
 
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.server.ChatEvent;
-import net.minecraft.client.gui.hud.ChatHud;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ChatHud.class)
+@Mixin(ChatComponent.class)
 public abstract class MixinChatHud {
 
-    @Inject(method = "addMessage(Lnet/minecraft/text/Text;)V", at = @At("HEAD"))
-    private void onChatMessage(Text message, CallbackInfo ci) {
+    @Inject(method = "addMessage(Lnet/minecraft/network/chat/Component;)V", at = @At("HEAD"))
+    private void onChatMessage(Component message, CallbackInfo ci) {
         String rawMessage = message.getString();
         if (rawMessage.startsWith("§7[§bPupper§7]")) return;
         ChatEvent event = new ChatEvent(rawMessage);

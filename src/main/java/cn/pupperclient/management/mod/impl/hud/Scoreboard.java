@@ -4,23 +4,21 @@ import cn.pupperclient.event.EventListener;
 import cn.pupperclient.event.client.RenderSkiaEvent;
 import cn.pupperclient.management.mod.api.hud.SimpleListHUDMod;
 import cn.pupperclient.skia.font.Icon;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.scoreboard.ScoreboardDisplaySlot;
-import net.minecraft.scoreboard.ScoreboardEntry;
-import net.minecraft.scoreboard.ScoreboardObjective;
-import net.minecraft.scoreboard.Team;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.scores.DisplaySlot;
+import net.minecraft.world.scores.Objective;
+import net.minecraft.world.scores.PlayerScoreEntry;
+import net.minecraft.world.scores.PlayerTeam;
 
 public class Scoreboard extends SimpleListHUDMod {
 
     private static Scoreboard instance;
-    private final MinecraftClient client = MinecraftClient.getInstance();
+    private final Minecraft client = Minecraft.getInstance();
     private List<String> displayLines = new ArrayList<>();
 
     public Scoreboard() {
@@ -52,26 +50,26 @@ public class Scoreboard extends SimpleListHUDMod {
     private void updateDisplayLines() {
         displayLines.clear();
 
-        ScoreboardObjective scoreboardObjective = client.world.getScoreboard().getObjectiveForSlot(ScoreboardDisplaySlot.SIDEBAR);
+        Objective scoreboardObjective = client.level.getScoreboard().getDisplayObjective(DisplaySlot.SIDEBAR);
         if (scoreboardObjective == null) {
             return;
         }
 
-        net.minecraft.scoreboard.Scoreboard scoreboard = scoreboardObjective.getScoreboard();
-        Collection<ScoreboardEntry> scores = scoreboard.getScoreboardEntries(scoreboardObjective);
+        net.minecraft.world.scores.Scoreboard scoreboard = scoreboardObjective.getScoreboard();
+        Collection<PlayerScoreEntry> scores = scoreboard.listPlayerScores(scoreboardObjective);
         if (scores.isEmpty()) {
             return;
         }
 
         // 添加标题 - 保留格式化字符
-        Text titleText = scoreboardObjective.getDisplayName();
+        Component titleText = scoreboardObjective.getDisplayName();
         String formattedTitle = convertTextToFormattedString(titleText);
         displayLines.add(formattedTitle);
 
         // 过滤和排序
-        List<ScoreboardEntry> sortedScores = new ArrayList<>();
-        for (ScoreboardEntry entry : scores) {
-            if (!entry.hidden()) {
+        List<PlayerScoreEntry> sortedScores = new ArrayList<>();
+        for (PlayerScoreEntry entry : scores) {
+            if (!entry.isHidden()) {
                 sortedScores.add(entry);
             }
         }
@@ -80,19 +78,19 @@ public class Scoreboard extends SimpleListHUDMod {
         // 添加积分项
         int maxLines = Math.min(sortedScores.size(), 199);
         for (int i = 0; i < maxLines; i++) {
-            ScoreboardEntry entry = sortedScores.get(i);
+            PlayerScoreEntry entry = sortedScores.get(i);
             String line = getFormattedScoreText(entry, scoreboard);
             displayLines.add(line);
         }
     }
 
-    private String getFormattedScoreText(ScoreboardEntry entry, net.minecraft.scoreboard.Scoreboard scoreboard) {
+    private String getFormattedScoreText(PlayerScoreEntry entry, net.minecraft.world.scores.Scoreboard scoreboard) {
         String playerName = entry.owner();
-        Team team = scoreboard.getScoreHolderTeam(playerName);
+        PlayerTeam team = scoreboard.getPlayersTeam(playerName);
 
         String displayName;
         if (team != null) {
-            Text formattedName = entry.name();
+            Component formattedName = entry.ownerName();
             // 使用新的格式化方法
             displayName = convertTextToFormattedString(formattedName);
         } else {
@@ -106,7 +104,7 @@ public class Scoreboard extends SimpleListHUDMod {
      * 将 Minecraft Text 对象转换为包含格式化字符的字符串
      * 保留颜色代码和格式化信息
      */
-    private String convertTextToFormattedString(Text text) {
+    private String convertTextToFormattedString(Component text) {
         StringBuilder result = new StringBuilder();
         convertTextRecursive(text, result);
         return result.toString();
@@ -115,14 +113,14 @@ public class Scoreboard extends SimpleListHUDMod {
     /**
      * 递归处理 Text 对象及其子组件
      */
-    private void convertTextRecursive(Text text, StringBuilder result) {
+    private void convertTextRecursive(Component text, StringBuilder result) {
         // 处理当前文本的样式
         if (text.getStyle() != null) {
             // 添加颜色代码
             if (text.getStyle().getColor() != null) {
-                Formatting formatting = Formatting.byName(text.getStyle().getColor().getName());
+                ChatFormatting formatting = ChatFormatting.getByName(text.getStyle().getColor().serialize());
                 if (formatting != null && formatting.isColor()) {
-                    result.append("§").append(formatting.getCode());
+                    result.append("§").append(formatting.getChar());
                 }
             }
 
@@ -151,7 +149,7 @@ public class Scoreboard extends SimpleListHUDMod {
         }
 
         // 递归处理子组件
-        for (Text sibling : text.getSiblings()) {
+        for (Component sibling : text.getSiblings()) {
             convertTextRecursive(sibling, result);
         }
 

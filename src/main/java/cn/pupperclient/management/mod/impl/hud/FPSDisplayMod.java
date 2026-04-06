@@ -17,7 +17,7 @@ public class FPSDisplayMod extends SimpleHUDMod {
 
 	@Override
 	public String getText() {
-		return mc.getCurrentFps() + " FPS";
+		return client.getFps() + " FPS";
 	}
 
 	@Override

@@ -27,9 +27,9 @@ public class HypixelMod extends Mod {
 	}
 
 	public final EventBus.EventListener<ClientTickEvent> onClientTick = event -> {
-		if (autoTipSetting.isEnabled() && mc.player != null && ServerUtils.isJoin(Server.HYPIXEL)) {
+		if (autoTipSetting.isEnabled() && client.player != null && ServerUtils.isJoin(Server.HYPIXEL)) {
 			if (tipTimer.delay(1200000)) {
-				mc.player.networkHandler.sendChatCommand("tip all");
+				client.player.connection.sendCommand("tip all");
 				tipTimer.reset();
 			}
 		} else {

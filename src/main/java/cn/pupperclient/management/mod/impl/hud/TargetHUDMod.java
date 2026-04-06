@@ -20,16 +20,16 @@ import cn.pupperclient.utils.minecraft.player.HealthUtils;
 import cn.pupperclient.utils.minecraft.player.SkinUtils;
 
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ActionResult;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 
 public class TargetHUDMod extends HUDMod {
 
     private static TargetHUDMod instance;
-    private PlayerEntity targetPlayer;
+    private Player targetPlayer;
     private long lastAttackTime = 0;
     private static final long DISPLAY_DURATION = 10000;
 
@@ -72,14 +72,14 @@ public class TargetHUDMod extends HUDMod {
 
     private void registerFabricCallbacks() {
         AttackEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
-            if (world.isClient && player instanceof ClientPlayerEntity && entity instanceof PlayerEntity newTarget) {
+            if (world.isClientSide && player instanceof LocalPlayer && entity instanceof Player newTarget) {
                 updateTarget(newTarget);
             }
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         });
     }
 
-    private void updateTarget(PlayerEntity newTarget) {
+    private void updateTarget(Player newTarget) {
         if (targetPlayer == null || !targetPlayer.equals(newTarget)) {
             targetPlayer = newTarget;
             lastAttackTime = System.currentTimeMillis();
@@ -139,10 +139,10 @@ public class TargetHUDMod extends HUDMod {
 
     private void drawTargetInfo(float width, float height) {
         boolean isEditing = HUDCore.isEditing;
-        PlayerEntity displayPlayer;
+        Player displayPlayer;
 
         if (isEditing) {
-            displayPlayer = MinecraftClient.getInstance().player;
+            displayPlayer = Minecraft.getInstance().player;
         } else {
             displayPlayer = targetPlayer;
         }
@@ -152,8 +152,8 @@ public class TargetHUDMod extends HUDMod {
         }
 
         if (!isEditing) {
-            MinecraftClient client = MinecraftClient.getInstance();
-            if (client.world == null || client.world.getEntityById(displayPlayer.getId()) == null) {
+            Minecraft client = Minecraft.getInstance();
+            if (client.level == null || client.level.getEntity(displayPlayer.getId()) == null) {
                 targetPlayer = null;
                 return;
             }
@@ -260,7 +260,7 @@ public class TargetHUDMod extends HUDMod {
         return new Color(red, green, blue, alpha);
     }
 
-    private void drawPlayerAvatar(PlayerEntity player, float x, float y, float size) {
+    private void drawPlayerAvatar(Player player, float x, float y, float size) {
         Skia.save();
 
         try {
@@ -283,10 +283,10 @@ public class TargetHUDMod extends HUDMod {
         }
     }
 
-    private File getSkinFile(PlayerEntity player) {
-        if (player instanceof AbstractClientPlayerEntity clientPlayer) {
-            if (clientPlayer.getSkinTextures() != null) {
-                File skinFile = SkinUtils.getSkin(clientPlayer.getSkinTextures().texture());
+    private File getSkinFile(Player player) {
+        if (player instanceof AbstractClientPlayer clientPlayer) {
+            if (clientPlayer.getSkin() != null) {
+                File skinFile = SkinUtils.getSkin(clientPlayer.getSkin().texture());
                 if (skinFile.exists()) {
                     return skinFile;
                 }
@@ -295,7 +295,7 @@ public class TargetHUDMod extends HUDMod {
         return null;
     }
 
-    private float getPlayerHealth(PlayerEntity player) {
+    private float getPlayerHealth(Player player) {
         if (player == null) {
             return 20.0f;
         }

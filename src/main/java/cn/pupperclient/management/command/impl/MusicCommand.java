@@ -7,12 +7,6 @@ import com.google.gson.JsonParser;
 import cn.pupperclient.PupperClient;
 import cn.pupperclient.utils.chat.ChatUtils;
 import cn.pupperclient.utils.thread.Multithreading;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -20,6 +14,11 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
 
 public class MusicCommand {
 
@@ -157,18 +156,18 @@ public class MusicCommand {
                         }
 
                         // 格式化显示
-                        MutableText songText = Text.literal("§b" + (i + 1) + ". §f" + songName)
-                            .styled(style -> style
+                        MutableComponent songText = Component.literal("§b" + (i + 1) + ". §f" + songName)
+                            .withStyle(style -> style
                                 .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, ".music download " + songId))
                                 .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                    Text.literal("§6点击快速下载\n§7歌手: " + artistsStr + "\n§7专辑: " + albumName))));
+                                    Component.literal("§6点击快速下载\n§7歌手: " + artistsStr + "\n§7专辑: " + albumName))));
 
-                        MutableText artistText = Text.literal(" §7- " + artistsStr);
-                        MutableText downloadBtn = createClickableText(
+                        MutableComponent artistText = Component.literal(" §7- " + artistsStr);
+                        MutableComponent downloadBtn = createClickableText(
                             ".music download " + songId,
                             "下载 " + songName);
 
-                        MutableText fullLine = Text.empty()
+                        MutableComponent fullLine = Component.empty()
                             .append(songText)
                             .append(artistText)
                             .append(downloadBtn);
@@ -348,10 +347,10 @@ public class MusicCommand {
             String fileName = musicFile.getName();
             String displayName = fileName.substring(0, fileName.lastIndexOf('.'));
 
-            MutableText fileText = Text.literal("§b" + (i + 1) + ". §f" + displayName)
-                .styled(style -> style
+            MutableComponent fileText = Component.literal("§b" + (i + 1) + ". §f" + displayName)
+                .withStyle(style -> style
                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                        Text.literal("§6文件: " + fileName + "\n§7大小: " + formatFileSize(musicFile.length())))));
+                        Component.literal("§6文件: " + fileName + "\n§7大小: " + formatFileSize(musicFile.length())))));
 
             ChatUtils.addChatMessage(fileText);
         }
@@ -481,12 +480,12 @@ public class MusicCommand {
         }
     }
 
-    private static MutableText createClickableText(String command, String hoverText) {
-        return Text.literal(" [下载]")
-            .formatted(Formatting.GREEN)
-            .styled(style -> style
+    private static MutableComponent createClickableText(String command, String hoverText) {
+        return Component.literal(" [下载]")
+            .withStyle(ChatFormatting.GREEN)
+            .withStyle(style -> style
                 .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command))
                 .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                    Text.literal(hoverText).formatted(Formatting.GRAY))));
+                    Component.literal(hoverText).withStyle(ChatFormatting.GRAY))));
     }
 }

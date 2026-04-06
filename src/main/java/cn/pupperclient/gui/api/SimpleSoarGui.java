@@ -2,11 +2,10 @@ package cn.pupperclient.gui.api;
 
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.context.SkiaContext;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 
 /**
  * Base class for all PupperClient GUIs.
@@ -14,11 +13,11 @@ import net.minecraft.text.Text;
  */
 public abstract class SimpleSoarGui extends Screen {
     
-    protected final MinecraftClient client = MinecraftClient.getInstance();
+    protected final Minecraft client = Minecraft.getInstance();
     protected final boolean mcScale;
 
     protected SimpleSoarGui(boolean mcScale) {
-        super(Text.empty());
+        super(Component.empty());
         this.mcScale = mcScale;
     }
 
@@ -33,17 +32,16 @@ public abstract class SimpleSoarGui extends Screen {
     public abstract void draw(double mouseX, double mouseY);
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         SkiaContext.draw((skiaContext) -> {
             Skia.save();
             
             if (mcScale) {
-                Skia.scale((float) client.getWindow().getScaleFactor());
+                Skia.scale((float) client.getWindow().getGuiScale());
             }
-
-            // Standardize mouse coordinates based on scaling
-            double finalMouseX = mcScale ? mouseX : client.mouse.getX();
-            double finalMouseY = mcScale ? mouseY : client.mouse.getY();
+            
+            double finalMouseX = mcScale ? mouseX : client.mouseHandler.xpos();
+            double finalMouseY = mcScale ? mouseY : client.mouseHandler.ypos();
             
             draw(finalMouseX, finalMouseY);
             
@@ -53,22 +51,22 @@ public abstract class SimpleSoarGui extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        double finalMouseX = mcScale ? mouseX : client.mouse.getX();
-        double finalMouseY = mcScale ? mouseY : client.mouse.getY();
+        double finalMouseX = mcScale ? mouseX : client.mouseHandler.xpos();
+        double finalMouseY = mcScale ? mouseY : client.mouseHandler.ypos();
         return onMousePressed(finalMouseX, finalMouseY, button);
     }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        double finalMouseX = mcScale ? mouseX : client.mouse.getX();
-        double finalMouseY = mcScale ? mouseY : client.mouse.getY();
+        double finalMouseX = mcScale ? mouseX : client.mouseHandler.xpos();
+        double finalMouseY = mcScale ? mouseY : client.mouseHandler.ypos();
         return onMouseReleased(finalMouseX, finalMouseY, button);
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-        double finalMouseX = mcScale ? mouseX : client.mouse.getX();
-        double finalMouseY = mcScale ? mouseY : client.mouse.getY();
+        double finalMouseX = mcScale ? mouseX : client.mouseHandler.xpos();
+        double finalMouseY = mcScale ? mouseY : client.mouseHandler.ypos();
         return onMouseScrolled(finalMouseX, finalMouseY, horizontalAmount, verticalAmount);
     }
 
@@ -91,7 +89,7 @@ public abstract class SimpleSoarGui extends Screen {
     public boolean onCharTyped(char chr, int modifiers) { return super.charTyped(chr, modifiers); }
 
     @Override
-    public boolean shouldPause() {
+    public boolean isPauseScreen() {
         return false;
     }
 }

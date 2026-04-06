@@ -2,13 +2,12 @@ package cn.pupperclient.management.quickplay.impl;
 
 import cn.pupperclient.management.quickplay.QuickPlay;
 import cn.pupperclient.management.quickplay.QuickPlayCommand;
-import net.minecraft.util.Identifier;
-
 import java.util.ArrayList;
+import net.minecraft.resources.ResourceLocation;
 
 public class ArcadeQuickPlay extends QuickPlay {
     public ArcadeQuickPlay() {
-        super("Arcade", Identifier.of("pupper/icons/hypixel/", "Arcade.png"));
+        super("Arcade", ResourceLocation.fromNamespaceAndPath("pupper/icons/hypixel/", "Arcade.png"));
     }
 
     @Override

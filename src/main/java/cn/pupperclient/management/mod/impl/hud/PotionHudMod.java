@@ -10,15 +10,14 @@ import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.font.Fonts;
 import cn.pupperclient.skia.font.Icon;
 import cn.pupperclient.utils.misc.RomanConverter;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.registry.entry.RegistryEntry;
-
 import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.Holder;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 
 import static cn.pupperclient.management.mod.impl.hud.ArrayListMod.ICON_TEXT_SPACING;
 
@@ -265,18 +264,18 @@ public class PotionHudMod extends HUDMod {
     private List<PotionDisplayInfo> getActivePotions() {
         List<PotionDisplayInfo> activePotions = new ArrayList<>();
 
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         if (client.player == null) return activePotions;
 
         // Get all active status effects
-        Collection<StatusEffectInstance> effects = client.player.getStatusEffects();
+        Collection<MobEffectInstance> effects = client.player.getActiveEffects();
 
-        for (StatusEffectInstance effect : effects) {
-            RegistryEntry <StatusEffect> statusEffect = effect.getEffectType();
-            String effectkey = statusEffect.value().getTranslationKey();
+        for (MobEffectInstance effect : effects) {
+            Holder <MobEffect> statusEffect = effect.getEffect();
+            String effectkey = statusEffect.value().getDescriptionId();
             String roman_converter = RomanConverter.intToRomanByPlace(effect.getAmplifier());
             String amplifier = roman_converter.equals("0") ? " " : " " + roman_converter;
-            String effectName = statusEffect.value().getName().getString() + amplifier;
+            String effectName = statusEffect.value().getDisplayName().getString() + amplifier;
             String timeText = formatDuration(effect);
 
             // Calculate widths for layout
@@ -295,8 +294,8 @@ public class PotionHudMod extends HUDMod {
         return activePotions;
     }
 
-    private String formatDuration(StatusEffectInstance effect) {
-        if (effect.isInfinite()) {
+    private String formatDuration(MobEffectInstance effect) {
+        if (effect.isInfiniteDuration()) {
             return "inf";
         }
 

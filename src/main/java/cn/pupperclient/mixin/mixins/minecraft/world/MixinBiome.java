@@ -6,14 +6,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import cn.pupperclient.management.mod.impl.misc.WeatherChangerMod;
-
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.biome.Biome;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.biome.Biome;
 
 @Mixin(Biome.class)
 public class MixinBiome {
 
-	@Inject(method = "getPrecipitation", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "getPrecipitationAt", at = @At("HEAD"), cancellable = true)
 	public void getPrecipitation(BlockPos pos, int seaLevel, CallbackInfoReturnable<Biome.Precipitation> cir) {
 		
 		if(WeatherChangerMod.getInstance().isEnabled() && WeatherChangerMod.getInstance().isSnowing()) {

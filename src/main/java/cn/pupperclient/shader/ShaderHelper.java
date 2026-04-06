@@ -23,14 +23,13 @@ import static org.lwjgl.opengl.GL30C.*;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.AbstractTexture;
+import net.minecraft.resources.ResourceLocation;
 import com.mojang.blaze3d.platform.GlStateManager;
 import cn.pupperclient.mixin.mixins.minecraft.client.render.BufferRendererAccessor;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.texture.AbstractTexture;
-import net.minecraft.util.Identifier;
 
 public class ShaderHelper {
 	public static int CURRENT_IBO;
@@ -179,9 +178,9 @@ public class ShaderHelper {
 		glDisable(GL_LINE_SMOOTH);
 	}
 
-	public static void bindTexture(Identifier id) {
-		AbstractTexture texture = MinecraftClient.getInstance().getTextureManager().getTexture(id);
-		bindTexture(texture.getGlId(), 0);
+	public static void bindTexture(ResourceLocation id) {
+		AbstractTexture texture = Minecraft.getInstance().getTextureManager().getTexture(id);
+		bindTexture(texture.getId(), 0);
 	}
 
 	public static void bindTexture(int i, int slot) {

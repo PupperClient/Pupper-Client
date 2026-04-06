@@ -3,16 +3,15 @@ package cn.pupperclient.management.mod.settings.impl;
 import cn.pupperclient.PupperClient;
 import cn.pupperclient.management.mod.Mod;
 import cn.pupperclient.management.mod.settings.Setting;
-
-import net.minecraft.client.util.InputUtil;
+import com.mojang.blaze3d.platform.InputConstants;
 
 public class KeybindSetting extends Setting {
-	private final InputUtil.Key defaultKey;
-    private InputUtil.Key key;
+	private final InputConstants.Key defaultKey;
+    private InputConstants.Key key;
 	private boolean keyDown;
 	private int pressTime;
 
-	public KeybindSetting(String name, String description, String icon, Mod parent, InputUtil.Key key) {
+	public KeybindSetting(String name, String description, String icon, Mod parent, InputConstants.Key key) {
 		super(name, description, icon, parent);
 
 		this.defaultKey = key;
@@ -26,15 +25,15 @@ public class KeybindSetting extends Setting {
 		this.key = this.defaultKey;
 	}
 
-	public InputUtil.Key getKey() {
+	public InputConstants.Key getKey() {
 		return key;
 	}
 
-	public void setKey(InputUtil.Key key) {
+	public void setKey(InputConstants.Key key) {
 		this.key = key;
 	}
 
-	public InputUtil.Key getDefaultKey() {
+	public InputConstants.Key getDefaultKey() {
 		return defaultKey;
 	}
 

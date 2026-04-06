@@ -114,8 +114,7 @@ public class KeybindManager implements IMinecraft {
     private void handleGlobalKeyEvent(KeyEvent event) {
         if (!event.isState()) return;
 
-        // 防止在GUI界面中误触发
-        if (mc != null && mc.currentScreen != null) return;
+        if (client.screen != null) return;
 
         int keyCode = event.getKeybind();
         List<Mod> mods = getModsByKey(keyCode);
@@ -123,7 +122,6 @@ public class KeybindManager implements IMinecraft {
         if (!mods.isEmpty()) {
             LOGGER.debug("Keybind triggered: {} for {} mod(s)", keyCode, mods.size());
 
-            // 触发所有绑定到此按键的Mod
             for (Mod mod : mods) {
                 LOGGER.debug("Toggling mod: {}", mod.getName());
                 mod.toggle();

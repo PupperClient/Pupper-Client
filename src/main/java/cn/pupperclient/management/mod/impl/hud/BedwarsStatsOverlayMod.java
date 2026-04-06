@@ -1,7 +1,9 @@
 package cn.pupperclient.management.mod.impl.hud;
 
 import java.io.File;
+import java.util.Objects;
 
+import net.minecraft.client.multiplayer.PlayerInfo;
 import cn.pupperclient.PupperClient;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.client.RenderSkiaEvent;
@@ -14,8 +16,6 @@ import cn.pupperclient.skia.font.Icon;
 import cn.pupperclient.utils.minecraft.player.SkinUtils;
 import cn.pupperclient.utils.server.Server;
 import cn.pupperclient.utils.server.ServerUtils;
-
-import net.minecraft.client.network.PlayerListEntry;
 
 public class BedwarsStatsOverlayMod extends HUDMod {
 
@@ -46,28 +46,22 @@ public class BedwarsStatsOverlayMod extends HUDMod {
 
 		if (ServerUtils.isJoin(Server.HYPIXEL)) {
 
-			for (PlayerListEntry player : mc.getNetworkHandler().getPlayerList()) {
+			for (PlayerInfo player : Objects.requireNonNull(client.getConnection()).getOnlinePlayers()) {
 
-				if (player.getProfile() == null) {
-					continue;
-				}
-
-				String name = player.getProfile().getName();
+                String name = player.getProfile().getName();
 				String uuid = player.getProfile().getId().toString().replace("-", "");
 				HypixelUser hypixelUser = PupperClient.getInstance().getHypixelManager().getByUuid(uuid);
 
 				if (hypixelUser != null) {
 
-					if (player.getSkinTextures() != null) {
+                    player.getSkin();
+                    File file = SkinUtils.getSkin(player.getSkin().texture());
 
-						File file = SkinUtils.getSkin(player.getSkinTextures().texture());
+                    if (file.exists()) {
+                        Skia.drawPlayerHead(file, getX() + 5.5F, getY() + offsetY, 12, 12, 2.5F);
+                    }
 
-						if (file.exists()) {
-							Skia.drawPlayerHead(file, getX() + 5.5F, getY() + offsetY, 12, 12, 2.5F);
-						}
-					}
-
-					Skia.drawHeightCenteredText(name, getX() + 21, getY() + offsetY + 6F,
+                    Skia.drawHeightCenteredText(name, getX() + 21, getY() + offsetY + 6F,
 							this.getDesign().getTextColor(), Fonts.getRegular(9));
 
 					Skia.drawFullCenteredText(hypixelUser.getBedwarsLevel(), getX() + 120, getY() + offsetY + 6F,

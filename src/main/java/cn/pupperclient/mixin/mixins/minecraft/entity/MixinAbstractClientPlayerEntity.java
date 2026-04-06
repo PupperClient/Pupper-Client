@@ -2,15 +2,15 @@ package cn.pupperclient.mixin.mixins.minecraft.entity;
 
 import cn.pupperclient.PupperClient;
 import com.mojang.authlib.GameProfile;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.util.SkinTextures;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerModelPart;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.resources.PlayerSkin;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.PlayerModelPart;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -19,24 +19,24 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value = AbstractClientPlayerEntity.class, priority = 2000)
-public abstract class MixinAbstractClientPlayerEntity extends PlayerEntity {
+@Mixin(value = AbstractClientPlayer.class, priority = 2000)
+public abstract class MixinAbstractClientPlayerEntity extends Player {
 
-    @Shadow @Final public ClientWorld clientWorld;
+    @Shadow @Final public ClientLevel clientLevel;
 
     @Unique
     private boolean shownCape = false;
 
-    public MixinAbstractClientPlayerEntity(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
+    public MixinAbstractClientPlayerEntity(Level world, BlockPos pos, float yaw, GameProfile gameProfile) {
         super(world, pos, yaw, gameProfile);
     }
 
-    @Inject(method = "getSkinTextures", at = @At("RETURN"), cancellable = true)
-    public void getSkinTextures(CallbackInfoReturnable<SkinTextures> cir) {
-        Identifier customCape = PupperClient.getInstance().getCapeManager().getSelectedCapeTexture();
+    @Inject(method = "getSkin", at = @At("RETURN"), cancellable = true)
+    public void getSkinTextures(CallbackInfoReturnable<PlayerSkin> cir) {
+        ResourceLocation customCape = PupperClient.getInstance().getCapeManager().getSelectedCapeTexture();
         if (customCape != null) {
-            SkinTextures current = cir.getReturnValue();
-            cir.setReturnValue(new SkinTextures(
+            PlayerSkin current = cir.getReturnValue();
+            cir.setReturnValue(new PlayerSkin(
                 current.texture(),
                 current.textureUrl(),
                 customCape,
@@ -48,10 +48,10 @@ public abstract class MixinAbstractClientPlayerEntity extends PlayerEntity {
     }
 
     @Override
-    public void onTrackedDataSet(TrackedData<?> data) {
-        super.onTrackedDataSet(data);
-        if (PLAYER_MODEL_PARTS.equals(data)) {
-            boolean showCape = isPartVisible(PlayerModelPart.CAPE);
+    public void onSyncedDataUpdated(EntityDataAccessor<?> data) {
+        super.onSyncedDataUpdated(data);
+        if (DATA_PLAYER_MODE_CUSTOMISATION.equals(data)) {
+            boolean showCape = isModelPartShown(PlayerModelPart.CAPE);
             if (showCape != shownCape) {
                 shownCape = showCape;
             }

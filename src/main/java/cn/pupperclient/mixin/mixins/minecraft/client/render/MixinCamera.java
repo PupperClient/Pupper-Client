@@ -9,12 +9,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import cn.pupperclient.management.mod.impl.player.FreelookMod;
 import cn.pupperclient.mixin.interfaces.IMixinCameraEntity;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.Camera;
-import net.minecraft.entity.Entity;
-import net.minecraft.world.BlockView;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.BlockGetter;
 
 @Mixin(Camera.class)
 public abstract class MixinCamera {
@@ -25,23 +24,23 @@ public abstract class MixinCamera {
     @Shadow
     protected abstract void setRotation(float yaw, float pitch);
     
-    @Inject(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;setRotation(FF)V", ordinal = 1, shift = At.Shift.AFTER))
-    public void lockRotation(BlockView focusedBlock, Entity cameraEntity, boolean isThirdPerson, boolean isFrontFacing, float tickDelta, CallbackInfo ci) {
+    @Inject(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setRotation(FF)V", ordinal = 1, shift = At.Shift.AFTER))
+    public void lockRotation(BlockGetter focusedBlock, Entity cameraEntity, boolean isThirdPerson, boolean isFrontFacing, float tickDelta, CallbackInfo ci) {
     	
-    	MinecraftClient client = MinecraftClient.getInstance();
+    	Minecraft client = Minecraft.getInstance();
     	
-        if (FreelookMod.getInstance().isEnabled() && FreelookMod.getInstance().isActive() && cameraEntity instanceof ClientPlayerEntity) {
+        if (FreelookMod.getInstance().isEnabled() && FreelookMod.getInstance().isActive() && cameraEntity instanceof LocalPlayer) {
         	IMixinCameraEntity cameraOverriddenEntity = (IMixinCameraEntity) cameraEntity;
 
-            if (firstTime && MinecraftClient.getInstance().player != null) {
-                cameraOverriddenEntity.soarClient_CN$setCameraPitch(client.player.getPitch());
-                cameraOverriddenEntity.soarClient_CN$setCameraYaw(client.player.getYaw());
+            if (firstTime && Minecraft.getInstance().player != null) {
+                cameraOverriddenEntity.soarClient_CN$setCameraPitch(client.player.getXRot());
+                cameraOverriddenEntity.soarClient_CN$setCameraYaw(client.player.getYRot());
                 firstTime = false;
             }
             this.setRotation(cameraOverriddenEntity.soarClient_CN$getCameraYaw(), cameraOverriddenEntity.soarClient_CN$getCameraPitch());
 
         }
-        if (FreelookMod.getInstance().isEnabled() && !FreelookMod.getInstance().isActive() && cameraEntity instanceof ClientPlayerEntity) {
+        if (FreelookMod.getInstance().isEnabled() && !FreelookMod.getInstance().isActive() && cameraEntity instanceof LocalPlayer) {
             firstTime = true;
         }
     }

@@ -9,7 +9,7 @@ import cn.pupperclient.management.mod.ModCategory;
 import cn.pupperclient.management.mod.settings.impl.BooleanSetting;
 import cn.pupperclient.skia.font.Icon;
 import cn.pupperclient.utils.chat.ChatUtils;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 public class HeypixelMod extends Mod {
     private static HeypixelMod instance;
@@ -55,9 +55,9 @@ public class HeypixelMod extends Mod {
                 ChatUtils.addChatMessage("checked! try to send /again command");
             }
             EventBus.getInstance().post(new AutoAgainEvent());
-            MinecraftClient client = MinecraftClient.getInstance();
+            Minecraft client = Minecraft.getInstance();
             if (client.player != null) {
-                client.player.networkHandler.sendChatCommand("again");
+                client.player.connection.sendCommand("again");
                 if (Logging.isEnabled()) {
                     ChatUtils.addChatMessage("Done");
                 }

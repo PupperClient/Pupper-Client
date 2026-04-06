@@ -12,54 +12,53 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import cn.pupperclient.management.mod.impl.misc.HypixelMod;
 import cn.pupperclient.utils.server.Server;
 import cn.pupperclient.utils.server.ServerUtils;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.EntityRenderer;
-import net.minecraft.client.render.entity.state.EntityRenderState;
-import net.minecraft.client.render.entity.state.PlayerEntityRenderState;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Colors;
-import net.minecraft.util.Formatting;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.CommonColors;
+import net.minecraft.world.entity.Entity;
 
 @Mixin(EntityRenderer.class)
 public abstract class MixinEntityRenderer<T extends Entity, S extends EntityRenderState> {
 
 	@Shadow
 	@Final
-	private TextRenderer textRenderer;
+	private Font font;
 
-	@Inject(method = "renderLabelIfPresent", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;draw(Lnet/minecraft/text/Text;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;II)I", ordinal = 1))
-	private void onRenderLevelHead(S inState, Text text, MatrixStack matrices, VertexConsumerProvider vertexConsumers,
+	@Inject(method = "renderNameTag", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Font;drawInBatch(Lnet/minecraft/network/chat/Component;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/gui/Font$DisplayMode;II)I", ordinal = 1))
+	private void onRenderLevelHead(S inState, Component text, PoseStack matrices, MultiBufferSource vertexConsumers,
 			int light, CallbackInfo ci) {
 
-		MinecraftClient client = MinecraftClient.getInstance();
+		Minecraft client = Minecraft.getInstance();
 
-		if (inState instanceof PlayerEntityRenderState state) {
+		if (inState instanceof PlayerRenderState state) {
 			if (ServerUtils.isJoin(Server.HYPIXEL)) {
 
-				AbstractClientPlayerEntity player = (AbstractClientPlayerEntity) client.world.getEntityById(state.id);
+				AbstractClientPlayer player = (AbstractClientPlayer) client.level.getEntity(state.id);
 
 				if (player != null && text.getString().contains(player.getName().getString())) {
 
 					if (HypixelMod.getInstance().isEnabled()
 							&& HypixelMod.getInstance().getLevelHeadSetting().isEnabled()) {
-						String levelText = Formatting.AQUA.toString() + "Level: " + Formatting.YELLOW.toString()
+						String levelText = ChatFormatting.AQUA.toString() + "Level: " + ChatFormatting.YELLOW.toString()
 								+ PupperClient.getInstance().getHypixelManager()
-										.getByUuid(player.getUuid().toString().replace("-", "")).getNetworkLevel();
+										.getByUuid(player.getUUID().toString().replace("-", "")).getNetworkLevel();
 
-						float x = -textRenderer.getWidth(levelText) / 2F;
+						float x = -font.width(levelText) / 2F;
 						float y = text.getString().contains("deadmau5") ? -20 : -10;
-						int color = (int) (client.options.getTextBackgroundOpacity(0.25F) * 255.0F) << 24;
+						int color = (int) (client.options.getBackgroundOpacity(0.25F) * 255.0F) << 24;
 
-						Matrix4f matrix4f = matrices.peek().getPositionMatrix();
+						Matrix4f matrix4f = matrices.last().pose();
 
-						textRenderer.draw(levelText, x, y, Colors.WHITE, false, matrix4f, vertexConsumers,
-								TextRenderer.TextLayerType.NORMAL, color, light);
+						font.drawInBatch(levelText, x, y, CommonColors.WHITE, false, matrix4f, vertexConsumers,
+								Font.DisplayMode.NORMAL, color, light);
 					}
 				}
 			}

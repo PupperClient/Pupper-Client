@@ -2,11 +2,13 @@ package cn.pupperclient.skia;
 
 import java.awt.Color;
 import java.io.File;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
 import cn.pupperclient.management.mod.impl.settings.HUDModSettings;
 import cn.pupperclient.shader.impl.Kawaseblur;
 import cn.pupperclient.skia.context.SkiaContext;
 import cn.pupperclient.skia.image.ImageHelper;
+import com.mojang.blaze3d.platform.Window;
 import io.github.humbleui.skija.Canvas;
 import io.github.humbleui.skija.ClipMode;
 import io.github.humbleui.skija.FilterTileMode;
@@ -21,9 +23,6 @@ import io.github.humbleui.skija.SurfaceOrigin;
 import io.github.humbleui.types.Point;
 import io.github.humbleui.types.RRect;
 import io.github.humbleui.types.Rect;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.Window;
-import net.minecraft.util.Identifier;
 
 public class Skia {
 
@@ -63,11 +62,11 @@ public class Skia {
 
         if (HUDModSettings.getInstance().getBlurSetting().isEnabled()) {
 
-            Window window = MinecraftClient.getInstance().getWindow();
+            Window window = Minecraft.getInstance().getWindow();
             try (Path path = Path.makeRect(Rect.makeXYWH(x, y, width, height))) {
                 save();
                 getCanvas().clipPath(path, ClipMode.INTERSECT, true);
-                drawImage(Kawaseblur.INGAME_BLUR.getTexture(), 0, 0, window.getScaledWidth(), window.getScaledHeight(), 1F,
+                drawImage(Kawaseblur.INGAME_BLUR.getTexture(), 0, 0, window.getGuiScaledWidth(), window.getGuiScaledHeight(), 1F,
                     SurfaceOrigin.BOTTOM_LEFT);
                 restore();
             }
@@ -78,11 +77,11 @@ public class Skia {
 
         if (HUDModSettings.getInstance().getBlurSetting().isEnabled()) {
 
-            Window window = MinecraftClient.getInstance().getWindow();
+            Window window = Minecraft.getInstance().getWindow();
             try (Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, radius))) {
                 save();
                 getCanvas().clipPath(path, ClipMode.INTERSECT, true);
-                drawImage(Kawaseblur.INGAME_BLUR.getTexture(), 0, 0, window.getScaledWidth(), window.getScaledHeight(), 1F,
+                drawImage(Kawaseblur.INGAME_BLUR.getTexture(), 0, 0, window.getGuiScaledWidth(), window.getGuiScaledHeight(), 1F,
                     SurfaceOrigin.BOTTOM_LEFT);
                 restore();
             }
@@ -287,7 +286,7 @@ public class Skia {
         }
     }
     public static void drawMinecraftImage(String path, float x, float y, float width, float height) {
-        Identifier identifier = Identifier.of("minecraft", path);
+        ResourceLocation identifier = ResourceLocation.fromNamespaceAndPath("minecraft", path);
 
         if (imageHelper.load(identifier)) {
             getCanvas().drawImageRect(imageHelper.get(identifier.getPath()), Rect.makeXYWH(x, y, width, height));

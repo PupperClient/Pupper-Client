@@ -205,7 +205,7 @@ public class DynamicIsland extends HUDMod implements IMinecraft {
         drawTextWithAlpha(playerIcon, currentX, startY, Fonts.getIcon(iconSize), (float) 1.0);
         currentX += Skia.getTextBounds(playerIcon, Fonts.getIcon(iconSize)).getWidth() + 2;
 
-        String playerName = mc.player != null ? mc.player.getName().getString() : "NULL";
+        String playerName = client.player != null ? client.player.getName().getString() : "NULL";
         drawTextWithAlpha(playerName + " · ", currentX, startY, Fonts.getGoogleSansRegular(fontSize), (float) 1.0);
         currentX += Skia.getTextBounds(playerName + " · ", Fonts.getGoogleSansRegular(fontSize)).getWidth() + 5;
 
@@ -223,7 +223,7 @@ public class DynamicIsland extends HUDMod implements IMinecraft {
         drawTextWithAlpha(fpsIcon, currentX, startY - 1F, Fonts.getIcon(iconSize), (float) 1.0);
         currentX += Skia.getTextBounds(fpsIcon, Fonts.getIcon(iconSize)).getWidth() + 2;
 
-        String fpsText = mc.getCurrentFps() + " FPS";
+        String fpsText = client.getFps() + " FPS";
         drawTextWithAlpha(fpsText, currentX, startY, Fonts.getGoogleSansRegular(fontSize), (float) 1.0);
     }
 
@@ -236,7 +236,7 @@ public class DynamicIsland extends HUDMod implements IMinecraft {
         // 玩家图标和名称
         String playerIcon = Icon.PERSON;
         totalWidth += Skia.getTextBounds(playerIcon, Fonts.getIcon(iconSize)).getWidth() + 2;
-        String playerName = mc.player != null ? mc.player.getName().getString() : "NULL";
+        String playerName = client.player != null ? client.player.getName().getString() : "NULL";
         totalWidth += Skia.getTextBounds(playerName + " · ", Fonts.getGoogleSansRegular(fontSize)).getWidth() + 5;
 
         // 服务器信息和延迟
@@ -248,7 +248,7 @@ public class DynamicIsland extends HUDMod implements IMinecraft {
         // FPS图标和数值
         String fpsIcon = Icon.DESKTOP_WINDOWS;
         totalWidth += Skia.getTextBounds(fpsIcon, Fonts.getIcon(iconSize)).getWidth() + 2;
-        String fpsText = mc.getCurrentFps() + " FPS";
+        String fpsText = client.getFps() + " FPS";
         totalWidth += Skia.getTextBounds(fpsText, Fonts.getGoogleSansRegular(fontSize)).getWidth() + 5;
 
         return totalWidth;
@@ -329,9 +329,9 @@ public class DynamicIsland extends HUDMod implements IMinecraft {
     }
 
     private @NotNull String getServerInfo() {
-        if (mc.getCurrentServerEntry() != null && mc.player != null) {
-            String serverAddress = mc.getCurrentServerEntry().address;
-            long ping = mc.getCurrentServerEntry().ping;
+        if (client.getCurrentServer() != null && client.player != null) {
+            String serverAddress = client.getCurrentServer().ip;
+            long ping = client.getCurrentServer().ping;
             return ping + "ms to " + serverAddress;
         }
         return "Singleplayer";

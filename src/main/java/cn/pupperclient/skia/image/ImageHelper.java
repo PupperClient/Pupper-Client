@@ -8,7 +8,10 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
 import org.lwjgl.opengl.GL11;
 
 import cn.pupperclient.skia.context.SkiaContext;
@@ -17,10 +20,6 @@ import cn.pupperclient.skia.utils.SkiaUtils;
 import io.github.humbleui.skija.ColorType;
 import io.github.humbleui.skija.Image;
 import io.github.humbleui.skija.SurfaceOrigin;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.resource.Resource;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.util.Identifier;
 
 public class ImageHelper {
 
@@ -38,14 +37,14 @@ public class ImageHelper {
 		return true;
 	}
 
-	public boolean load(Identifier identifier) {
+	public boolean load(ResourceLocation identifier) {
 		
 		if (!images.containsKey(identifier.getPath())) {
-			ResourceManager resourceManager = MinecraftClient.getInstance().getResourceManager();
+			ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
 			Resource resource;
 			try {
 				resource = resourceManager.getResourceOrThrow(identifier);
-				try (InputStream inputStream = resource.getInputStream()) {
+				try (InputStream inputStream = resource.open()) {
 
 					byte[] imageData = inputStream.readAllBytes();
 					Image image = Image.makeDeferredFromEncodedBytes(imageData);
