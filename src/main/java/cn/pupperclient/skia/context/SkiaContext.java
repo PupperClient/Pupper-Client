@@ -14,12 +14,12 @@ public class SkiaContext {
     private static DirectContext context = null;
     private static Surface surface;
     private static BackendRenderTarget renderTarget;
-    private static final GLBackendState[] states = {
-        GLBackendState.BLEND,
-        GLBackendState.VERTEX,
-        GLBackendState.PIXEL_STORE,
-        GLBackendState.TEXTURE_BINDING,
-        GLBackendState.MISC
+    private static final BackendState[] states = {
+        BackendState.GL_BLEND,
+        BackendState.GL_VERTEX,
+        BackendState.GL_PIXEL_STORE,
+        BackendState.GL_TEXTURE_BINDING,
+        BackendState.GL_MISC
     };
 
     public static Canvas getCanvas() {
@@ -47,7 +47,7 @@ public class SkiaContext {
             Objects.requireNonNull(context, "Context must not be null"),
             Objects.requireNonNull(renderTarget, "RenderTarget must not be null"),
             SurfaceOrigin.BOTTOM_LEFT,
-            SurfaceColorFormat.RGBA_8888,
+            ColorType.RGBA_8888,
             ColorSpace.getSRGB()
         );
     }
@@ -60,7 +60,7 @@ public class SkiaContext {
         States.push();
         GL11.glDisable(GL11.GL_CULL_FACE);
         GL11.glClearColor(0f, 0f, 0f, 0f);
-        context.resetGL(states);
+        context.reset(states);
 
         Canvas canvas = getCanvas();
         drawingLogic.accept(canvas);
