@@ -49,8 +49,10 @@ dependencies {
 
     modJij 'io.github.smartboot.socket:aio-core:1.7.1'
     modJij 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+
     modJij 'io.github.humbleui:types:0.2.0'
-    modJij 'io.github.humbleui:skija-windows-x64:0.116.4'
+    modJij 'io.github.humbleui:skija-windows-x64:0.119.3'
+
     modJij 'com.kohlschutter.junixsocket:junixsocket-common:2.10.1'
     modJij 'org.java-websocket:Java-WebSocket:1.6.0'
     modJij 'com.mpatric:mp3agic:0.9.1'

@@ -16,6 +16,8 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.HitResult.Type;
+import cn.pupperclient.event.client.RenderSkiaEvent;
+import cn.pupperclient.gui.api.SimpleSoarGui;
 import cn.pupperclient.shader.impl.Kawaseblur;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -69,6 +71,10 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 
 	@Shadow
 	public LocalPlayer player;
+
+    @Shadow
+    @Nullable
+    public Screen screen;
 
 	@Shadow
     protected abstract String createTitle();
@@ -148,6 +154,24 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 	public void onGameLoop(CallbackInfo ci) {
 		EventBus.getInstance().post(new GameLoopEvent());
 	}
+
+    @Inject(
+        method = { "renderFrame", "runTick" },
+        at = @At(
+            value = "INVOKE",
+            target = "Lcom/mojang/blaze3d/systems/RenderSystem;flipFrame(Lcom/mojang/blaze3d/TracyFrameCapture;)V"
+        ),
+        require = 0
+    )
+    private void onBeforeFlipFrame(CallbackInfo ci) {
+        if (level == null) {
+            return;
+        }
+        if (screen instanceof SimpleSoarGui) {
+            return;
+        }
+        SkiaContext.draw(canvas -> EventBus.getInstance().post(new RenderSkiaEvent(canvas)));
+    }
 
 	@Inject(method = "resizeDisplay", at = @At("TAIL"))
 	public void onResolutionChanged(CallbackInfo info) {

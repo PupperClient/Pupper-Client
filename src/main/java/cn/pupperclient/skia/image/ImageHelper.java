@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.lwjgl.opengl.GL11;
@@ -24,22 +24,29 @@ import io.github.humbleui.skija.SurfaceOrigin;
 public class ImageHelper {
 
 	private Map<String, Image> images = new HashMap<>();
-	private Map<Integer, Image> textures = new HashMap<>();
+	private Map<Integer, TextureEntry> textures = new HashMap<>();
 
 	public boolean load(int texture, float width, float height, SurfaceOrigin origin) {
 
-		if (!textures.containsKey(texture)) {
-			Image image = Image.adoptGLTextureFrom(SkiaContext.getContext(), texture, GL11.GL_TEXTURE_2D, (int) width,
-					(int) height, GL11.GL_RGBA8, origin, ColorType.RGBA_8888);
-			textures.put(texture, image);
-		}
+        int w = Math.max(1, (int) width);
+        int h = Math.max(1, (int) height);
+        TextureEntry existing = textures.get(texture);
+        if (existing == null || existing.width != w || existing.height != h || existing.origin != origin) {
+            if (existing != null) {
+                existing.image.close();
+            }
+            Image image = Image.adoptGLTextureFrom(SkiaContext.getContext(), texture, GL11.GL_TEXTURE_2D, w, h,
+                GL11.GL_RGBA8, origin, ColorType.RGBA_8888);
+            textures.put(texture, new TextureEntry(image, w, h, origin));
+        }
 
 		return true;
 	}
 
-	public boolean load(ResourceLocation identifier) {
+	public boolean load(Identifier identifier) {
 		
-		if (!images.containsKey(identifier.getPath())) {
+        String key = identifier.toString();
+		if (!images.containsKey(key)) {
 			ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
 			Resource resource;
 			try {
@@ -48,10 +55,7 @@ public class ImageHelper {
 
 					byte[] imageData = inputStream.readAllBytes();
 					Image image = Image.makeDeferredFromEncodedBytes(imageData);
-					if (image == null) {
-						return false;
-					}
-					images.put(identifier.getPath(), image);
+                    images.put(key, image);
 					return true;
 				} catch (IOException e) {
 					cn.pupperclient.PupperLogger.error("ImageHelper", "Failed to read identifier bytes", e);
@@ -59,8 +63,6 @@ public class ImageHelper {
 			} catch (FileNotFoundException e) {
 				cn.pupperclient.PupperLogger.error("ImageHelper", "Identifier resource not found", e);
 			}
-
-
 		}
 		return true;
 	}
@@ -106,8 +108,9 @@ public class ImageHelper {
 
 	public Image get(int texture) {
 
-		if (textures.containsKey(texture)) {
-			return textures.get(texture);
+		TextureEntry entry = textures.get(texture);
+		if (entry != null) {
+			return entry.image;
 		}
 
 		return null;
@@ -116,7 +119,10 @@ public class ImageHelper {
 	public void clear() {
 		images.values().forEach(Image::close);
 		images.clear();
-		textures.values().forEach(Image::close);
+		textures.values().forEach(entry -> entry.image.close());
 		textures.clear();
 	}
+
+    private record TextureEntry(Image image, int width, int height, SurfaceOrigin origin) {
+    }
 }

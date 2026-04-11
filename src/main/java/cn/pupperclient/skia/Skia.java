@@ -3,7 +3,7 @@ package cn.pupperclient.skia;
 import java.awt.Color;
 import java.io.File;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import cn.pupperclient.management.mod.impl.settings.HUDModSettings;
 import cn.pupperclient.shader.impl.Kawaseblur;
 import cn.pupperclient.skia.context.SkiaContext;
@@ -286,10 +286,10 @@ public class Skia {
         }
     }
     public static void drawMinecraftImage(String path, float x, float y, float width, float height) {
-        ResourceLocation identifier = ResourceLocation.fromNamespaceAndPath("minecraft", path);
+        Identifier identifier = Identifier.fromNamespaceAndPath("minecraft", path);
 
         if (imageHelper.load(identifier)) {
-            getCanvas().drawImageRect(imageHelper.get(identifier.getPath()), Rect.makeXYWH(x, y, width, height));
+            getCanvas().drawImageRect(imageHelper.get(identifier.toString()), Rect.makeXYWH(x, y, width, height));
         }
     }
 
