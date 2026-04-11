@@ -122,7 +122,7 @@ public class Kawaseblur {
 
         PupperMeshRenderer.begin()
             .attachments(mc.getMainRenderTarget())
-            .pipeline(PupperRenderPipelines.PASSTHROUGH)
+            .pipeline(PupperRenderPipelines.BLUR_PASSTHROUGH)
             .fullscreen()
             .sampler("u_Texture", fbos[0], RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR)) // todo ???
             .end();

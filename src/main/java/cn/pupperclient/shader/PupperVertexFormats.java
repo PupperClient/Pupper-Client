@@ -13,11 +13,6 @@ public abstract class PupperVertexFormats {
         .add("Color", VertexFormatElement.COLOR)
         .build();
 
-    public static final VertexFormat POS3_COLOR = VertexFormat.builder()
-        .add("Position", VertexFormatElement.POSITION)
-        .add("Color", VertexFormatElement.COLOR)
-        .build();
-
     public static final VertexFormat POS2_COLOR_TEX = VertexFormat.builder()
         .add("Position", VertexFormatElement.POSITION)
         .add("Color", VertexFormatElement.COLOR)

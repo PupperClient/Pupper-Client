@@ -1,13 +1,16 @@
 package cn.pupperclient.shader;
 
 import com.mojang.blaze3d.pipeline.BlendFunction;
+import com.mojang.blaze3d.pipeline.ColorTargetState;
+import com.mojang.blaze3d.pipeline.DepthStencilState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.platform.CompareOp;
 import com.mojang.blaze3d.shaders.UniformType;
 import com.mojang.blaze3d.systems.GpuDevice;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.viaversion.viaversion.libs.mcstructs.core.Identifier;
 import net.minecraft.client.Minecraft;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.apache.commons.io.IOUtils;
 
@@ -23,113 +26,89 @@ public abstract class PupperRenderPipelines {
         .withUniform("MeshData", UniformType.UNIFORM_BUFFER)
         .buildSnippet();
 
+
+    // Blur
     public static final RenderPipeline BLUR_DOWN = add(new ExtendedRenderPipelineBuilder(MESH_UNIFORMS)
         .withLocation(getLocation("pipeline/blur_down"))
         .withVertexFormat(PupperVertexFormats.POS2, VertexFormat.Mode.TRIANGLES)
-        .withVertexShader(Identifier.of("pupper", "blur").get())
-        .withFragmentShader(Identifier.of("pupper", "blur_down").get())
-        .withSampler("Sampler0")
-        .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
-        .withDepthWrite(false)
-        .withBlend(BlendFunction.TRANSLUCENT)
+        .withVertexShader(getLocation("blur"))
+        .withFragmentShader(getLocation("blur_down"))
+        .withSampler("u_Texture")
+        .withUniform("BlurData", UniformType.UNIFORM_BUFFER)
+        .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
         .withCull(false)
         .build()
     );
 
     public static final RenderPipeline BLUR_UP = add(new ExtendedRenderPipelineBuilder(MESH_UNIFORMS)
-        .withLocation(Identifier.of("pupper", "pipeline/blur_up"))
-        .withVertexFormat(PupperVertexFormats.POS2, VertexFormat.DrawMode.TRIANGLES)
-        .withVertexShader(Identifier.of("pupper", "blur"))
-        .withFragmentShader(Identifier.of("pupper", "blur_up"))
-        .withSampler("Sampler0")
-        .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
-        .withDepthWrite(false)
-        .withBlend(BlendFunction.TRANSLUCENT)
+        .withLocation(getLocation("pipeline/blur_up"))
+        .withVertexFormat(PupperVertexFormats.POS2, VertexFormat.Mode.TRIANGLES)
+        .withVertexShader(getLocation("blur"))
+        .withFragmentShader(getLocation("blur_up"))
+        .withSampler("u_Texture")
+        .withUniform("BlurData", UniformType.UNIFORM_BUFFER)
+        .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
         .withCull(false)
         .build()
     );
 
-    public static final RenderPipeline PASSTHROUGH = add(new ExtendedRenderPipelineBuilder(MESH_UNIFORMS)
-        .withLocation(Identifier.of("pupper", "pipeline/passthrough"))
-        .withVertexFormat(PupperVertexFormats.POS2, VertexFormat.DrawMode.TRIANGLES)
-        .withVertexShader(Identifier.of("pupper", "passthrough"))
-        .withFragmentShader(Identifier.of("pupper", "passthrough"))
+    public static final RenderPipeline BLUR_PASSTHROUGH = add(new ExtendedRenderPipelineBuilder(MESH_UNIFORMS)
+        .withLocation(getLocation("pipeline/passthrough"))
+        .withVertexFormat(PupperVertexFormats.POS2, VertexFormat.Mode.TRIANGLES)
+        .withVertexShader(getLocation("passthrough"))
+        .withFragmentShader(getLocation("passthrough"))
         .withSampler("Sampler0")
-        .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
-        .withDepthWrite(false)
-        .withBlend(BlendFunction.TRANSLUCENT)
+        .withSampler("u_Texture")
+        .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
         .withCull(false)
         .build()
     );
 
+    // UI
     public static final RenderPipeline UI_COLORED = add(new ExtendedRenderPipelineBuilder(MESH_UNIFORMS)
-        .withLocation(Identifier.of("pupper", "pipeline/ui_colored"))
-        .withVertexFormat(PupperVertexFormats.POS2_COLOR, VertexFormat.DrawMode.TRIANGLES)
-        .withVertexShader(Identifier.of("pupper", "ui_colored"))
-        .withFragmentShader(Identifier.of("pupper", "ui_colored"))
-        .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
-        .withDepthWrite(false)
-        .withBlend(BlendFunction.TRANSLUCENT)
-        .withCull(false)
+        .withLocation(getLocation("pipeline/ui_colored"))
+        .withVertexFormat(PupperVertexFormats.POS2_COLOR, VertexFormat.Mode.TRIANGLES)
+        .withVertexShader(getLocation("ui_colored"))
+        .withFragmentShader(getLocation("ui_colored"))
+        .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+        .withCull(true)
         .build()
     );
 
     public static final RenderPipeline UI_COLORED_LINES = add(new ExtendedRenderPipelineBuilder(MESH_UNIFORMS)
         .withLineSmooth()
-        .withLocation(Identifier.of("pupper", "pipeline/ui_colored_lines"))
-        .withVertexFormat(PupperVertexFormats.POS2_COLOR, VertexFormat.DrawMode.LINES)
-        .withVertexShader(Identifier.of("pupper", "ui_colored"))
-        .withFragmentShader(Identifier.of("pupper", "ui_colored"))
-        .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
-        .withDepthWrite(false)
-        .withBlend(BlendFunction.TRANSLUCENT)
-        .withCull(false)
+        .withLocation(getLocation("pipeline/ui_colored_lines"))
+        .withVertexFormat(PupperVertexFormats.POS2_COLOR, VertexFormat.Mode.LINES)
+        .withVertexShader(getLocation("ui_colored"))
+        .withFragmentShader(getLocation("ui_colored"))
+        .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+        .withCull(true)
         .build()
     );
-
-    public static final RenderPipeline WORLD_COLORED = add(new ExtendedRenderPipelineBuilder(MESH_UNIFORMS)
-        .withLocation(Identifier.of("pupper", "pipeline/world_colored"))
-        .withVertexFormat(PupperVertexFormats.POS3_COLOR, VertexFormat.DrawMode.TRIANGLES)
-        .withVertexShader(Identifier.of("pupper", "pos_color.vsh")) // Uses pos_color.vsh.vsh
-        .withFragmentShader(Identifier.of("pupper", "pos_color.vsh")) // Uses pos_color.vsh.fsh
-        .withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST) // 3D needs depth testing
-        .withDepthWrite(false) // Usually false for ESP/Overlays to avoid glitching
-        .withBlend(BlendFunction.TRANSLUCENT)
-        .withCull(false)
-        .build()
-    );
-
-    // 3D Wireframe (Lines)
-    public static final RenderPipeline WORLD_COLORED_LINES = add(new ExtendedRenderPipelineBuilder(MESH_UNIFORMS)
-        .withLineSmooth()
-        .withLocation(Identifier.of("pupper", "pipeline/world_colored_lines"))
-        .withVertexFormat(PupperVertexFormats.POS3_COLOR, VertexFormat.DrawMode.LINES)
-        .withVertexShader(Identifier.of("pupper", "pos_color.vsh"))
-        .withFragmentShader(Identifier.of("pupper", "pos_color.vsh"))
-        .withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
-        .withDepthWrite(false)
-        .withBlend(BlendFunction.TRANSLUCENT)
-        .withCull(false)
-        .build()
-    );
-
+    
     public static final RenderPipeline UI_TEXTURED = add(new ExtendedRenderPipelineBuilder(MESH_UNIFORMS)
-        .withLocation(Identifier.of("pupper", "pipeline/ui_textured"))
-        .withVertexFormat(PupperVertexFormats.POS2_COLOR_TEX, VertexFormat.DrawMode.TRIANGLES)
-        .withVertexShader(Identifier.of("pupper", "ui_textured"))
-        .withFragmentShader(Identifier.of("pupper", "ui_textured"))
-        .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
-        .withBlend(BlendFunction.TRANSLUCENT)
-        .withDepthWrite(false)
+        .withLocation(getLocation("pipeline/ui_textured"))
+        .withVertexFormat(PupperVertexFormats.POS2_COLOR_TEX, VertexFormat.Mode.TRIANGLES)
+        .withVertexShader(getLocation("ui_textured"))
+        .withFragmentShader(getLocation("ui_textured"))
+        .withSampler("u_Texture")
+        .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+        .withCull(true)
         .build()
     );
 
     public static final RenderPipeline UI_ROUNDED_TEXTURED = add(new ExtendedRenderPipelineBuilder(MESH_UNIFORMS)
-        .withLocation(Identifier.of("pupper", "pipeline/ui_rounded_textured"))
-        .withVertexFormat(PupperVertexFormats.POS2_COLOR_TEX, VertexFormat.DrawMode.TRIANGLES)
-        .withVertexShader(Identifier.of("pupper", "ui_textured"))
-        .withFragmentShader(Identifier.of("pupper", "ui_rounded_textured")) // 指向新的 SDF Shader
-        .withBlend(BlendFunction.TRANSLUCENT)
+        .withLocation(getLocation("pipeline/ui_rounded_textured"))
+        .withVertexFormat(PupperVertexFormats.POS2_COLOR_TEX, VertexFormat.Mode.TRIANGLES)
+        .withVertexShader(getLocation("ui_textured"))
+        .withFragmentShader(getLocation("ui_rounded_textured"))
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
         .build()
     );
 
@@ -158,7 +137,7 @@ public abstract class PupperRenderPipelines {
     }
 
     private static Identifier getLocation(String path) {
-        return Identifier.of("pupper", path);
+        return Identifier.fromNamespaceAndPath("pupper", path);
     }
 }
 // based on meteor
