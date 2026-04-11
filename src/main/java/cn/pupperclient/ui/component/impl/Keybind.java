@@ -1,5 +1,6 @@
 package cn.pupperclient.ui.component.impl;
 
+import net.minecraft.client.input.KeyEvent;
 import org.lwjgl.glfw.GLFW;
 
 import cn.pupperclient.PupperClient;
@@ -76,7 +77,7 @@ public class Keybind extends Component {
 	@Override
 	public void keyPressed(int keyCode, int scanCode, int modifiers) {
 		if (binding) {
-			setKeyCode(InputConstants.getKey(keyCode, scanCode));
+			setKeyCode(InputConstants.getKey(new KeyEvent(keyCode, scanCode, modifiers)));
 			this.binding = false;
 		}
 	}

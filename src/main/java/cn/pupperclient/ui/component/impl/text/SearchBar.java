@@ -173,7 +173,7 @@ public class SearchBar extends Component {
 
 	@Override
 	public void charTyped(int chr) {
-		input.charTyped(chr, modifiers);
+		input.charTyped(chr);
 	}
 
 	public String getHintText() {
