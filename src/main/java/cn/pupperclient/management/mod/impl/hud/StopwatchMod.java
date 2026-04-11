@@ -2,6 +2,7 @@ package cn.pupperclient.management.mod.impl.hud;
 
 import java.text.DecimalFormat;
 
+import net.minecraft.client.input.KeyEvent;
 import org.lwjgl.glfw.GLFW;
 
 import cn.pupperclient.event.EventBus;
@@ -21,7 +22,7 @@ public class StopwatchMod extends SimpleHUDMod {
 	private DecimalFormat timeFormat = new DecimalFormat("0.00");
 
 	private KeybindSetting keybindSetting = new KeybindSetting("setting.keybind", "setting.keybind.description",
-			Icon.KEYBOARD, this, InputConstants.getKey(GLFW.GLFW_KEY_P, 0));
+			Icon.KEYBOARD, this, InputConstants.getKey(new KeyEvent(GLFW.GLFW_KEY_P, 0, 0)));
 
 	public StopwatchMod() {
 		super("mod.stopwatch.name", "mod.stopwatch.description", Icon.TIMER);

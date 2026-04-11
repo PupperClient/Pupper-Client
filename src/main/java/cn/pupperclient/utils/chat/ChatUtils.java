@@ -46,6 +46,13 @@ public class ChatUtils {
         component(Component.literal(formattedMessage));
     }
 
+    public static void addChatMessage(boolean prefix, Component message) {
+        if (message == null) return;
+
+        String formattedMessage = (prefix ? PREFIX : "") + message.getString();
+        component(Component.literal(formattedMessage));
+    }
+
     public static void addFormattedMessage(String message, ChatFormatting... formattings) {
         MutableComponent text = Component.literal(PREFIX_FORMATTED).withStyle(ChatFormatting.GRAY);
         text.append(Component.literal(message).withStyle(formattings));

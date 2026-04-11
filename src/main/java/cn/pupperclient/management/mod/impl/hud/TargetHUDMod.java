@@ -72,7 +72,7 @@ public class TargetHUDMod extends HUDMod {
 
     private void registerFabricCallbacks() {
         AttackEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
-            if (world.isClientSide && player instanceof LocalPlayer && entity instanceof Player newTarget) {
+            if (world.isClientSide() && player instanceof LocalPlayer && entity instanceof Player newTarget) {
                 updateTarget(newTarget);
             }
             return InteractionResult.PASS;
@@ -286,7 +286,7 @@ public class TargetHUDMod extends HUDMod {
     private File getSkinFile(Player player) {
         if (player instanceof AbstractClientPlayer clientPlayer) {
             if (clientPlayer.getSkin() != null) {
-                File skinFile = SkinUtils.getSkin(clientPlayer.getSkin().texture());
+                File skinFile = SkinUtils.getSkin(clientPlayer.getSkin().body().texturePath());
                 if (skinFile.exists()) {
                     return skinFile;
                 }

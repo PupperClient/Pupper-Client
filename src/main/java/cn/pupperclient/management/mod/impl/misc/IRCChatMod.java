@@ -11,6 +11,7 @@ import cn.pupperclient.management.mod.settings.impl.BooleanSetting;
 import cn.pupperclient.management.mod.settings.impl.NumberSetting;
 import cn.pupperclient.management.mod.settings.impl.StringSetting;
 import cn.pupperclient.skia.font.Icon;
+import cn.pupperclient.utils.chat.ChatUtils;
 import cn.pupperclient.utils.minecraft.interfaces.IMinecraft;
 import java.io.IOException;
 import net.minecraft.network.chat.Component;
@@ -70,7 +71,7 @@ public class IRCChatMod extends Mod implements IMinecraft, IRCHandler {
     public void onMessage(String sender, String message) throws IOException {
         if (showMessagesSetting.isEnabled() && client.player != null) {
             String formattedMessage = String.format("§9[IRC] §b%s§f: %s", sender, message);
-            client.player.displayClientMessage(Component.nullToEmpty(formattedMessage), false);
+            ChatUtils.addChatMessage(Component.nullToEmpty(formattedMessage));
         }
     }
 
@@ -81,7 +82,7 @@ public class IRCChatMod extends Mod implements IMinecraft, IRCHandler {
         PupperClient.LOGGER.warn("IRC disconnected: {}", message);
 
         if (client.player != null) {
-            client.player.displayClientMessage(Component.nullToEmpty("§cIRC disconnected: " + message), false);
+            ChatUtils.addChatMessage(Component.nullToEmpty("§cIRC disconnected: " + message));
         }
 
         // Schedule reconnect if auto-connect is enabled
@@ -97,7 +98,7 @@ public class IRCChatMod extends Mod implements IMinecraft, IRCHandler {
         PupperClient.LOGGER.info("IRC connected successfully");
 
         if (client.player != null) {
-            client.player.displayClientMessage(Component.nullToEmpty("§aConnected to IRC server!"), false);
+            ChatUtils.addChatMessage(Component.nullToEmpty("§aConnected to IRC server!"));
         }
     }
 
@@ -105,7 +106,7 @@ public class IRCChatMod extends Mod implements IMinecraft, IRCHandler {
     public String getInGameUsername() {
         // Use Minecraft username if available, otherwise use setting
         if (client.player != null) {
-            return client.player.getGameProfile().getName();
+            return client.player.getGameProfile().name();
         }
         return usernameSetting.getValue();
     }
@@ -153,7 +154,7 @@ public class IRCChatMod extends Mod implements IMinecraft, IRCHandler {
                 PupperClient.LOGGER.error("Failed to create IRC transport", e);
 
                 if (client.player != null) {
-                    client.player.displayClientMessage(Component.nullToEmpty("§cFailed to connect to IRC: " + e.getMessage()), false);
+                    ChatUtils.addChatMessage(Component.nullToEmpty("§cFailed to connect to IRC: " + e.getMessage()));
                 }
 
                 transport = null;
@@ -210,7 +211,7 @@ public class IRCChatMod extends Mod implements IMinecraft, IRCHandler {
 
     private void sendChatMessage(String message) {
         if (client.player != null) {
-            client.player.displayClientMessage(Component.nullToEmpty(message), false);
+            ChatUtils.addChatMessage(Component.nullToEmpty(message));
         }
     }
 

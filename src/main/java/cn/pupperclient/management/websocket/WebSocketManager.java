@@ -80,7 +80,7 @@ public class WebSocketManager {
 
         if (!currentGameProfile.equals(newProfile)) {
             LOGGER.info("User changed from {} to {}, reconnecting",
-                currentGameProfile.getName(), newProfile.getName());
+                currentGameProfile.name(), newProfile.name());
             retryCount = 0;
             return true;
         }
@@ -157,8 +157,8 @@ public class WebSocketManager {
 
     private SoarWebSocketClient createWebSocketClient() throws URISyntaxException {
         Map<String, String> headers = new HashMap<>();
-        headers.put("name", currentGameProfile.getName());
-        headers.put("uuid", currentGameProfile.getId().toString().replace("-", ""));
+        headers.put("name", currentGameProfile.name());
+        headers.put("uuid", currentGameProfile.id().toString().replace("-", ""));
 
         return new SoarWebSocketClient(headers, this::onConnectionFailure);
     }

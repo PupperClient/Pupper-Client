@@ -29,7 +29,7 @@ public class FallDamageHelp extends SimpleHUDMod {
             return false;
         }
 
-        Level world = player.getCommandSenderWorld();
+        Level world = player.level();
         double currentY = player.getY();
         BlockPos playerBlockPos = player.blockPosition();
 

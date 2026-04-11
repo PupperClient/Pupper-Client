@@ -5,6 +5,7 @@ import java.util.Objects;
 import net.minecraft.client.gui.screens.Screen;
 import cn.pupperclient.PupperClient;
 import cn.pupperclient.gui.MusicPlayGui;
+import net.minecraft.client.input.KeyEvent;
 import org.lwjgl.glfw.GLFW;
 
 import cn.pupperclient.event.EventBus;
@@ -31,9 +32,9 @@ public class ModMenuSettings extends Mod {
 	private boolean languageInitialized = false;
 
 	private KeybindSetting keybindSetting = new KeybindSetting("setting.keybind", "setting.keybind.description",
-			Icon.KEYBOARD, this, InputConstants.getKey(GLFW.GLFW_KEY_RIGHT_SHIFT, 0));
+			Icon.KEYBOARD, this, InputConstants.getKey(new KeyEvent(GLFW.GLFW_KEY_RIGHT_SHIFT, 0, 0)));
     private KeybindSetting keybindSetting_music = new KeybindSetting("setting.keybind_music", "setting.keybind_music.description",
-        Icon.KEYBOARD, this, InputConstants.getKey(GLFW.GLFW_KEY_M, 0));
+        Icon.KEYBOARD, this, InputConstants.getKey(new KeyEvent(GLFW.GLFW_KEY_M, 0, 0)));
 	private BooleanSetting darkModeSetting = new BooleanSetting("setting.darkmode", "setting.darkmode.description",
 			Icon.DARK_MODE, this, false);
 	private HctColorSetting hctColorSetting = new HctColorSetting("setting.color", "setting.color.description",

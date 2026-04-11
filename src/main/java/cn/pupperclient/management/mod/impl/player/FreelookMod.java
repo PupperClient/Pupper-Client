@@ -2,6 +2,7 @@ package cn.pupperclient.management.mod.impl.player;
 
 import java.util.Arrays;
 import net.minecraft.client.CameraType;
+import net.minecraft.client.input.KeyEvent;
 import org.lwjgl.glfw.GLFW;
 
 import cn.pupperclient.event.EventBus;
@@ -26,7 +27,7 @@ public class FreelookMod extends Mod {
 	private BooleanSetting toggleSetting = new BooleanSetting("setting.toggle", "setting.toggle.description",
 			Icon.SWITCH, this, false);
 	private KeybindSetting keybindSetting = new KeybindSetting("setting.keybind", "setting.keybind.description",
-			Icon.KEYBOARD, this, InputConstants.getKey(GLFW.GLFW_KEY_B, 0));
+			Icon.KEYBOARD, this, InputConstants.getKey(new KeyEvent(GLFW.GLFW_KEY_B, 0, 0)));
 
 	public FreelookMod() {
 		super("mod.freelook.name", "mod.freelook.description", Icon._360, ModCategory.PLAYER);
