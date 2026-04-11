@@ -34,7 +34,7 @@ public class PupperClient implements IMinecraft {
     private static final String CONFIG_FILE_NAME = "pupper.ok";
     private static final String ICON_PATH = "assets/pupper/logo.png";
     private static final String CLIENT_NAME = "Pupper Client";
-    private static final String CLIENT_VERSION = "26.1.1";
+    private static final String CLIENT_VERSION = "mc26.1.2-pupper26.4.1";
     private static final String MOD_ID = "pupper";
 
     private static final PupperClient INSTANCE = new PupperClient();
