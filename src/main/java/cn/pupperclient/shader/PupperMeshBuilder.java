@@ -1,0 +1,175 @@
+package cn.pupperclient.shader;
+
+import cn.pupperclient.utils.color.Color;
+import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.fabricmc.loader.api.FabricLoader;
+import org.lwjgl.BufferUtils;
+
+import java.nio.ByteBuffer;
+
+import static org.lwjgl.system.MemoryUtil.*;
+
+public class PupperMeshBuilder {
+    private static final boolean DEBUG = FabricLoader.getInstance().isDevelopmentEnvironment();
+
+    public double alpha = 1;
+
+    private final VertexFormat format;
+    private final int primitiveVerticesSize;
+    private final int primitiveIndicesCount;
+
+    private ByteBuffer vertices = null;
+    private long verticesPointerStart, verticesPointer;
+
+    private ByteBuffer indices = null;
+    private long indicesPointer;
+
+    private int vertexI, indicesCount;
+
+    private boolean building;
+    private double cameraX, cameraZ;
+
+    public PupperMeshBuilder(RenderPipeline pipeline) {
+        this(pipeline.getVertexFormat(), pipeline.getVertexFormatMode());
+    }
+
+    public PupperMeshBuilder(VertexFormat format, VertexFormat.Mode mode) {
+        this.format = format;
+        primitiveVerticesSize = format.getVertexSize();
+        primitiveIndicesCount = mode.connectedPrimitives ? mode.primitiveStride : mode.primitiveLength;
+    }
+
+    public void begin() {
+        if (building) throw new IllegalStateException("Mesh.begin() called while already building.");
+
+        verticesPointer = verticesPointerStart;
+        vertexI = 0;
+        indicesCount = 0;
+
+        building = true;
+
+        cameraX = 0;
+        cameraZ = 0;
+    }
+
+    public PupperMeshBuilder vec3(double x, double y, double z) {
+        debugVertexBufferCapacity();
+
+        long p = verticesPointer;
+
+        memPutFloat(p, (float) (x - cameraX));
+        memPutFloat(p + 4, (float) y);
+        memPutFloat(p + 8, (float) (z - cameraZ));
+
+        verticesPointer += 12;
+        return this;
+    }
+
+    public PupperMeshBuilder vec2(double x, double y) {
+        debugVertexBufferCapacity();
+
+        long p = verticesPointer;
+
+        memPutFloat(p, (float) x);
+        memPutFloat(p + 4, (float) y);
+
+        verticesPointer += 8;
+        return this;
+    }
+
+    public PupperMeshBuilder color(Color c) {
+        debugVertexBufferCapacity();
+
+        long p = verticesPointer;
+
+        memPutByte(p, (byte) c.r);
+        memPutByte(p + 1, (byte) c.g);
+        memPutByte(p + 2, (byte) c.b);
+        memPutByte(p + 3, (byte) (c.a * (float) alpha));
+
+        verticesPointer += 4;
+        return this;
+    }
+
+    public int next() {
+        return vertexI++;
+    }
+
+    public void line(int i1, int i2) {
+        growIfNeeded();
+        memPutInt(indicesPointer, i1);
+        memPutInt(indicesPointer + 4, i2);
+        indicesPointer += 8;
+        indicesCount += 2;
+    }
+
+    public void quad(int i1, int i2, int i3, int i4) {
+        growIfNeeded();
+        memPutInt(indicesPointer, i1);
+        memPutInt(indicesPointer + 4, i2);
+        memPutInt(indicesPointer + 8, i3);
+        memPutInt(indicesPointer + 12, i1);
+        memPutInt(indicesPointer + 16, i3);
+        memPutInt(indicesPointer + 20, i4);
+        indicesPointer += 24;
+        indicesCount += 6;
+    }
+
+    public void growIfNeeded() {
+        if (getVerticesOffset() + primitiveVerticesSize >= vertices.capacity()) {
+            int newSize = vertices.capacity() * 2;
+            int offset = getVerticesOffset();
+            ByteBuffer newVertices = BufferUtils.createByteBuffer(newSize);
+            memCopy(verticesPointerStart, memAddress0(newVertices), offset);
+            vertices = newVertices;
+            verticesPointerStart = memAddress0(vertices);
+            verticesPointer = verticesPointerStart + offset;
+        }
+
+        if ((indicesCount + primitiveIndicesCount) * 4 >= indices.capacity()) {
+            int newSize = indices.capacity() * 2;
+            ByteBuffer newIndices = BufferUtils.createByteBuffer(newSize);
+            memCopy(memAddress0(indices), memAddress0(newIndices), indicesCount * 4L);
+            indices = newIndices;
+            indicesPointer = memAddress0(indices);
+        }
+    }
+
+    public void end() {
+        building = false;
+    }
+
+    public GpuBuffer getVertexBuffer() {
+        vertices.limit(getVerticesOffset());
+        return format.uploadImmediateVertexBuffer(vertices);
+    }
+
+    public GpuBuffer getIndexBuffer() {
+        indices.limit(indicesCount * 4);
+        return format.uploadImmediateIndexBuffer(indices);
+    }
+
+    public PupperMeshBuilder tex2(float u, float v) {
+        memPutFloat(verticesPointer, u);
+        memPutFloat(verticesPointer + 4, v);
+        verticesPointer += 8;
+        return this;
+    }
+
+    public int getIndicesCount() { return indicesCount; }
+    private int getVerticesOffset() { return (int) (verticesPointer - verticesPointerStart); }
+
+    private void debugVertexBufferCapacity() {
+        if (DEBUG && (vertices == null || vertexI * primitiveVerticesSize >= vertices.capacity())) {
+            throw new IndexOutOfBoundsException("Vertices written to MeshBuilder without calling 'ensureCapacity()' first!");
+        }
+    }
+
+    private void debugIndexBufferCapacity() {
+        if (DEBUG && (indices == null || indicesCount * Integer.BYTES >= indices.capacity())) {
+            throw new IndexOutOfBoundsException("Indices written to MeshBuilder without calling 'ensureCapacity()' first!");
+        }
+    }
+}

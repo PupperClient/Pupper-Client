@@ -2,6 +2,7 @@ package cn.pupperclient.mixin.mixins.minecraft.client;
 
 import java.io.File;
 import java.io.IOException;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.screens.Screen;
@@ -18,9 +19,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.HitResult.Type;
 import cn.pupperclient.event.client.RenderSkiaEvent;
 import cn.pupperclient.gui.api.SimpleSoarGui;
-import cn.pupperclient.shader.impl.Kawaseblur;
 import com.mojang.blaze3d.platform.Window;
-import com.mojang.blaze3d.systems.RenderSystem;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -60,7 +59,8 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 	@Shadow
 	public ParticleEngine particleEngine;
 
-	@Shadow
+	@Final
+    @Shadow
 	public Options options;
 
 	@Shadow
@@ -120,7 +120,6 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 	private void onHitDelayFix(CallbackInfoReturnable<Boolean> cir) {
 		if (HitDelayFixMod.getInstance().isEnabled()) {
 			missTime = 0;
-            RenderSystem.defaultBlendFunc();
 		}
 	}
 
@@ -172,12 +171,6 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
         }
         SkiaContext.draw(canvas -> EventBus.getInstance().post(new RenderSkiaEvent(canvas)));
     }
-
-	@Inject(method = "resizeDisplay", at = @At("TAIL"))
-	public void onResolutionChanged(CallbackInfo info) {
-		Kawaseblur.GUI_BLUR.resize();
-        Kawaseblur.INGAME_BLUR.resize();
-	}
 
 	@Override
 	public File getAssetDir() {

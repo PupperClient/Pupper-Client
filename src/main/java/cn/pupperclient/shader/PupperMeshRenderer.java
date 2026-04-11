@@ -1,0 +1,148 @@
+package cn.pupperclient.shader;
+
+import cn.pupperclient.utils.color.Color;
+import com.ibm.icu.impl.Pair;
+import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.systems.RenderPass;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.GpuSampler;
+import com.mojang.blaze3d.textures.GpuTextureView;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.util.ARGB;
+import net.minecraft.util.Tuple;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
+
+import java.util.HashMap;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+
+public class PupperMeshRenderer {
+    private static final PupperMeshRenderer INSTANCE = new PupperMeshRenderer();
+
+    private static boolean taken;
+
+    private GpuTextureView colorAttachment;
+    private GpuTextureView depthAttachment;
+    private Color clearColor;
+    private RenderPipeline pipeline;
+    private @Nullable PupperMeshBuilder mesh;
+    private @Nullable GpuBuffer vertexBuffer;
+    private @Nullable GpuBuffer indexBuffer;
+    private Matrix4f matrix;
+    private final HashMap<String, GpuBufferSlice> uniforms = new HashMap<>();
+    private final HashMap<String, Tuple<GpuTextureView, GpuSampler>> samplers = new HashMap<>();
+
+    PupperMeshRenderer() {}
+
+    public static PupperMeshRenderer begin() {
+        if (taken) throw new IllegalStateException("MeshRenderer already taken.");
+        taken = true;
+
+        return INSTANCE;
+    }
+
+    public PupperMeshRenderer attachments(GpuTextureView color, GpuTextureView depth) {
+        colorAttachment = color;
+        depthAttachment = depth;
+        return this;
+    }
+
+    public PupperMeshRenderer pipeline(RenderPipeline pipeline) {
+        this.pipeline = pipeline;
+        return this;
+    }
+
+    public PupperMeshRenderer mesh(PupperMeshBuilder mesh) {
+        this.mesh = mesh;
+        return this;
+    }
+
+    public PupperMeshRenderer mesh(PupperMeshBuilder mesh, Matrix4f matrix) {
+        this.mesh = mesh;
+        return this.transform(matrix);
+    }
+
+    public PupperMeshRenderer mesh(PupperMeshBuilder mesh, PoseStack matrices) {
+        this.mesh = mesh;
+        return this.transform(matrices);
+    }
+
+    public PupperMeshRenderer mesh(GpuBuffer vertices, GpuBuffer indices) {
+        this.vertexBuffer = vertices;
+        this.indexBuffer = indices;
+        return this;
+    }
+
+    public PupperMeshRenderer transform(Matrix4f matrix) {
+        this.matrix = matrix;
+        return this;
+    }
+
+    public PupperMeshRenderer transform(PoseStack matrices) {
+        this.matrix = matrices.last().pose();
+        return this;
+    }
+
+    public PupperMeshRenderer fullscreen() {
+        return this.mesh(PupperFullScreenRenderer.vbo, PupperFullScreenRenderer.ibo);
+    }
+
+    public PupperMeshRenderer uniform(String name, GpuBufferSlice slice) {
+        uniforms.put(name, slice);
+        return this;
+    }
+
+    public PupperMeshRenderer sampler(String name, GpuTextureView view, GpuSampler sampler) {
+        if (name != null && view != null && sampler != null) {
+            samplers.put(name, new Tuple<>(view, sampler));
+        }
+
+        return this;
+    }
+
+    public void end() {
+        int indexCount = mesh != null ? mesh.getIndicesCount()
+            : (int) (indexBuffer != null ? indexBuffer.size() / Integer.BYTES : -1);
+
+        if (pipeline != null && mesh != null && indexCount > 0) {
+            GpuBuffer vertexBuffer = mesh.getVertexBuffer();
+            GpuBuffer indexBuffer = mesh != null ? mesh.getIndexBuffer() : this.indexBuffer;
+
+            if (vertexBuffer != null && indexBuffer != null) {
+                GpuBufferSlice meshData = MeshUniforms.write(RenderUtils.projection, RenderSystem.getModelViewStack());
+
+                OptionalInt clearColor = this.clearColor != null ?
+                    OptionalInt.of(ARGB.color(this.clearColor.a, this.clearColor.r, this.clearColor.g, this.clearColor.b)) :
+                    OptionalInt.empty();
+
+                RenderPass pass = (depthAttachment != null && pipeline.wantsDepthTexture()) ?
+                    RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "Meteor MeshRenderer", colorAttachment, clearColor, depthAttachment, OptionalDouble.empty()) :
+                    RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "Meteor MeshRenderer", colorAttachment, clearColor);
+
+                pass.setPipeline(pipeline);
+
+                pass.setUniform("MeshData", meshData);
+
+                pass.setVertexBuffer(0, vertexBuffer);
+                pass.setIndexBuffer(indexBuffer, VertexFormat.IndexType.INT);
+                pass.drawIndexed(0, 0, indexCount, 1);
+
+                pass.close();
+            }
+        }
+
+        colorAttachment = null;
+        depthAttachment = null;
+        clearColor = null;
+        pipeline = null;
+        mesh = null;
+        matrix = null;
+
+        taken = false;
+    }
+}
+// based on meteor
