@@ -10,12 +10,12 @@ loom = "1.16-SNAPSHOT"
 
 # mod
 sodium = "mc26.1.1-0.8.9-fabric"
-lithium = "mc26.1.1-0.23.0-fabric"
+lithium = "mc26.1.2-0.24.1-fabric"
 iris = "1.10.9+26.1-fabric"
 modmenu = "18.0.0-alpha.8"
-viafabricplus = "4.5.1"
-immediatelyfast = "1.15.1+26.1.1-fabric"
-# entityculling = "YSbzFHRt"
+viafabricplus = "4.5.2"
+immediatelyfast = "1.15.2+26.1.2-fabric"
+entityculling = "NaRJu6ah"
 
 # lib
 lwjgl = "3.4.1"
@@ -48,7 +48,7 @@ modmenu = { module = "maven.modrinth:modmenu", version.ref = "modmenu" }
 viafabricplus = { module = "com.viaversion:viafabricplus", version.ref = "viafabricplus" }
 viafabricplus-api = { module = "com.viaversion:viafabricplus-api", version.ref = "viafabricplus" }
 immediatelyfast = { module = "maven.modrinth:immediatelyfast", version.ref = "immediatelyfast" }
-# entityculling = { module = "maven.modrinth:entityculling", version.ref = "entityculling" }
+entityculling = { module = "maven.modrinth:entityculling", version.ref = "entityculling" }
 
 # lib
 smartboot-aio = { module = "io.github.smartboot.socket:aio-core", version.ref = "smartboot-aio" }

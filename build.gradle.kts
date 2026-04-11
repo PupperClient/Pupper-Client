@@ -1,5 +1,3 @@
-import net.fabricmc.loom.task.RemapJarTask
-
 plugins {
     alias(libs.plugins.fabric.loom)
 }
@@ -52,7 +50,7 @@ dependencies {
     runtimeOnly(libs.iris)
     runtimeOnly(libs.lithium)
     runtimeOnly(libs.immediatelyfast)
-    // runtimeOnly(libs.entityculling)
+    runtimeOnly(libs.entityculling)
     implementation(libs.modmenu)
     implementation(libs.viafabricplus)
 
