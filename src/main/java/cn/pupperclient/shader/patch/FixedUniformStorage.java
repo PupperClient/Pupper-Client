@@ -66,12 +66,12 @@ public class FixedUniformStorage<T extends DynamicUniformStorage.DynamicUniform>
 
             try (GpuBuffer.MappedView mappedView = RenderSystem.getDevice()
                 .createCommandEncoder()
-                .mapBuffer(ubo.slice(i, values.length * this.blockSize), false, true)) {
+                .mapBuffer(ubo.slice(i, (long) values.length * this.blockSize), false, true)) {
                 ByteBuffer byteBuffer = mappedView.data();
 
                 for (int j = 0; j < values.length; j++) {
                     T uploadable = values[j];
-                    gpuBufferSlices[j] = ubo.slice(i + j * this.blockSize, this.blockSize);
+                    gpuBufferSlices[j] = ubo.slice(i + (long) j * this.blockSize, this.blockSize);
                     byteBuffer.position(j * this.blockSize);
                     uploadable.write(byteBuffer);
                 }

@@ -1,30 +1,31 @@
 package cn.pupperclient.shader;
 
-import com.mojang.blaze3d.systems.RenderPass;
-import net.minecraft.client.MinecraftClient;
-
-import java.util.function.Consumer;
+import com.mojang.blaze3d.textures.GpuSampler;
+import com.mojang.blaze3d.textures.GpuTextureView;
+import net.minecraft.client.Minecraft;
 
 public class PupperRenderer2D {
     public static PupperRenderer2D COLOR;
+    public static PupperRenderer2D TEXTURE;
+
+    private final boolean textured;
 
     public final PupperMeshBuilder triangles;
     public final PupperMeshBuilder lines;
-    public final PupperMeshBuilder texturedMesh;
 
-    public PupperRenderer2D() {
-        triangles = new PupperMeshBuilder(PupperRenderPipelines.UI_COLORED);
+    public PupperRenderer2D(boolean textured) {
+        triangles = new PupperMeshBuilder(textured ? PupperRenderPipelines.UI_TEXTURED : PupperRenderPipelines.UI_COLORED);
         lines = new PupperMeshBuilder(PupperRenderPipelines.UI_COLORED_LINES);
-        texturedMesh = new PupperMeshBuilder(PupperRenderPipelines.UI_TEXTURED);
+        this.textured = textured;
     }
 
-    public static void init() {
-        COLOR = new PupperRenderer2D();
+    static {
+        COLOR = new PupperRenderer2D(false);
+        TEXTURE = new PupperRenderer2D(true);
     }
 
     public void setAlpha(double alpha) {
         triangles.alpha = alpha;
-        lines.alpha = alpha;
     }
 
     public void begin() {
@@ -35,28 +36,35 @@ public class PupperRenderer2D {
     public void end() {
         triangles.end();
         lines.end();
-
-        render(null);
     }
 
-    public void render(Consumer<RenderPass> setupCallback) {
-        if (triangles.getIndicesCount() > 0) {
-            PupperMeshRenderer.begin()
-                .attachments(MinecraftClient.getInstance().getFramebuffer())
-                .pipeline(PupperRenderPipelines.UI_COLORED)
-                .mesh(triangles)
-                .setupCallback(setupCallback)
-                .end();
-        }
+    public void render() {
+        render(null, null, null);
+    }
 
-        if (lines.getIndicesCount() > 0) {
-            PupperMeshRenderer.begin()
-                .attachments(MinecraftClient.getInstance().getFramebuffer())
-                .pipeline(PupperRenderPipelines.UI_COLORED_LINES)
-                .mesh(lines)
-                .setupCallback(setupCallback)
-                .end();
-        }
+    public void render(GpuTextureView textureView, GpuSampler sampler) {
+        if (!textured)
+            throw new IllegalStateException("Tried to render with a texture with a non-textured Renderer2D");
+
+        render("u_Texture", textureView, sampler);
+    }
+
+    public void render(String samplerName, GpuTextureView samplerView, GpuSampler sampler) {
+        if (lines.isBuilding()) lines.end();
+        if (triangles.isBuilding()) triangles.end();
+
+        MeshRenderer.begin()
+            .attachments(Minecraft.getInstance().getMainRenderTarget())
+            .pipeline(MeteorRenderPipelines.UI_COLORED_LINES)
+            .mesh(lines)
+            .end();
+
+        MeshRenderer.begin()
+            .attachments(Minecraft.getInstance().getMainRenderTarget())
+            .pipeline(textured ? MeteorRenderPipelines.UI_TEXTURED : MeteorRenderPipelines.UI_COLORED)
+            .mesh(triangles)
+            .sampler(samplerName, samplerView, sampler)
+            .end();
     }
 
     public void quad(double x, double y, double width, double height, int color) {

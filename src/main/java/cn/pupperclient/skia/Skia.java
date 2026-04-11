@@ -58,18 +58,19 @@ public class Skia {
         getCanvas().drawRRect(RRect.makeComplexXYWH(x, y, width, height, corners), setupPaint(color));
     }
 
+    // TODO: fix Draw Blur Texture in anywhere
     public static void drawBlur(float x, float y, float width, float height) {
 
         if (HUDModSettings.getInstance().getBlurSetting().isEnabled()) {
 
-            Window window = Minecraft.getInstance().getWindow();
-            try (Path path = Path.makeRect(Rect.makeXYWH(x, y, width, height))) {
-                save();
-                getCanvas().clipPath(path, ClipMode.INTERSECT, true);
-                drawImage(Kawaseblur.INGAME_BLUR.getTexture(), 0, 0, window.getGuiScaledWidth(), window.getGuiScaledHeight(), 1F,
-                    SurfaceOrigin.BOTTOM_LEFT);
-                restore();
-            }
+//            Window window = Minecraft.getInstance().getWindow();
+//            try (Path path = Path.makeRect(Rect.makeXYWH(x, y, width, height))) {
+//                save();
+//                getCanvas().clipPath(path, ClipMode.INTERSECT, true);
+//                drawImage(Kawaseblur.INGAME_BLUR.getTexture(), 0, 0, window.getGuiScaledWidth(), window.getGuiScaledHeight(), 1F,
+//                    SurfaceOrigin.BOTTOM_LEFT);
+//                restore();
+//            }
         }
     }
 
@@ -77,14 +78,14 @@ public class Skia {
 
         if (HUDModSettings.getInstance().getBlurSetting().isEnabled()) {
 
-            Window window = Minecraft.getInstance().getWindow();
-            try (Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, radius))) {
-                save();
-                getCanvas().clipPath(path, ClipMode.INTERSECT, true);
-                drawImage(Kawaseblur.INGAME_BLUR.getTexture(), 0, 0, window.getGuiScaledWidth(), window.getGuiScaledHeight(), 1F,
-                    SurfaceOrigin.BOTTOM_LEFT);
-                restore();
-            }
+//            Window window = Minecraft.getInstance().getWindow();
+//            try (Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, radius))) {
+//                save();
+//                getCanvas().clipPath(path, ClipMode.INTERSECT, true);
+//                drawImage(Kawaseblur.INGAME_BLUR.getTexture(), 0, 0, window.getGuiScaledWidth(), window.getGuiScaledHeight(), 1F,
+//                    SurfaceOrigin.BOTTOM_LEFT);
+//                restore();
+//            }
         }
     }
 

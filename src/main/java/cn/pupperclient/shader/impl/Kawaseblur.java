@@ -2,18 +2,18 @@ package cn.pupperclient.shader.impl;
 
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.EventListener;
-import cn.pupperclient.event.client.FramebufferSizeEvent;
+import cn.pupperclient.event.client.ResolutionChangedEvent;
+import cn.pupperclient.gui.modmenu.GuiModMenu;
+import cn.pupperclient.management.mod.impl.settings.HUDModSettings;
+import cn.pupperclient.management.mod.impl.settings.ModMenuSettings;
 import cn.pupperclient.shader.*;
 import cn.pupperclient.shader.patch.FixedUniformStorage;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.buffers.Std140Builder;
 import com.mojang.blaze3d.buffers.Std140SizeCalculator;
-import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.systems.CommandEncoder;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.FilterMode;
-import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.textures.TextureFormat;
 import it.unimi.dsi.fastutil.ints.IntFloatImmutablePair;
@@ -24,8 +24,7 @@ import org.jspecify.annotations.NonNull;
 import java.nio.ByteBuffer;
 
 public class Kawaseblur {
-    public static final Kawaseblur GUI_BLUR = new Kawaseblur();
-    public static final Kawaseblur INGAME_BLUR = new Kawaseblur();
+    // public static final Kawaseblur INGAME_BLUR = new Kawaseblur();
     private final Minecraft mc = Minecraft.getInstance();
 
     private final IntFloatImmutablePair[] strengths = new IntFloatImmutablePair[]{
@@ -66,21 +65,67 @@ public class Kawaseblur {
         }
     }
 
-    public void draw(CommandEncoder encoder, int iterations) {
-        if (iterations <= 0) return;
-        GpuTextureView mainFbo = mc.getFramebuffer();
+    public void draw() {
+        boolean shouldRender = shouldRender();
+        long time = System.currentTimeMillis();
 
-        renderPass(encoder, fbos[0], mainFbo.getColorAttachment(), PupperRenderPipelines.PASSTHROUGH, 0);
+        if (enabled) {
+            if (!shouldRender) {
+                if (fadeEndAt == -1) fadeEndAt = System.currentTimeMillis() + 100;
+
+                if (time >= fadeEndAt) {
+                    enabled = false;
+                    fadeEndAt = -1;
+                }
+            }
+        } else {
+            if (shouldRender) {
+                enabled = true;
+                fadeEndAt = System.currentTimeMillis() + 100;
+            }
+        }
+
+        if (!enabled) return;
+
+        // Update progress
+        double progress = 1;
+
+        if (time < fadeEndAt) {
+            if (shouldRender) progress = 1 - (fadeEndAt - time) / 100f;
+            else progress = (fadeEndAt - time) / 100f;
+        } else {
+            fadeEndAt = -1;
+        }
+
+        // Update strength
+        int blur_intensity = getBlurIntensity();
+
+        IntFloatImmutablePair blur_strength = strengths[(int) ((blur_intensity - 1) * progress)];
+        int iterations = blur_strength.leftInt();
+        float offset = blur_strength.rightFloat();
+
+        // Update uniforms
+        if (previousOffset != offset) {
+            updateUniforms(offset);
+            previousOffset = offset;
+        }
+
+        renderToFbo(fbos[0], mc.getMainRenderTarget().getColorTextureView(), PupperRenderPipelines.BLUR_DOWN, ubos[0]);
 
         for (int i = 0; i < iterations; i++) {
-            renderPass(encoder, fbos[Math.min(i + 1, 4)], fbos[i].getColorAttachment(), PupperRenderPipelines.BLUR_DOWN, i);
+            renderToFbo(fbos[i + 1], fbos[i], PupperRenderPipelines.BLUR_DOWN, ubos[i + 1]);
         }
 
-        for (int i = iterations; i > 0; i--) {
-            renderPass(encoder, fbos[i - 1], fbos[i].getColorAttachment(), PupperRenderPipelines.BLUR_UP, i);
+        for (int i = iterations; i >= 1; i--) {
+            renderToFbo(fbos[i - 1], fbos[i], PupperRenderPipelines.BLUR_UP, ubos[i - 1]);
         }
 
-        renderPass(encoder, mainFbo, fbos[0].getColorAttachment(), PupperRenderPipelines.PASSTHROUGH, 0);
+        PupperMeshRenderer.begin()
+            .attachments(mc.getMainRenderTarget())
+            .pipeline(PupperRenderPipelines.PASSTHROUGH)
+            .fullscreen()
+            .sampler("u_Texture", fbos[0], RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR)) // todo ???
+            .end();
     }
 
     private void renderToFbo(GpuTextureView targetFbo, GpuTextureView sourceTexture, RenderPipeline pipeline, GpuBufferSlice ubo) {
@@ -93,37 +138,33 @@ public class Kawaseblur {
             .end();
     }
 
+    @SuppressWarnings("unused")
     public GpuTextureView[] getFbos() {
         return fbos;
     }
 
-    private GpuTextureView createFbo(int i, int baseWidth, int baseHeight) {
+    private GpuTextureView createFbo(int i) {
         double scale = 1 / Math.pow(2, i);
-        int width = (int) (baseWidth * scale);
-        int height = (int) (baseHeight * scale);
 
-        width = Math.max(width, 1);
-        height = Math.max(height, 1);
+        int width = (int) (mc.getWindow().getWidth() * scale);
+        int height = (int) (mc.getWindow().getHeight() * scale);
 
-        return RenderSystem.getDevice().createTextureView(RenderSystem.getDevice().createTexture("Blur - " + i, 15,  TextureFormat.RGBA8, width, height, 1, 1));
+        return RenderSystem.getDevice().createTextureView(RenderSystem.getDevice().createTexture("Blur - " + i, 15, TextureFormat.RGBA8, width, height, 1, 1));
     }
 
-    private void rebuildFbos(int w, int h) {
+    private void rebuildFbos() {
         for (int i = 0; i < fbos.length; i++) {
             if (fbos[i] != null) {
                 fbos[i].close();
             }
-            fbos[i] = createFbo(i, w, h);
+            fbos[i] = createFbo(i);
         }
         previousOffset = -1;
     }
 
     @EventListener
-    private void onFramebufferSize(FramebufferSizeEvent event) {
-        int newWidth = event.getWidth();
-        int newHeight = event.getHeight();
-
-        rebuildFbos(newWidth, newHeight);
+    private void onResolutionChanged(ResolutionChangedEvent event) {
+        rebuildFbos();
     }
 
     // Uniforms
@@ -156,5 +197,16 @@ public class Kawaseblur {
                 .putVec2(halfTexelSizeX, halfTexelSizeY)
                 .putFloat(offset);
         }
+    }
+
+    private int getBlurIntensity() {
+        if (HUDModSettings.getInstance().getBlurSetting().isEnabled()) {
+            return (int) ModMenuSettings.getInstance().getBlurIntensitySetting().getValue();
+        }
+        return 5;
+    }
+
+    private boolean shouldRender() {
+        return mc.screen instanceof GuiModMenu;
     }
 }

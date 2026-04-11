@@ -1,10 +1,11 @@
 package cn.pupperclient.shader;
 
 import cn.pupperclient.utils.color.Color;
-import com.ibm.icu.impl.Pair;
+import cn.pupperclient.utils.render.RenderUtils;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.GpuSampler;
@@ -43,6 +44,12 @@ public class PupperMeshRenderer {
         taken = true;
 
         return INSTANCE;
+    }
+
+    public PupperMeshRenderer attachments(RenderTarget framebuffer) {
+        colorAttachment = framebuffer.getColorTextureView();
+        depthAttachment = framebuffer.getDepthTextureView();
+        return this;
     }
 
     public PupperMeshRenderer attachments(GpuTextureView color, GpuTextureView depth) {
@@ -120,12 +127,19 @@ public class PupperMeshRenderer {
                     OptionalInt.empty();
 
                 RenderPass pass = (depthAttachment != null && pipeline.wantsDepthTexture()) ?
-                    RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "Meteor MeshRenderer", colorAttachment, clearColor, depthAttachment, OptionalDouble.empty()) :
-                    RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "Meteor MeshRenderer", colorAttachment, clearColor);
+                    RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "Pupper MeshRenderer", colorAttachment, clearColor, depthAttachment, OptionalDouble.empty()) :
+                    RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "Pupper MeshRenderer", colorAttachment, clearColor);
 
                 pass.setPipeline(pipeline);
-
                 pass.setUniform("MeshData", meshData);
+
+                for (var entry : uniforms.entrySet()) {
+                    pass.setUniform(entry.getKey(), entry.getValue());
+                }
+
+                for (var entry : samplers.entrySet()) {
+                    pass.bindTexture(entry.getKey(), entry.getValue().getA(), entry.getValue().getB());
+                }
 
                 pass.setVertexBuffer(0, vertexBuffer);
                 pass.setIndexBuffer(indexBuffer, VertexFormat.IndexType.INT);

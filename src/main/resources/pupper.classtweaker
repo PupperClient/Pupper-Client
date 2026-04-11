@@ -28,3 +28,7 @@ transitive-accessible method net/minecraft/client/renderer/entity/LivingEntityRe
 transitive-accessible field net/minecraft/client/renderer/entity/EntityRenderDispatcher renderers Ljava/util/Map;
 transitive-accessible field net/minecraft/client/renderer/entity/LivingEntityRenderer layers Ljava/util/List;
 transitive-accessible field net/minecraft/client/renderer/entity/EntityRenderDispatcher playerRenderers Ljava/util/Map;
+
+# ExtendedRenderPipelineBuilder
+accessible   method  com/mojang/blaze3d/pipeline/RenderPipeline$Builder <init> ()V
+accessible   method  com/mojang/blaze3d/pipeline/RenderPipeline$Builder withSnippet (Lcom/mojang/blaze3d/pipeline/RenderPipeline$Snippet;)V

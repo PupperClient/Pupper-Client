@@ -10,7 +10,7 @@ public class SkinUtils {
 	public static File getSkin(Identifier identifier) {
 		String fileName = identifier.getPath().replace("skins/", "");
 		String folder = fileName.substring(0, 2);
-		File file = new File(((IMixinMinecraftClient) Minecraft.getInstance()).getAssetDir(),
+		File file = new File(((IMixinMinecraftClient) Minecraft.getInstance()).pupper$getAssetDir(),
 				"skins/" + folder + "/" + fileName);
 		return file;
 	}

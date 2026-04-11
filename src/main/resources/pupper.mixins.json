@@ -3,6 +3,7 @@
   "package": "cn.pupperclient.mixin.mixins",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "accessors.GameRendererAccessor",
     "minecraft.client.MixinClientBrandRetriever",
     "minecraft.client.MixinKeyboard",
     "minecraft.client.MixinMinecraftClient",
@@ -15,7 +16,7 @@
     "minecraft.client.gui.MixinSplashScreen",
     "minecraft.client.gui.MixinTitleScreen",
     "minecraft.client.option.MixinKeyBinding",
-    "minecraft.client.render.BufferRendererAccessor",
+    "minecraft.client.render.GuiRendererMixin",
     "minecraft.client.render.MixinCamera",
     "minecraft.client.render.MixinEntityRenderer",
     "minecraft.client.render.MixinGameRenderer",

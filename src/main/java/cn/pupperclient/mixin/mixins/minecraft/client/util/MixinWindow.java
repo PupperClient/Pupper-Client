@@ -1,8 +1,6 @@
 package cn.pupperclient.mixin.mixins.minecraft.client.util;
 
 import cn.pupperclient.PupperClient;
-import cn.pupperclient.event.EventBus;
-import cn.pupperclient.event.client.FramebufferSizeEvent;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -31,7 +29,6 @@ public class MixinWindow {
     @Inject(method = "onFramebufferResize", at = @At("RETURN"))
 	private void onFramebufferSizeChanged(long window, int width, int height, CallbackInfo ci) {
 		SkiaContext.createSurface(width, height);
-        EventBus.getInstance().post(new FramebufferSizeEvent(width, height));
 	}
 
     @Inject(method = "<init>", at = @At("RETURN"))

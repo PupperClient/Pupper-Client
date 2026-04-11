@@ -3,6 +3,7 @@ package cn.pupperclient.mixin.mixins.minecraft.client;
 import java.io.File;
 import java.io.IOException;
 
+import cn.pupperclient.event.client.ResolutionChangedEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.screens.Screen;
@@ -13,7 +14,10 @@ import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.HitResult.Type;
@@ -105,10 +109,21 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 
 					BlockHitResult blockHitResult = (BlockHitResult) this.hitResult;
 					BlockPos blockPos = blockHitResult.getBlockPos();
+                    BlockState blockState = level.getBlockState(blockPos);
 
-					if (!this.level.getBlockState(blockPos).isAir()) {
+					if (!blockState.isAir()) {
 						Direction direction = blockHitResult.getDirection();
-						this.particleEngine.crack(blockPos, direction);
+                        BlockParticleOption particleOption = new BlockParticleOption(ParticleTypes.BLOCK, blockState);
+
+                        double x = blockPos.getX() + 0.5 + direction.getStepX() * 0.5;
+                        double y = blockPos.getY() + 0.5 + direction.getStepY() * 0.5;
+                        double z = blockPos.getZ() + 0.5 + direction.getStepZ() * 0.5;
+
+                        double xSpeed = direction.getStepX() * 0.2;
+                        double ySpeed = 0.1;
+                        double zSpeed = direction.getStepZ() * 0.2;
+
+                        level.addParticle(particleOption, x, y, z, xSpeed, ySpeed, zSpeed);
 						((IMixinLivingEntity) player).soarClient_CN$fakeSwingHand(InteractionHand.MAIN_HAND);
 					}
 				}
@@ -149,7 +164,7 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 		EventBus.getInstance().post(new ClientTickEvent());
 	}
 
-	@Inject(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;handleDelayedCrash()V"))
+	@Inject(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/SingleTickProfiler;createTickProfiler(Ljava/lang/String;)Lnet/minecraft/util/profiling/SingleTickProfiler;"))
 	public void onGameLoop(CallbackInfo ci) {
 		EventBus.getInstance().post(new GameLoopEvent());
 	}
@@ -173,7 +188,12 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
     }
 
 	@Override
-	public File getAssetDir() {
+	public File pupper$getAssetDir() {
 		return this.assetDir;
 	}
+
+    @Inject(method = "resizeGui", at = @At("TAIL"))
+    private void onResizeGui(CallbackInfo ci) {
+        EventBus.getInstance().post(new ResolutionChangedEvent());
+    }
 }

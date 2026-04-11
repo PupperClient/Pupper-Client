@@ -63,11 +63,6 @@ public abstract class SoarGui extends SimpleSoarGui {
 
 		ColorPalette palette = PupperClient.getInstance().getColorManager().getPalette();
 
-		if (ModMenuSettings.getInstance().getBlurSetting().isEnabled()) {
-			Skia.drawImage(Kawaseblur.GUI_BLUR.getTexture(), 0, 0, client.getWindow().getWidth(),
-					client.getWindow().getHeight(), inOutAnimation.getValue(), SurfaceOrigin.BOTTOM_LEFT);
-		}
-
 		Skia.save();
 		Skia.setAlpha((int) (inOutAnimation.getValue() * 255));
 		Skia.scale(getX(), getY(), getWidth(), getHeight(), 2 - inOutAnimation.getValue());
