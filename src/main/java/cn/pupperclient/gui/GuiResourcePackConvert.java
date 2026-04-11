@@ -22,7 +22,7 @@ import cn.pupperclient.utils.thread.Multithreading;
 import cn.pupperclient.utils.file.FileLocation;
 
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
@@ -52,9 +52,9 @@ public class GuiResourcePackConvert extends Screen implements IMinecraft {
 	}
 	
 	@Override
-	public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
-		super.render(context, mouseX, mouseY, delta);
-		context.drawCenteredString(this.font, Component.literal(progress), this.width / 2, this.height / 2 - 50, CommonColors.WHITE);
+	public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+		super.extractRenderState(context, mouseX, mouseY, delta);
+		context.text(this.font, Component.literal(progress), this.width / 2, this.height / 2 - 50, CommonColors.WHITE);
 	}
 	
 	private ResourcePackConverter createConverter() {
