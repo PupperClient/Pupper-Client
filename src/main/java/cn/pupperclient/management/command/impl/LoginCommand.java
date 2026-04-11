@@ -14,6 +14,7 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
+import org.jspecify.annotations.NonNull;
 
 public class LoginCommand {
 
@@ -96,9 +97,7 @@ public class LoginCommand {
                 if (result == null || result.has("code") && result.get("code").getAsInt() != 200) {
                     String errorMsg = result != null && result.has("message") ?
                         result.get("message").getAsString() : "发送验证码失败";
-                    Multithreading.runMainThread(() -> {
-                        ChatUtils.addChatMessage("§c发送验证码失败: " + errorMsg);
-                    });
+                    Multithreading.runMainThread(() -> ChatUtils.addChatMessage("§c发送验证码失败: " + errorMsg));
                     return;
                 }
 
@@ -108,9 +107,7 @@ public class LoginCommand {
                 });
 
             } catch (Exception e) {
-                Multithreading.runMainThread(() -> {
-                    ChatUtils.addChatMessage("§c发送验证码失败: " + e.getMessage());
-                });
+                Multithreading.runMainThread(() -> ChatUtils.addChatMessage("§c发送验证码失败: " + e.getMessage()));
                 PupperClient.LOGGER.error("发送验证码失败: {}", e.getMessage(), e);
             }
         });
@@ -129,7 +126,7 @@ public class LoginCommand {
 
                 PupperLogger.info("登录请求URL: {}", url);
 
-                JsonObject result = sendPostRequest(url, null);
+                JsonObject result = sendPostRequest(url);
 
                 if (result == null || result.has("code") && result.get("code").getAsInt() != 200) {
                     String errorMsg = result != null && result.has("message") ?
@@ -140,8 +137,8 @@ public class LoginCommand {
                         // 提供重新发送验证码的快捷方式
                         MutableComponent retryText = Component.literal("§7[重新发送验证码]")
                             .withStyle(style -> style
-                                .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, ".login send " + phone))
-                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                .withClickEvent(new ClickEvent.SuggestCommand(".login send " + phone))
+                                .withHoverEvent(new HoverEvent.ShowText(
                                     Component.literal("点击重新发送验证码"))));
                         ChatUtils.addChatMessage(retryText);
                     });
@@ -174,9 +171,7 @@ public class LoginCommand {
                 }
 
             } catch (Exception e) {
-                Multithreading.runMainThread(() -> {
-                    ChatUtils.addChatMessage("§c登录过程出错: " + e.getMessage());
-                });
+                Multithreading.runMainThread(() -> ChatUtils.addChatMessage("§c登录过程出错: " + e.getMessage()));
                 PupperClient.LOGGER.error("验证码登录失败: {}", e.getMessage(), e);
             }
         });
@@ -195,9 +190,7 @@ public class LoginCommand {
                 JsonObject keyResult = sendGetRequest(keyUrl);
 
                 if (keyResult == null || !keyResult.has("data") || keyResult.getAsJsonObject("data").get("code").getAsInt() != 200) {
-                    Multithreading.runMainThread(() -> {
-                        ChatUtils.addChatMessage("§c获取二维码key失败");
-                    });
+                    Multithreading.runMainThread(() -> ChatUtils.addChatMessage("§c获取二维码key失败"));
                     return;
                 }
 
@@ -208,9 +201,7 @@ public class LoginCommand {
                 JsonObject qrResult = sendGetRequest(qrUrl);
 
                 if (qrResult == null || !qrResult.has("data")) {
-                    Multithreading.runMainThread(() -> {
-                        ChatUtils.addChatMessage("§c生成二维码失败");
-                    });
+                    Multithreading.runMainThread(() -> ChatUtils.addChatMessage("§c生成二维码失败"));
                     return;
                 }
 
@@ -226,9 +217,7 @@ public class LoginCommand {
                 checkQRStatus(qrKey);
 
             } catch (Exception e) {
-                Multithreading.runMainThread(() -> {
-                    ChatUtils.addChatMessage("§c二维码登录失败: " + e.getMessage());
-                });
+                Multithreading.runMainThread(() -> ChatUtils.addChatMessage("§c二维码登录失败: " + e.getMessage()));
                 PupperClient.LOGGER.error("二维码登录失败: {}", e.getMessage(), e);
             }
         });
@@ -255,18 +244,14 @@ public class LoginCommand {
                     int code = checkResult.get("code").getAsInt();
 
                     if (code == 800) {
-                        Multithreading.runMainThread(() -> {
-                            ChatUtils.addChatMessage("§c二维码已过期，请重新生成");
-                        });
+                        Multithreading.runMainThread(() -> ChatUtils.addChatMessage("§c二维码已过期，请重新生成"));
                         return;
                     } else if (code == 801) {
                         // 等待扫码，继续轮询
                         attempts++;
                         continue;
                     } else if (code == 802) {
-                        Multithreading.runMainThread(() -> {
-                            ChatUtils.addChatMessage("§6已扫描，请在手机上确认登录");
-                        });
+                        Multithreading.runMainThread(() -> ChatUtils.addChatMessage("§6已扫描，请在手机上确认登录"));
                         attempts++;
                         continue;
                     } else if (code == 803) {
@@ -291,14 +276,10 @@ public class LoginCommand {
                     attempts++;
                 }
 
-                Multithreading.runMainThread(() -> {
-                    ChatUtils.addChatMessage("§c二维码登录超时，请重试");
-                });
+                Multithreading.runMainThread(() -> ChatUtils.addChatMessage("§c二维码登录超时，请重试"));
 
             } catch (Exception e) {
-                Multithreading.runMainThread(() -> {
-                    ChatUtils.addChatMessage("§c检查二维码状态失败: " + e.getMessage());
-                });
+                Multithreading.runMainThread(() -> ChatUtils.addChatMessage("§c检查二维码状态失败: " + e.getMessage()));
                 PupperClient.LOGGER.error("检查二维码状态失败: {}", e.getMessage(), e);
             }
         });
@@ -362,9 +343,7 @@ public class LoginCommand {
                             }
                         });
                     } else {
-                        Multithreading.runMainThread(() -> {
-                            ChatUtils.addChatMessage("§c登录状态: 已过期");
-                        });
+                        Multithreading.runMainThread(() -> ChatUtils.addChatMessage("§c登录状态: 已过期"));
                         currentCookie = null;
                         currentUserId = null;
                         currentNickname = null;
@@ -372,15 +351,11 @@ public class LoginCommand {
                         saveLoginStatus();
                     }
                 } else {
-                    Multithreading.runMainThread(() -> {
-                        ChatUtils.addChatMessage("§c登录状态检查失败");
-                    });
+                    Multithreading.runMainThread(() -> ChatUtils.addChatMessage("§c登录状态检查失败"));
                 }
 
             } catch (Exception e) {
-                Multithreading.runMainThread(() -> {
-                    ChatUtils.addChatMessage("§c检查登录状态失败: " + e.getMessage());
-                });
+                Multithreading.runMainThread(() -> ChatUtils.addChatMessage("§c检查登录状态失败: " + e.getMessage()));
                 PupperClient.LOGGER.error("检查登录状态失败: {}", e.getMessage(), e);
             }
         });
@@ -403,19 +378,13 @@ public class LoginCommand {
                 JsonObject result = sendGetRequestWithCookie(refreshUrl);
 
                 if (result != null && result.get("code").getAsInt() == 200) {
-                    Multithreading.runMainThread(() -> {
-                        ChatUtils.addChatMessage("§a登录状态刷新成功");
-                    });
+                    Multithreading.runMainThread(() -> ChatUtils.addChatMessage("§a登录状态刷新成功"));
                 } else {
-                    Multithreading.runMainThread(() -> {
-                        ChatUtils.addChatMessage("§c登录状态刷新失败");
-                    });
+                    Multithreading.runMainThread(() -> ChatUtils.addChatMessage("§c登录状态刷新失败"));
                 }
 
             } catch (Exception e) {
-                Multithreading.runMainThread(() -> {
-                    ChatUtils.addChatMessage("§c刷新登录状态失败: " + e.getMessage());
-                });
+                Multithreading.runMainThread(() -> ChatUtils.addChatMessage("§c刷新登录状态失败: " + e.getMessage()));
                 PupperClient.LOGGER.error("刷新登录状态失败: {}", e.getMessage(), e);
             }
         });
@@ -442,14 +411,10 @@ public class LoginCommand {
                 currentPhone = null;
                 saveLoginStatus();
 
-                Multithreading.runMainThread(() -> {
-                    ChatUtils.addChatMessage("§a已退出登录");
-                });
+                Multithreading.runMainThread(() -> ChatUtils.addChatMessage("§a已退出登录"));
 
             } catch (Exception e) {
-                Multithreading.runMainThread(() -> {
-                    ChatUtils.addChatMessage("§c退出登录失败: " + e.getMessage());
-                });
+                Multithreading.runMainThread(() -> ChatUtils.addChatMessage("§c退出登录失败: " + e.getMessage()));
                 PupperClient.LOGGER.error("退出登录失败: {}", e.getMessage(), e);
             }
         });
@@ -540,51 +505,21 @@ public class LoginCommand {
         return keyword.toString();
     }
 
-    /**
-     * 发送GET请求
-     */
     private static JsonObject sendGetRequest(String urlString) throws IOException {
-        return sendRequest(urlString, "GET", null, false);
+        return sendRequest(urlString, "GET", false);
     }
 
-    /**
-     * 发送带Cookie的GET请求
-     */
     private static JsonObject sendGetRequestWithCookie(String urlString) throws IOException {
-        return sendRequest(urlString, "GET", null, true);
+        return sendRequest(urlString, "GET", true);
     }
 
-    /**
-     * 发送POST请求
-     */
-    private static JsonObject sendPostRequest(String urlString, String postData) throws IOException {
-        return sendRequest(urlString, "POST", postData, false);
+    private static JsonObject sendPostRequest(String urlString) throws IOException {
+        return sendRequest(urlString, "POST", false);
     }
 
-    /**
-     * 通用请求方法
-     */
-    private static JsonObject sendRequest(String urlString, String method, String postData, boolean useCookie) throws IOException {
+    private static JsonObject sendRequest(String urlString, String method, boolean useCookie) throws IOException {
         URL url = new URL(urlString);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod(method);
-        connection.setConnectTimeout(10000);
-        connection.setReadTimeout(10000);
-        connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
-
-        // 如果使用cookie且当前有登录状态，添加cookie
-        if (useCookie && currentCookie != null) {
-            connection.setRequestProperty("Cookie", currentCookie);
-        }
-
-        if ("POST".equals(method) && postData != null) {
-            connection.setDoOutput(true);
-            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            try (OutputStream os = connection.getOutputStream()) {
-                byte[] input = postData.getBytes(StandardCharsets.UTF_8);
-                os.write(input, 0, input.length);
-            }
-        }
+        HttpURLConnection connection = getHttpURLConnection(method, useCookie, url);
 
         int responseCode = connection.getResponseCode();
         if (responseCode != 200) {
@@ -604,33 +539,35 @@ public class LoginCommand {
         }
     }
 
-    /**
-     * 获取当前cookie（供MusicCommand使用）
-     */
+    private static @NonNull HttpURLConnection getHttpURLConnection(String method, boolean useCookie, URL url) throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod(method);
+        connection.setConnectTimeout(10000);
+        connection.setReadTimeout(10000);
+        connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
+
+        if (useCookie && currentCookie != null) {
+            connection.setRequestProperty("Cookie", currentCookie);
+        }
+
+        return connection;
+    }
+
     public static String getCurrentCookie() {
         if (currentCookie == null) {
-            loadLoginStatus(); // 尝试加载保存的登录状态
+            loadLoginStatus();
         }
         return currentCookie;
     }
 
-    /**
-     * 获取当前用户ID
-     */
     public static String getCurrentUserId() {
         return currentUserId;
     }
 
-    /**
-     * 获取当前昵称
-     */
     public static String getCurrentNickname() {
         return currentNickname;
     }
 
-    /**
-     * 获取当前手机号
-     */
     public static String getCurrentPhone() {
         return currentPhone;
     }

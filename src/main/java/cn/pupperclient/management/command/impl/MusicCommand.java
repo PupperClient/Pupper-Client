@@ -158,8 +158,8 @@ public class MusicCommand {
                         // 格式化显示
                         MutableComponent songText = Component.literal("§b" + (i + 1) + ". §f" + songName)
                             .withStyle(style -> style
-                                .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, ".music download " + songId))
-                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                .withClickEvent(new ClickEvent.SuggestCommand(".music download " + songId))
+                                .withHoverEvent(new HoverEvent.ShowText(
                                     Component.literal("§6点击快速下载\n§7歌手: " + artistsStr + "\n§7专辑: " + albumName))));
 
                         MutableComponent artistText = Component.literal(" §7- " + artistsStr);
@@ -194,9 +194,7 @@ public class MusicCommand {
 
                 if (checkResult == null || !checkResult.get("success").getAsBoolean()) {
                     String message = checkResult != null ? checkResult.get("message").getAsString() : "检查失败";
-                    Multithreading.runMainThread(() -> {
-                        ChatUtils.addChatMessage("§c音乐不可用: " + message);
-                    });
+                    Multithreading.runMainThread(() -> ChatUtils.addChatMessage("§c音乐不可用: " + message));
                     return;
                 }
 
@@ -204,25 +202,19 @@ public class MusicCommand {
                 JsonObject urlResult = sendGetRequest(urlApi);
 
                 if (urlResult == null || !urlResult.has("data")) {
-                    Multithreading.runMainThread(() -> {
-                        ChatUtils.addChatMessage("§c获取音乐URL失败");
-                    });
+                    Multithreading.runMainThread(() -> ChatUtils.addChatMessage("§c获取音乐URL失败"));
                     return;
                 }
 
                 JsonArray data = urlResult.getAsJsonArray("data");
                 if (data.isEmpty() || data.get(0).getAsJsonObject().get("url") == null) {
-                    Multithreading.runMainThread(() -> {
-                        ChatUtils.addChatMessage("§c该音质暂不可用，请尝试其他音质");
-                    });
+                    Multithreading.runMainThread(() -> ChatUtils.addChatMessage("§c该音质暂不可用，请尝试其他音质"));
                     return;
                 }
 
                 String musicUrl = data.get(0).getAsJsonObject().get("url").getAsString();
                 if (musicUrl == null || musicUrl.isEmpty()) {
-                    Multithreading.runMainThread(() -> {
-                        ChatUtils.addChatMessage("§c获取音乐链接失败");
-                    });
+                    Multithreading.runMainThread(() -> ChatUtils.addChatMessage("§c获取音乐链接失败"));
                     return;
                 }
 
@@ -286,9 +278,7 @@ public class MusicCommand {
                 });
 
             } catch (Exception e) {
-                Multithreading.runMainThread(() -> {
-                    ChatUtils.addChatMessage("§c下载失败: " + e.getMessage());
-                });
+                Multithreading.runMainThread(() -> ChatUtils.addChatMessage("§c下载失败: " + e.getMessage()));
                 PupperClient.LOGGER.error("音乐下载失败: {}", e.getMessage(), e);
             }
         });
@@ -332,7 +322,7 @@ public class MusicCommand {
             return;
         }
 
-        File[] musicFiles = MUSIC_DIR.listFiles((dir, name) ->
+        File[] musicFiles = MUSIC_DIR.listFiles((_, name) ->
             name.toLowerCase().endsWith(".mp3") || name.toLowerCase().endsWith(".flac"));
 
         if (musicFiles == null || musicFiles.length == 0) {
@@ -349,7 +339,7 @@ public class MusicCommand {
 
             MutableComponent fileText = Component.literal("§b" + (i + 1) + ". §f" + displayName)
                 .withStyle(style -> style
-                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                    .withHoverEvent(new HoverEvent.ShowText(
                         Component.literal("§6文件: " + fileName + "\n§7大小: " + formatFileSize(musicFile.length())))));
 
             ChatUtils.addChatMessage(fileText);
@@ -448,8 +438,7 @@ public class MusicCommand {
                     outputStream.write(buffer, 0, bytesRead);
                     totalRead += bytesRead;
 
-                    // 可以在这里添加进度显示（可选）
-                    if (fileSize > 0 && totalRead % (1024 * 1024) == 0) { // 每MB更新一次
+                    if (fileSize > 0 && totalRead % (1024 * 1024) == 0) {
                         int progress = (int) ((totalRead * 100) / fileSize);
                         ChatUtils.addChatMessage("§7下载进度: " + progress + "%");
                     }
@@ -484,8 +473,8 @@ public class MusicCommand {
         return Component.literal(" [下载]")
             .withStyle(ChatFormatting.GREEN)
             .withStyle(style -> style
-                .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command))
-                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                .withClickEvent(new ClickEvent.SuggestCommand(command))
+                .withHoverEvent(new HoverEvent.ShowText(
                     Component.literal(hoverText).withStyle(ChatFormatting.GRAY))));
     }
 }

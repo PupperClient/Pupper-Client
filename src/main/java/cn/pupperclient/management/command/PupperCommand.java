@@ -1,6 +1,7 @@
 package cn.pupperclient.management.command;
 
 import cn.pupperclient.PupperClient;
+import cn.pupperclient.PupperLogger;
 import cn.pupperclient.management.command.impl.*;
 import cn.pupperclient.management.mod.Mod;
 import cn.pupperclient.management.mod.ModManager;
@@ -14,6 +15,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import java.io.IOException;
+import java.util.Objects;
 
 public class PupperCommand implements IMinecraft {
     private static final String PREFIX = ".";
@@ -39,7 +41,6 @@ public class PupperCommand implements IMinecraft {
 
         if (args.length == 0) {
             showHelp();
-            return;
         }
 
         String mainCommand = args[0].toLowerCase();
@@ -181,12 +182,14 @@ public class PupperCommand implements IMinecraft {
     }
 
     private static MutableComponent createClickableText(String displayText, String command, String hoverText, ChatFormatting color) {
+        ClickEvent clickEvent = new ClickEvent.SuggestCommand("." + command);
+        HoverEvent hoverEvent = new HoverEvent.ShowText(Component.literal(hoverText));
+
         return Component.literal(displayText)
             .withStyle(color)
             .withStyle(style -> style
-                .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command))
-                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                    Component.literal(hoverText).withStyle(ChatFormatting.GRAY))));
+                .withClickEvent(clickEvent)
+                .withHoverEvent(hoverEvent));
     }
 
     private static String getShortModName(String fullName) {

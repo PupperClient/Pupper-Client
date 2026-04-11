@@ -140,9 +140,11 @@ public class BindCommand {
             for (Mod mod : mods) {
                 MutableComponent message = Component.literal("§b• " + mod.getName() + " §7→ §a" + keyName + " §7(keycode: " + keyCode + ")")
                     .withStyle(style -> style
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, ".bind " + mod.getName() + " none"))
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                            Component.literal("Click to clear this keybind").withStyle(ChatFormatting.GRAY))));
+                        .withClickEvent(new ClickEvent.SuggestCommand(".bind " + mod.getName() + " none"))
+                        .withHoverEvent(new HoverEvent.ShowText(
+                            Component.literal("Click to clear this keybind").withStyle(ChatFormatting.GRAY)
+                        ))
+                    );
 
                 ChatUtils.addChatMessage(message);
                 boundCount++;
