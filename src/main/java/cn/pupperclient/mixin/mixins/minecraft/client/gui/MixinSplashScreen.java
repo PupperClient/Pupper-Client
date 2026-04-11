@@ -1,12 +1,18 @@
 package cn.pupperclient.mixin.mixins.minecraft.client.gui;
 
+import cn.pupperclient.PupperLogger;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.context.SkiaContext;
 import cn.pupperclient.skia.font.Fonts;
+import com.mojang.blaze3d.opengl.GlTexture;
 import io.github.humbleui.skija.Canvas;
 import io.github.humbleui.skija.Font;
 import io.github.humbleui.types.Rect;
 import java.awt.Color;
+
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,12 +24,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Optional;
 import java.util.function.Consumer;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.LoadingOverlay;
-import net.minecraft.client.renderer.texture.SimpleTexture;
-import net.minecraft.resources.ResourceLocation;
 
 @Mixin(LoadingOverlay.class)
 public abstract class MixinSplashScreen {
@@ -36,7 +38,7 @@ public abstract class MixinSplashScreen {
     @Unique private long soar_animationStartTime = -1L;
     @Unique private long soar_reloadStartTime = -1L;
     @Unique private static final long MAX_RELOAD_TIME = 15_000L;
-    @Unique private static final ResourceLocation CUSTOM_LOGO = ResourceLocation.fromNamespaceAndPath("pupper", "logo.png");
+    @Unique private static final Identifier CUSTOM_LOGO = Identifier.fromNamespaceAndPath("pupper", "logo.png");
     @Unique private static final int LOGO_ACTUAL_SIZE = 1080;
     @Unique private static final float LOGO_SCALE = 0.15f;
     @Unique private static final long ANIMATION_TOTAL_TIME = 4500L;
@@ -61,13 +63,11 @@ public abstract class MixinSplashScreen {
     @Unique
     private void ensureLogoTexture() {
         var tm = this.minecraft.getTextureManager();
-        if (tm.getTexture(CUSTOM_LOGO) == null) {
-            tm.registerAndLoad(CUSTOM_LOGO, new SimpleTexture(CUSTOM_LOGO));
-        }
+        tm.getTexture(CUSTOM_LOGO);
     }
 
-    @Inject(method = "render", at = @At("HEAD"), cancellable = true)
-    private void pupper_takeOverAndRender(GuiGraphics context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+    @Inject(method = "extractRenderState", at = @At("HEAD"), cancellable = true)
+    private void pupper_takeOverAndRender(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         int width = Minecraft.getInstance().getWindow().getScreenWidth();
         int height = Minecraft.getInstance().getWindow().getScreenHeight();
 
@@ -84,9 +84,7 @@ public abstract class MixinSplashScreen {
 
         ci.cancel();
 
-        SkiaContext.draw(canvas -> {
-            renderWithSkia(canvas, width, height, mouseX, mouseY);
-        });
+        SkiaContext.draw(canvas -> renderWithSkia(canvas, width, height, mouseX, mouseY));
     }
 
     @Unique
@@ -144,7 +142,7 @@ public abstract class MixinSplashScreen {
             }
 
             // Check if tap prompt was clicked
-            if (!tapClicked && GLFW.glfwGetMouseButton(this.minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS) {
+            if (!tapClicked && GLFW.glfwGetMouseButton(this.minecraft.getWindow().handle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS) {
                 tapClicked = true;
                 tapClickTime = Util.getMillis();
             }
@@ -248,8 +246,13 @@ public abstract class MixinSplashScreen {
     @Unique
     private void drawLogo(int x, int y, int size, float alpha) {
         // Draw logo using Skia
-        int textureId = Minecraft.getInstance().getTextureManager().getTexture(CUSTOM_LOGO).getId();
-        Skia.drawImage(textureId, x, y, size, size, alpha);
+        var textureId = Minecraft.getInstance().getTextureManager().getTexture(CUSTOM_LOGO).getTexture();
+
+        if (textureId instanceof GlTexture glTexture) {
+            Skia.drawImage(glTexture.glId(), x, y, size, size, alpha);
+        } else {
+            PupperLogger.warn("Splash", "don't have logo GlTexture");
+        }
     }
 
     @Unique
@@ -299,7 +302,7 @@ public abstract class MixinSplashScreen {
 
         // Text transparency calculations
         float welcomeAlpha = 1.0f; // Welcome text always full opacity (no animation)
-        float ttsAlpha = 1.0f; // TTS text alpha
+        float ttsAlpha; // TTS text alpha
 
         if (clicked) {
             // After click: 2-second fade out for all text
@@ -315,7 +318,6 @@ public abstract class MixinSplashScreen {
                 ttsAlpha = 0f; // Not displayed yet
             }
             // Welcome text remains at full opacity
-            welcomeAlpha = 1.0f;
         }
 
         // Draw welcome text (no animation, just fade out after click)

@@ -1,5 +1,10 @@
 package cn.pupperclient.mixin.mixins.minecraft.client.render;
 
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -10,8 +15,6 @@ import cn.pupperclient.event.client.RenderGameOverlayEvent;
 import cn.pupperclient.management.mod.impl.player.OldAnimationsMod;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderType;
 
 @Mixin(Gui.class)
 public class MixinInGameHud {
@@ -20,15 +23,13 @@ public class MixinInGameHud {
 	 * @reason drawHeart
 	 */
 	@Overwrite
-	private void renderHeart(GuiGraphics context, Gui.HeartType type, int x, int y, boolean hardcore, boolean blinking, boolean half) {
-		
+    private void extractHeart(final GuiGraphicsExtractor graphics, final Gui.HeartType type, final int xo, final int yo, final boolean isHardcore, final boolean blinks, final boolean half) {
     	OldAnimationsMod mod = OldAnimationsMod.getInstance();
-    	
-		context.blitSprite(RenderType::guiTextured, type.getSprite(hardcore, half, (!mod.isEnabled() || !mod.isDisableHeartFlash()) && blinking), x, y, 9, 9);
+		graphics.blitSprite(RenderPipelines.GUI, type.getSprite(isHardcore, half, (!mod.isEnabled() || !mod.isDisableHeartFlash()) && blinks), xo, yo, 9, 9);
 	}
     
-	@Inject(method = "renderHotbarAndDecorations", at = @At("TAIL"))
-	private void renderMainHud(GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
+	@Inject(method = "extractHotbarAndDecorations", at = @At("TAIL"))
+	private void renderMainHud(GuiGraphicsExtractor context, DeltaTracker tickCounter, CallbackInfo ci) {
 		EventBus.getInstance().post(new RenderGameOverlayEvent(context));
 	}
 }

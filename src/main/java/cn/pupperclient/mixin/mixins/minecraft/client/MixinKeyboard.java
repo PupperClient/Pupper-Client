@@ -15,18 +15,17 @@ import net.minecraft.client.KeyboardHandler;
 
 @Mixin(KeyboardHandler.class)
 public abstract class MixinKeyboard {
-
     @Inject(
-        method = "keyPress(JIIII)V",
+        method = "keyPress(JILnet/minecraft/client/input/KeyEvent;)V",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/KeyMapping;click(Lcom/mojang/blaze3d/platform/InputConstants$Key;)V",
             shift = At.Shift.AFTER
         )
     )
-    private void onKeyPressed(long window, int key, int scancode, int action, int modifiers, CallbackInfo ci) {
+    private void onKeyPressed(long handle, int action, net.minecraft.client.input.KeyEvent event, CallbackInfo ci) {
         if (action == GLFW.GLFW_PRESS || action == GLFW.GLFW_REPEAT) {
-            InputConstants.Key inputKey = InputConstants.getKey(key, scancode);
+            InputConstants.Key inputKey = InputConstants.getKey(event);
             for (KeybindSetting setting : PupperClient.getInstance().getModManager().getKeybindSettings()) {
                 if (setting.getKey().equals(inputKey)) {
                     setting.setPressed();
@@ -37,16 +36,16 @@ public abstract class MixinKeyboard {
     }
 
     @Inject(
-        method = "keyPress(JIIII)V",
+        method = "keyPress(JILnet/minecraft/client/input/KeyEvent;)V",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/KeyMapping;set(Lcom/mojang/blaze3d/platform/InputConstants$Key;Z)V",
             shift = At.Shift.AFTER
         )
     )
-    private void onKeyReleased(long window, int key, int scancode, int action, int modifiers, CallbackInfo ci) {
+    private void onKeyReleased(long handle, int action, net.minecraft.client.input.KeyEvent event, CallbackInfo ci) {
         if (action == GLFW.GLFW_RELEASE) {
-            InputConstants.Key inputKey = InputConstants.getKey(key, scancode);
+            InputConstants.Key inputKey = InputConstants.getKey(event);
             for (KeybindSetting setting : PupperClient.getInstance().getModManager().getKeybindSettings()) {
                 if (setting.getKey().equals(inputKey)) {
                     setting.setKeyDown(false);
@@ -55,13 +54,11 @@ public abstract class MixinKeyboard {
         }
     }
 
-    @Inject(
-        at = {@At("HEAD")},
-        method = {"keyPress"}
-    )
-    private void onKeyPress(long pWindowPointer, int pKey, int pScanCode, int pAction, int pModifiers, CallbackInfo ci) {
-        if (pKey != -1 && PupperClient.getInstance() != null && EventBus.getInstance() != null) {
-            EventBus.getInstance().post(new KeyEvent(pKey, pAction != 0));
+    @Inject(method = "keyPress(JILnet/minecraft/client/input/KeyEvent;)V", at = @At("HEAD"))
+    private void onKeyPress(long handle, int action, net.minecraft.client.input.KeyEvent event, CallbackInfo ci) {
+        int key = event.key();
+        if (key != -1 && EventBus.getInstance() != null) {
+            EventBus.getInstance().post(new KeyEvent(key, action != 0));
         }
     }
 }

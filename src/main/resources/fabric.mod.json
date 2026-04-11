@@ -25,6 +25,14 @@
 		"viafabricplus": "*",
 		"ias": "*"
 	},
+    "breaks": {
+      "optifabric": "*",
+      "feather": "*",
+      "origins": "*",
+      "sodium": "<0.8.7",
+      "morechathistory": "*",
+      "lithium": "<0.21.3"
+    },
 	"custom": {
 		"pupper:icon": "assets/pupper/logo.png",
 		"modmenu": {

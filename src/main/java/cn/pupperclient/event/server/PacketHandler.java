@@ -1,6 +1,7 @@
 package cn.pupperclient.event.server;
 
 import cn.pupperclient.event.EventBus;
+import cn.pupperclient.event.EventListener;
 import cn.pupperclient.event.client.ReceivePacketEvent;
 import cn.pupperclient.event.client.SendPacketEvent;
 import cn.pupperclient.event.server.impl.AttackEntityEvent;
@@ -8,37 +9,27 @@ import cn.pupperclient.event.server.impl.DamageEntityEvent;
 import cn.pupperclient.event.server.impl.GameJoinEvent;
 import cn.pupperclient.event.server.impl.ReceiveChatEvent;
 import cn.pupperclient.event.server.impl.SendChatEvent;
-import cn.pupperclient.mixin.mixins.minecraft.network.packet.PlayerInteractEntityC2SPacketAccessor;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientboundDamageEventPacket;
-import net.minecraft.network.protocol.game.ClientboundLoginPacket;
-import net.minecraft.network.protocol.game.ClientboundPlayerChatPacket;
-import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
-import net.minecraft.network.protocol.game.ServerboundChatPacket;
-import net.minecraft.network.protocol.game.ServerboundInteractPacket;
+import net.minecraft.network.protocol.game.*;
 
 public class PacketHandler {
 
-	public final EventBus.EventListener<SendPacketEvent> onSendPacket = packetEvent -> {
+    @EventListener
+	public void onSendPacket(SendPacketEvent packetEvent) {
 
 		Packet<?> basePacket = packetEvent.getPacket();
 
-		if (basePacket instanceof ServerboundInteractPacket) {
+		if (basePacket instanceof ServerboundInteractPacket packet) {
 
-			ServerboundInteractPacket packet = (ServerboundInteractPacket) basePacket;
-			ServerboundInteractPacket.ActionType type = ((PlayerInteractEntityC2SPacketAccessor) packet)
-					.getInteractTypeHandler().getType();
-
-			if (type.equals(ServerboundInteractPacket.ActionType.ATTACK)) {
+			if (!packet.usingSecondaryAction()) {
 				EventBus.getInstance()
-						.post(new AttackEntityEvent(((PlayerInteractEntityC2SPacketAccessor) packet).entityId()));
+						.post(new AttackEntityEvent((packet.entityId())));
 			}
 		}
 
-		if (basePacket instanceof ServerboundChatPacket) {
+		if (basePacket instanceof ServerboundChatPacket packet) {
 
-			ServerboundChatPacket packet = (ServerboundChatPacket) basePacket;
-			SendChatEvent event = new SendChatEvent(packet.message());
+            SendChatEvent event = new SendChatEvent(packet.message());
 
 			EventBus.getInstance().post(event);
 
@@ -48,21 +39,19 @@ public class PacketHandler {
 		}
 	};
 
-	public final EventBus.EventListener<ReceivePacketEvent> onReceivePacket = packetEvent -> {
+    @EventListener
+	public void onReceivePacket(ReceivePacketEvent packetEvent) {
 
 		Packet<?> basePacket = packetEvent.getPacket();
 
-		if (basePacket instanceof ClientboundDamageEventPacket) {
+		if (basePacket instanceof ClientboundDamageEventPacket packet) {
 
-			ClientboundDamageEventPacket packet = (ClientboundDamageEventPacket) basePacket;
-
-			EventBus.getInstance().post(new DamageEntityEvent(packet.entityId()));
+            EventBus.getInstance().post(new DamageEntityEvent(packet.entityId()));
 		}
 
-		if (basePacket instanceof ClientboundPlayerChatPacket) {
+		if (basePacket instanceof ClientboundPlayerChatPacket packet) {
 
-			ClientboundPlayerChatPacket packet = (ClientboundPlayerChatPacket) basePacket;
-			ReceiveChatEvent event = new ReceiveChatEvent(packet.body().content());
+            ReceiveChatEvent event = new ReceiveChatEvent(packet.body().content());
 
 			EventBus.getInstance().post(event);
 
@@ -71,10 +60,9 @@ public class PacketHandler {
 			}
 		}
 
-		if (basePacket instanceof ClientboundSystemChatPacket) {
+		if (basePacket instanceof ClientboundSystemChatPacket packet) {
 
-			ClientboundSystemChatPacket packet = (ClientboundSystemChatPacket) basePacket;
-			ReceiveChatEvent event = new ReceiveChatEvent(packet.content().getString());
+            ReceiveChatEvent event = new ReceiveChatEvent(packet.content().getString());
 
 			EventBus.getInstance().post(event);
 

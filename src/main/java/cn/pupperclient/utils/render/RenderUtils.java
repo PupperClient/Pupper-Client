@@ -9,11 +9,9 @@ import com.mojang.blaze3d.ProjectionType;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.Projection;
 import net.minecraft.client.renderer.ProjectionMatrixBuffer;
-import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
 public class RenderUtils implements IMinecraft {
-    public static Vec3 center;
     public static final Matrix4f projection = new Matrix4f();
     private static final ProjectionMatrixBuffer matrixBuffer = new ProjectionMatrixBuffer("pupper-projection-matrix");
 

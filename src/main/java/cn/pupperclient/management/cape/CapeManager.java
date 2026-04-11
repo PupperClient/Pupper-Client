@@ -1,5 +1,6 @@
 package cn.pupperclient.management.cape;
 
+import cn.pupperclient.PupperClient;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.io.Closeable;
@@ -9,13 +10,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.ClientAsset;
+import net.minecraft.resources.Identifier;
 
 public class CapeManager implements Closeable {
     private static CapeManager instance;
 
-    private final Map<String, ResourceLocation> loadedCapes = Collections.synchronizedMap(new HashMap<>());
-    private final Map<ResourceLocation, DynamicTexture> loadedCapeTextures = Collections.synchronizedMap(new HashMap<>());
+    private final Map<String, Identifier> loadedCapes = Collections.synchronizedMap(new HashMap<>());
+    private final Map<Identifier, DynamicTexture> loadedCapeTextures = Collections.synchronizedMap(new HashMap<>());
 
     private String selectedCapeId = null;
 
@@ -38,9 +40,10 @@ public class CapeManager implements Closeable {
         return selectedCapeId;
     }
 
-    public ResourceLocation getSelectedCapeTexture() {
+    public ClientAsset.Texture getSelectedCapeTexture() {
         if (selectedCapeId == null) return null;
-        return getLoadedCape(selectedCapeId);
+        var capeTexture = getLoadedCape(selectedCapeId);
+        return new ClientAsset.ResourceTexture(Identifier.fromNamespaceAndPath(PupperClient.getModId(), "capes/selectedcape"), capeTexture);
     }
 
     public void clearSelectedCape() {
@@ -51,10 +54,10 @@ public class CapeManager implements Closeable {
         if (id == null || textureData == null) return;
 
         executorService.submit(() -> {
-            RenderSystem.recordRenderCall(() -> {
+            RenderSystem.queueFencedTask(() -> {
                 DynamicTexture nativeImage = createNativeTexture(textureData);
                 if (nativeImage != null) {
-                    ResourceLocation identifier = ResourceLocation.fromNamespaceAndPath("pupper", namespace + "/" + id);
+                    Identifier identifier = Identifier.fromNamespaceAndPath("pupper", namespace + "/" + id);
                     Minecraft.getInstance().getTextureManager().register(identifier, nativeImage);
                     loadedCapes.put(id, identifier);
                     loadedCapeTextures.put(identifier, nativeImage);
@@ -70,7 +73,7 @@ public class CapeManager implements Closeable {
             selectedCapeId = null;
         }
 
-        ResourceLocation cape = loadedCapes.remove(id);
+        Identifier cape = loadedCapes.remove(id);
         if (cape != null) {
             DynamicTexture texture = loadedCapeTextures.remove(cape);
             if (texture != null) {
@@ -80,7 +83,7 @@ public class CapeManager implements Closeable {
         }
     }
 
-    public ResourceLocation getLoadedCape(String id) {
+    public Identifier getLoadedCape(String id) {
         return id != null ? loadedCapes.get(id) : null;
     }
 
@@ -91,7 +94,7 @@ public class CapeManager implements Closeable {
     private static DynamicTexture createNativeTexture(byte[] bytes) {
         if (bytes == null) return null;
         try {
-            return new DynamicTexture(NativeImage.read(bytes));
+            return new DynamicTexture(() -> "pupper_capetexture", NativeImage.read(bytes));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

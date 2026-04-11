@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Gui.class)
 public class PupperScoreboard {
-    @Inject(method = "renderScoreboardSidebar*", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "extractScoreboardSidebar*", at = @At("HEAD"), cancellable = true)
     private void renderCustomScoreboard(CallbackInfo ci) {
         if (Scoreboard.getInstance().isEnabled()) {
             ci.cancel();

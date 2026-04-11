@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ChatComponent.class)
 public abstract class MixinChatHud {
 
-    @Inject(method = "addMessage(Lnet/minecraft/network/chat/Component;)V", at = @At("HEAD"))
+    @Inject(method = "addClientSystemMessage", at = @At("HEAD"))
     private void onChatMessage(Component message, CallbackInfo ci) {
         String rawMessage = message.getString();
         if (rawMessage.startsWith("§7[§bPupper§7]")) return;

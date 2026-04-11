@@ -23,7 +23,7 @@ public abstract class MixinTitleScreen extends Screen {
         ci.cancel();
     }
 
-    @Inject(method = "render", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "extractRenderState", at = @At("HEAD"), cancellable = true)
     public void onRender(CallbackInfo ci) {
         ci.cancel();
     }

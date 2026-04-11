@@ -5,13 +5,11 @@
 package cn.pupperclient.mixin.mixins.minecraft.client.render;
 
 import cn.pupperclient.PupperClient;
-import cn.pupperclient.event.EventBus;
 import cn.pupperclient.mixin.mixins.accessors.GameRendererAccessor;
 import cn.pupperclient.utils.minecraft.interfaces.IMinecraft;
 import cn.pupperclient.utils.render.RenderUtils;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.render.GuiRenderer;
 import net.minecraft.client.renderer.fog.FogRenderer;
 import net.minecraft.client.renderer.state.gui.GuiRenderState;
@@ -36,9 +34,6 @@ public abstract class GuiRendererMixin implements IMinecraft {
 
     @Inject(method = "draw", at = @At("HEAD"))
     private void draw(CallbackInfo ci) {
-        var mouseX = (int) client.mouseHandler.getScaledXPos(client.getWindow());
-        var mouseY = (int) client.mouseHandler.getScaledYPos(client.getWindow());
-
         var fogRenderer = ((GameRendererAccessor) client.gameRenderer).pupper$fogRenderer();
 
         if (RenderUtils.canUpdate()) {

@@ -11,7 +11,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 @Mixin(ClientLevel.ClientLevelData.class)
 public class MixinClientWorldProperties {
 
-	@Inject(method = "getDayTime", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "getGameTime", at = @At("HEAD"), cancellable = true)
 	public void getTimeOfDay(CallbackInfoReturnable<Long> cir) {
 		if (TimeChangerMod.getInstance().isEnabled()) {
 			cir.setReturnValue(TimeChangerMod.getInstance().getTime());

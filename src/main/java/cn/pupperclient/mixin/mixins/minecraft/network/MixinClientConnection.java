@@ -1,10 +1,12 @@
 package cn.pupperclient.mixin.mixins.minecraft.network;
 
+import io.netty.channel.ChannelFutureListener;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import cn.pupperclient.event.EventBus;
@@ -12,7 +14,6 @@ import cn.pupperclient.event.client.ReceivePacketEvent;
 import cn.pupperclient.event.client.SendPacketEvent;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketListener;
-import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.server.RunningOnDifferentThreadException;
@@ -25,19 +26,20 @@ public abstract class MixinClientConnection {
 	}
 
     @Shadow
-    protected abstract void sendPacket(Packet<?> packet, @Nullable PacketSendListener callbacks, boolean flush);
+    protected abstract void sendPacket(Packet<?> packet, @Nullable ChannelFutureListener listener, boolean flush);
 
-	@Inject(method = "send(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketSendListener;)V", at = @At("HEAD"), cancellable = true)
-	private void onSendPacket(Packet<?> packet, PacketSendListener callbacks, CallbackInfo ci) {
+    @Redirect(
+        method = "send(Lnet/minecraft/network/protocol/Packet;Lio/netty/channel/ChannelFutureListener;Z)V",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/network/Connection;sendPacket(Lnet/minecraft/network/protocol/Packet;Lio/netty/channel/ChannelFutureListener;Z)V")
+    )
+    private void redirectSendPacket(Connection instance, Packet<?> packet, ChannelFutureListener listener, boolean flush) {
 
 		SendPacketEvent event = new SendPacketEvent(packet);
 		EventBus.getInstance().post(event);
 
-		if (event.isCancelled()) {
-			ci.cancel();
-            Connection self = (Connection) (Object) this;
-            self.send(event.getPacket(), callbacks);
-		}
+        if (!event.isCancelled()) {
+            sendPacket(packet, listener, flush);
+        }
 	}
 
 	@Inject(method = "genericsFtw", at = @At("HEAD"), cancellable = true, require = 1)

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import cn.pupperclient.event.client.ResolutionChangedEvent;
+import cn.pupperclient.skia.Skia;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.screens.Screen;
@@ -184,7 +185,12 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
         if (screen instanceof SimpleSoarGui) {
             return;
         }
-        SkiaContext.draw(canvas -> EventBus.getInstance().post(new RenderSkiaEvent(canvas)));
+        SkiaContext.draw((context) -> {
+            Skia.save();
+            Skia.scale((float) Minecraft.getInstance().getWindow().getGuiScale());
+            EventBus.getInstance().post(new RenderSkiaEvent(context));
+            Skia.restore();
+        });
     }
 
 	@Override

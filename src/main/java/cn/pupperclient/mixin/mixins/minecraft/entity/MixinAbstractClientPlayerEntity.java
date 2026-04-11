@@ -2,18 +2,13 @@ package cn.pupperclient.mixin.mixins.minecraft.entity;
 
 import cn.pupperclient.PupperClient;
 import com.mojang.authlib.GameProfile;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.resources.PlayerSkin;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
+import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.level.Level;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -21,26 +16,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = AbstractClientPlayer.class, priority = 2000)
 public abstract class MixinAbstractClientPlayerEntity extends Player {
-
-    @Shadow @Final public ClientLevel clientLevel;
-
     @Unique
     private boolean shownCape = false;
 
-    public MixinAbstractClientPlayerEntity(Level world, BlockPos pos, float yaw, GameProfile gameProfile) {
-        super(world, pos, yaw, gameProfile);
+    public MixinAbstractClientPlayerEntity(Level world, GameProfile gameProfile) {
+        super(world, gameProfile);
     }
 
     @Inject(method = "getSkin", at = @At("RETURN"), cancellable = true)
     public void getSkinTextures(CallbackInfoReturnable<PlayerSkin> cir) {
-        ResourceLocation customCape = PupperClient.getInstance().getCapeManager().getSelectedCapeTexture();
+        var customCape = PupperClient.getInstance().getCapeManager().getSelectedCapeTexture();
         if (customCape != null) {
             PlayerSkin current = cir.getReturnValue();
             cir.setReturnValue(new PlayerSkin(
-                current.texture(),
-                current.textureUrl(),
+                current.body(),
                 customCape,
-                current.elytraTexture(),
+                current.elytra(),
                 current.model(),
                 current.secure()
             ));

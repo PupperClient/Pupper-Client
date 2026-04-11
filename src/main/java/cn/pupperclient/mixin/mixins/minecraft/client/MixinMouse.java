@@ -3,6 +3,7 @@ package cn.pupperclient.mixin.mixins.minecraft.client;
 import cn.pupperclient.PupperClient;
 import cn.pupperclient.event.client.MouseClickEvent;
 import cn.pupperclient.management.mod.impl.hud.CPSDisplayMod;
+import net.minecraft.client.input.MouseButtonInfo;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,36 +21,35 @@ import net.minecraft.client.MouseHandler;
 @Mixin(MouseHandler.class)
 public abstract class MixinMouse {
 
-	@Inject(method = "onPress", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyMapping;click(Lcom/mojang/blaze3d/platform/InputConstants$Key;)V", shift = At.Shift.AFTER))
-	public void onPressed(long window, int button, int action, int mods, CallbackInfo ci) {
+    @Inject(method = "onButton", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyMapping;click(Lcom/mojang/blaze3d/platform/InputConstants$Key;)V", shift = At.Shift.AFTER))
+    private void onButtonPressed(long handle, MouseButtonInfo rawButtonInfo, int action, CallbackInfo ci) {
+        int button = rawButtonInfo.button();
+        if (action == GLFW.GLFW_PRESS) {
+            for (KeybindSetting s : PupperClient.getInstance().getModManager().getKeybindSettings()) {
+                if (s.getKey().equals(Type.MOUSE.getOrCreate(button))) {
+                    s.setPressed();
+                    s.setKeyDown(true);
+                }
+            }
+        }
+    }
 
-		for (KeybindSetting s : PupperClient.getInstance().getModManager().getKeybindSettings()) {
+    @Inject(method = "onButton", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyMapping;set(Lcom/mojang/blaze3d/platform/InputConstants$Key;Z)V", shift = At.Shift.AFTER))
+    private void onButtonReleased(long window, MouseButtonInfo rawButtonInfo, int action, CallbackInfo ci) {
+        int button = rawButtonInfo.button();
+        if (action == GLFW.GLFW_RELEASE) {
+            for (KeybindSetting s : PupperClient.getInstance().getModManager().getKeybindSettings()) {
+                if (s.getKey().equals(Type.MOUSE.getOrCreate(button))) {
+                    s.setKeyDown(false);
+                }
+            }
+        }
+    }
 
-			if (s.getKey().equals(Type.MOUSE.getOrCreate(button))) {
-
-				if (action == GLFW.GLFW_PRESS) {
-					s.setPressed();
-				}
-
-				s.setKeyDown(true);
-			}
-		}
-	}
-
-	@Inject(method = "onPress", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyMapping;set(Lcom/mojang/blaze3d/platform/InputConstants$Key;Z)V", shift = At.Shift.AFTER, ordinal = 0))
-	public void onReleased(long window, int button, int action, int mods, CallbackInfo ci) {
-		for (KeybindSetting s : PupperClient.getInstance().getModManager().getKeybindSettings()) {
-			if (s.getKey().equals(Type.MOUSE.getOrCreate(button))) {
-				s.setKeyDown(false);
-			}
-		}
-	}
-
-    @Inject(method = "onPress", at = @At("HEAD"))
-    private void onMouseButton(long window, int button, int action, int mods, CallbackInfo ci) {
+    @Inject(method = "onButton", at = @At("HEAD"))
+    private void onMouseButtonEvent(long window, MouseButtonInfo rawButtonInfo, int action, CallbackInfo ci) {
         if (action == GLFW.GLFW_PRESS) {
             Minecraft client = Minecraft.getInstance();
-            if (client == null) return;
 
             double rawX = client.mouseHandler.xpos();
             double rawY = client.mouseHandler.ypos();
@@ -59,33 +59,28 @@ public abstract class MixinMouse {
             double scaledX = rawX / scaleFactor;
             double scaledY = win.getGuiScaledHeight() - (rawY / scaleFactor);
 
-            EventBus.getInstance().post(new MouseClickEvent(button, scaledX, scaledY));
+            EventBus.getInstance().post(new MouseClickEvent(rawButtonInfo.button(), scaledX, scaledY));
         }
     }
 
-	@Inject(method = "onScroll", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Inventory;setSelectedHotbarSlot(I)V", shift = At.Shift.BEFORE), cancellable = true)
-	private void onMouseScroll(long window, double horizontal, double vertical, CallbackInfo ci) {
+    @Inject(method = "onScroll", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Inventory;setSelectedSlot(I)V"), cancellable = true)
+    private void onMouseScroll(long window, double x_offset, double y_offset, CallbackInfo ci) {
+        MouseScrollEvent event = new MouseScrollEvent(y_offset);
+        EventBus.getInstance().post(event);
+        if (event.isCancelled()) {
+            ci.cancel();
+        }
+    }
 
-		MouseScrollEvent event = new MouseScrollEvent(vertical);
+    @Inject(method = "onButton", at = @At("HEAD"))
+    private void onMouseButtonForCPS(long window, MouseButtonInfo rawButtonInfo, int action, CallbackInfo ci) {
+        if (action != GLFW.GLFW_PRESS) return;
 
-		EventBus.getInstance().post(event);
-
-		if (event.isCancelled()) {
-			ci.cancel();
-		}
-	}
-
-    @Inject(method = "onPress", at = @At("HEAD"))
-    public void onMouseButtonForCPS(long window, int button, int action, int mods, CallbackInfo ci) {
-        CPSDisplayMod cpsDisplayMod = PupperClient.getInstance().getModManager().getMods()
+        PupperClient.getInstance().getModManager().getMods()
             .stream()
             .filter(mod -> mod instanceof CPSDisplayMod)
             .map(mod -> (CPSDisplayMod) mod)
-            .findFirst()
-            .orElse(null);
+            .findFirst().ifPresent(cpsDisplayMod -> cpsDisplayMod.onMouseClick(rawButtonInfo.button(), true));
 
-        if (cpsDisplayMod != null && action == GLFW.GLFW_PRESS) {
-            cpsDisplayMod.onMouseClick(button, true);
-        }
     }
 }
