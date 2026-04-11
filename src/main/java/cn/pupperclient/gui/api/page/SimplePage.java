@@ -39,7 +39,7 @@ public class SimplePage {
 	public void mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
 	}
 
-	public void charTyped(char chr, int modifiers) {
+	public void charTyped(int chr) {
 	}
 
 	public void keyPressed(int keyCode, int scanCode, int modifiers) {

@@ -37,7 +37,6 @@ import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
 import com.mojang.realmsclient.RealmsMainScreen;
-import net.minecraft.client.Minecraft;
 
 public class MainMenuGui extends SimpleSoarGui {
 
@@ -68,8 +67,8 @@ public class MainMenuGui extends SimpleSoarGui {
     }
 
     @Override
-    public void resize(Minecraft client, int width, int height) {
-        super.resize(client, width, height);
+    public void resize(int width, int height) {
+        super.resize(width, height);
         rebuildLayout();
     }
 
@@ -103,9 +102,7 @@ public class MainMenuGui extends SimpleSoarGui {
             centerX - buttonWidth / 2, centerY - (120 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new SelectWorldScreen(this))));
 
         buttons.add(new MainMenuButton("menu.multiplayer", Icon.GROUPS,
-            centerX - buttonWidth / 2, centerY - (60 * scaleFactor), buttonWidth, scaleFactor, () -> {
-            client.setScreen(new JoinMultiplayerScreen(this));
-        }));
+            centerX - buttonWidth / 2, centerY - (60 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new JoinMultiplayerScreen(this))));
 
         buttons.add(new MainMenuButton("menu.realms", Icon.DNS,
             centerX - buttonWidth / 2, centerY, buttonWidth, scaleFactor, () -> client.setScreen(new RealmsMainScreen(this))));
@@ -117,7 +114,7 @@ public class MainMenuGui extends SimpleSoarGui {
             centerX - buttonWidth / 2, centerY + (120 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new ModsScreen(this))));
 
         buttons.add(new MainMenuButton("menu.options", Icon.SETTINGS,
-            centerX - buttonWidth / 2, centerY + (180 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new OptionsScreen(this, client.options))));
+            centerX - buttonWidth / 2, centerY + (180 * scaleFactor), buttonWidth, scaleFactor, () -> client.setScreen(new OptionsScreen(this, client.options, false))));
 
         buttons.add(new MainMenuButton("menu.quit", Icon.CLOSE,
             centerX - buttonWidth / 2, centerY + (240 * scaleFactor), buttonWidth, scaleFactor, client::stop));
@@ -451,7 +448,7 @@ public class MainMenuGui extends SimpleSoarGui {
     }
 
     @Override
-    public boolean onMousePressed(double mouseX, double mouseY, int button) {
+    public boolean onMousePressed(double mouseX, double mouseY, int button, boolean doubled) {
         if (isWindowMinimized()) {
             return false;
         }
@@ -529,15 +526,15 @@ public class MainMenuGui extends SimpleSoarGui {
     }
 
     @Override
-    public boolean onCharTyped(char chr, int modifiers) {
+    public boolean onCharTyped(int chr) {
         if (showBackgroundWindow) {
-            exitBackgroundButton.charTyped(chr, modifiers);
-            addBackgroundButton.charTyped(chr, modifiers);
+            exitBackgroundButton.charTyped(chr);
+            addBackgroundButton.charTyped(chr);
         }
 
         if (showCustomizationWindow) {
-            darkModeSwitch.charTyped(chr, modifiers);
-            exitCustomizationButton.charTyped(chr, modifiers);
+            darkModeSwitch.charTyped(chr);
+            exitCustomizationButton.charTyped(chr);
         }
         return true;
     }

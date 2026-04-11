@@ -233,10 +233,10 @@ public class MusicControlBar extends Component {
 	}
 	
 	@Override
-	public void charTyped(char chr, int modifiers) {
+	public void charTyped(int chr) {
 		if (addMusic) {
 			for (Component c : components) {
-				c.charTyped(chr, modifiers);
+				c.charTyped(chr);
 			}
 		}
 	}

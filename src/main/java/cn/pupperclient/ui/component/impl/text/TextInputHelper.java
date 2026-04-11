@@ -102,7 +102,7 @@ public class TextInputHelper {
 		}
 	}
 
-	public void charTyped(char chr, int modifiers) {
+	public void charTyped(int chr) {
 		if (StringUtil.isAllowedChatCharacter(chr) && this.isFocused()) {
 			this.writeText(Character.toString(chr));
 		}

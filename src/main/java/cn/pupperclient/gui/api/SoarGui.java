@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.pupperclient.PupperClient;
-import cn.pupperclient.shader.impl.Kawaseblur;
 import org.lwjgl.glfw.GLFW;
 
 import cn.pupperclient.animation.Animation;
@@ -14,11 +13,9 @@ import cn.pupperclient.gui.api.page.GuiTransition;
 import cn.pupperclient.gui.api.page.SimplePage;
 import cn.pupperclient.management.color.api.ColorPalette;
 import cn.pupperclient.management.config.ConfigType;
-import cn.pupperclient.management.mod.impl.settings.ModMenuSettings;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.ui.component.Component;
 
-import io.github.humbleui.skija.SurfaceOrigin;
 import net.minecraft.client.gui.screens.Screen;
 
 public abstract class SoarGui extends SimpleSoarGui {
@@ -120,7 +117,7 @@ public abstract class SoarGui extends SimpleSoarGui {
 	}
 
 	@Override
-	public boolean onMousePressed(double mouseX, double mouseY, int button) {
+	public boolean onMousePressed(double mouseX, double mouseY, int button, boolean doubled) {
 
 		if (currentPage != null) {
 			currentPage.mousePressed(mouseX, mouseY, button);
@@ -154,14 +151,14 @@ public abstract class SoarGui extends SimpleSoarGui {
 	}
 
 	@Override
-	public boolean onCharTyped(char chr, int modifiers) {
+	public boolean onCharTyped(int chr) {
 
 		if (currentPage != null) {
-			currentPage.charTyped(chr, modifiers);
+			currentPage.charTyped(chr);
 		}
 
 		for (Component c : components) {
-			c.charTyped(chr, modifiers);
+			c.charTyped(chr);
 		}
         return true;
 	}

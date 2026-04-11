@@ -135,7 +135,7 @@ public class TextField extends Component {
 	}
 
 	@Override
-	public void charTyped(char chr, int modifiers) {
+	public void charTyped(int chr) {
 
 		input.charTyped(chr, modifiers);
 

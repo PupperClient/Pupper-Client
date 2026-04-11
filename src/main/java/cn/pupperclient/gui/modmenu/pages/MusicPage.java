@@ -294,9 +294,9 @@ public class MusicPage extends Page {
     }
 
     @Override
-    public void charTyped(char chr, int modifiers) {
-        super.charTyped(chr, modifiers);
-        controlBar.charTyped(chr, modifiers);
+    public void charTyped(int chr) {
+        super.charTyped(chr);
+        controlBar.charTyped(chr);
     }
 
     private void drawRoundedImage(File file, float x, float y, float width, float height, float cornerRadius,

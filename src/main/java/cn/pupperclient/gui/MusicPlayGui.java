@@ -43,7 +43,7 @@ public class MusicPlayGui extends SimpleSoarGui {
     }
 
     @Override
-    public boolean onMousePressed(double mouseX, double mouseY, int button) {
+    public boolean onMousePressed(double mouseX, double mouseY, int button, boolean doubled) {
         int windowWidth = client.getWindow().getWidth();
         int windowHeight = client.getWindow().getHeight();
 

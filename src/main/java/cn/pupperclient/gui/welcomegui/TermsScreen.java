@@ -51,8 +51,8 @@ public class TermsScreen extends SimpleSoarGui {
     }
 
     @Override
-    public void resize(Minecraft client, int width, int height) {
-        super.resize(client, width, height);
+    public void resize(int width, int height) {
+        super.resize(width, height);
         rebuildLayout();
     }
 
@@ -100,7 +100,7 @@ public class TermsScreen extends SimpleSoarGui {
     }
 
     @Override
-    public boolean onMousePressed(double mouseX, double mouseY, int button) {
+    public boolean onMousePressed(double mouseX, double mouseY, int button, boolean doubled) {
         acceptButton.mousePressed(mouseX, mouseY, button);
         declineButton.mousePressed(mouseX, mouseY, button);
         return true;

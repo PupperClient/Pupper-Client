@@ -80,7 +80,7 @@ public class GuiEditHUD extends SimpleSoarGui {
 	}
 
 	@Override
-	public boolean onMousePressed(double mouseX, double mouseY, int button) {
+	public boolean onMousePressed(double mouseX, double mouseY, int button, boolean doubled) {
 		getHoveredMod(mouseX, mouseY).ifPresent(mod -> {
 			if (button == GLFW.GLFW_MOUSE_BUTTON_MIDDLE) {
 				mod.getPosition().setScale(1.0F);

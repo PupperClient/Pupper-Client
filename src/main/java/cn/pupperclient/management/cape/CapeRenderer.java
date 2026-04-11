@@ -1,77 +1,86 @@
 package cn.pupperclient.management.cape;
 
+import cn.pupperclient.PupperLogger;
 import cn.pupperclient.skia.Skia;
+import com.mojang.blaze3d.opengl.GlTexture;
 import io.github.humbleui.skija.ClipMode;
 import io.github.humbleui.skija.Path;
 import io.github.humbleui.skija.SurfaceOrigin;
 import io.github.humbleui.types.RRect;
 import io.github.humbleui.types.Rect;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class CapeRenderer {
 
-    public static void renderCapePreview(ResourceLocation capeTexture, float x, float y, float width, float height) {
+    @SuppressWarnings("unused")
+    public static void renderCapePreview(Identifier capeTexture, float x, float y) {
         if (capeTexture == null) return;
 
         try {
-            int textureId = Minecraft.getInstance().getTextureManager().getTexture(capeTexture).getId();
+            var texture = Minecraft.getInstance().getTextureManager().getTexture(capeTexture).getTexture();
 
-            // 尝试不同的纹理尺寸
-            boolean loaded = Skia.getImageHelper().load(textureId, 64, 32, SurfaceOrigin.TOP_LEFT) ||
-                           Skia.getImageHelper().load(textureId, 128, 64, SurfaceOrigin.TOP_LEFT);
+            if (texture instanceof GlTexture glTexture) {
+                int textureId = glTexture.glId();
+                boolean loaded = Skia.getImageHelper().load(textureId, 64, 32, SurfaceOrigin.TOP_LEFT) ||
+                    Skia.getImageHelper().load(textureId, 128, 64, SurfaceOrigin.TOP_LEFT);
 
-            if (loaded) {
-                Skia.save();
-                Skia.translate(x + 2, y + 8);
-                Skia.scale(2f, 2f, 1f);
+                if (loaded) {
+                    Skia.save();
+                    Skia.translate(x + 2, y + 8);
+                    Skia.scale(2f, 2f, 1f);
 
-                Rect srcRect = Rect.makeXYWH(1, 1, 10, 16);
-                Rect dstRect = Rect.makeXYWH(0, 0, 10, 16);
-                Skia.getCanvas().drawImageRect(Skia.getImageHelper().get(textureId), srcRect, dstRect, null, false);
+                    Rect srcRect = Rect.makeXYWH(1, 1, 10, 16);
+                    Rect dstRect = Rect.makeXYWH(0, 0, 10, 16);
+                    Skia.getCanvas().drawImageRect(Skia.getImageHelper().get(textureId), srcRect, dstRect, null, false);
 
-                Skia.restore();
+                    Skia.restore();
 
-                Skia.save();
-                Skia.translate(x + 26, y + 8);
-                Skia.scale(2f, 2f, 1f);
+                    Skia.save();
+                    Skia.translate(x + 26, y + 8);
+                    Skia.scale(2f, 2f, 1f);
 
-                Rect srcRect2 = Rect.makeXYWH(12, 1, 10, 16);
-                Rect dstRect2 = Rect.makeXYWH(0, 0, 10, 16);
-                Skia.getCanvas().drawImageRect(Skia.getImageHelper().get(textureId), srcRect2, dstRect2, null, false);
+                    Rect srcRect2 = Rect.makeXYWH(12, 1, 10, 16);
+                    Rect dstRect2 = Rect.makeXYWH(0, 0, 10, 16);
+                    Skia.getCanvas().drawImageRect(Skia.getImageHelper().get(textureId), srcRect2, dstRect2, null, false);
 
-                Skia.restore();
+                    Skia.restore();
+                }
+            } else {
+                PupperLogger.warn("CapeRenderer", "Failed to render cape preview: : unknown glTexture");
             }
         } catch (Exception e) {
-            System.err.println("Failed to render cape preview: " + e.getMessage());
+            PupperLogger.warn("CapeRenderer", "Failed to render cape preview: " + e.getMessage());
         }
     }
 
-    public static void renderRoundedCapePreview(ResourceLocation capeTexture, float x, float y,
+    public static void renderRoundedCapePreview(Identifier capeTexture, float x, float y,
                                                 float width, float height, float radius) {
         if (capeTexture == null) return;
 
         try {
-            int textureId = Minecraft.getInstance().getTextureManager().getTexture(capeTexture).getId();
+            var texture = Minecraft.getInstance().getTextureManager().getTexture(capeTexture).getTexture();
+            if (texture instanceof GlTexture glTexture) {
+                int textureId = glTexture.glId();
+                boolean loaded = Skia.getImageHelper().load(textureId, 64, 32, SurfaceOrigin.TOP_LEFT) ||
+                    Skia.getImageHelper().load(textureId, 128, 64, SurfaceOrigin.TOP_LEFT);
 
-            // 尝试不同的纹理尺寸
-            boolean loaded = Skia.getImageHelper().load(textureId, 64, 32, SurfaceOrigin.TOP_LEFT) ||
-                           Skia.getImageHelper().load(textureId, 128, 64, SurfaceOrigin.TOP_LEFT);
+                if (loaded) {
+                    Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, radius));
 
-            if (loaded) {
-                Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, radius));
+                    Rect srcRect = Rect.makeXYWH(1, 1, 10, 16);
+                    Rect dstRect = Rect.makeXYWH(x, y, width, height);
 
-                // 根据实际纹理尺寸调整源矩形
-                Rect srcRect = Rect.makeXYWH(1, 1, 10, 16);
-                Rect dstRect = Rect.makeXYWH(x, y, width, height);
-
-                Skia.save();
-                Skia.getCanvas().clipPath(path, ClipMode.INTERSECT, true);
-                Skia.getCanvas().drawImageRect(Skia.getImageHelper().get(textureId), srcRect, dstRect, null, false);
-                Skia.restore();
+                    Skia.save();
+                    Skia.getCanvas().clipPath(path, ClipMode.INTERSECT, true);
+                    Skia.getCanvas().drawImageRect(Skia.getImageHelper().get(textureId), srcRect, dstRect, null, false);
+                    Skia.restore();
+                }
+            } else {
+                PupperLogger.warn("CapeRenderer", "Failed to render rounded cape preview: unknown glTexture");
             }
         } catch (Exception e) {
-            System.err.println("Failed to render rounded cape preview: " + e.getMessage());
+            PupperLogger.warn("CapeRenderer", "Failed to render rounded cape preview: " + e.getMessage());
         }
     }
 }

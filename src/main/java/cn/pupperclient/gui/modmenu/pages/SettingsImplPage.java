@@ -139,8 +139,8 @@ public class SettingsImplPage extends Page {
     }
 
     @Override
-    public void charTyped(char chr, int modifiers) {
-        super.charTyped(chr, modifiers);
+    public void charTyped(int chr) {
+        super.charTyped(chr);
 
         for (SettingBar b : bars) {
 
@@ -148,7 +148,7 @@ public class SettingsImplPage extends Page {
                 continue;
             }
 
-            b.charTyped(chr, modifiers);
+            b.charTyped(chr);
         }
     }
 

@@ -3,8 +3,11 @@ package cn.pupperclient.gui.api;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.context.SkiaContext;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
 /**
@@ -32,7 +35,7 @@ public abstract class SimpleSoarGui extends Screen {
     public abstract void draw(double mouseX, double mouseY);
 
     @Override
-    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         SkiaContext.draw((skiaContext) -> {
             Skia.save();
             
@@ -50,17 +53,23 @@ public abstract class SimpleSoarGui extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
+        double mouseX = click.x();
+        double mouseY = click.y();
+
         double finalMouseX = mcScale ? mouseX : client.mouseHandler.xpos();
         double finalMouseY = mcScale ? mouseY : client.mouseHandler.ypos();
-        return onMousePressed(finalMouseX, finalMouseY, button);
+        return onMousePressed(finalMouseX, finalMouseY, click.button(), doubled);
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseReleased(MouseButtonEvent click) {
+        double mouseX = click.x();
+        double mouseY = click.y();
+
         double finalMouseX = mcScale ? mouseX : client.mouseHandler.xpos();
         double finalMouseY = mcScale ? mouseY : client.mouseHandler.ypos();
-        return onMouseReleased(finalMouseX, finalMouseY, button);
+        return onMouseReleased(finalMouseX, finalMouseY, click.button());
     }
 
     @Override
@@ -71,22 +80,22 @@ public abstract class SimpleSoarGui extends Screen {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        return onKeyPressed(keyCode, scanCode, modifiers);
+    public boolean keyPressed(KeyEvent event) {
+        return onKeyPressed(event.key(), event.scancode(), event.modifiers());
     }
 
     @Override
-    public boolean charTyped(char chr, int modifiers) {
-        return onCharTyped(chr, modifiers);
+    public boolean charTyped(CharacterEvent input) {
+        return onCharTyped(input.codepoint());
     }
 
     // Abstract or hook methods for subclasses to implement without overriding Screen methods directly
     
-    public boolean onMousePressed(double mouseX, double mouseY, int button) { return false; }
+    public boolean onMousePressed(double mouseX, double mouseY, int button, boolean doubled) { return false; }
     public boolean onMouseReleased(double mouseX, double mouseY, int button) { return false; }
     public boolean onMouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) { return false; }
-    public boolean onKeyPressed(int keyCode, int scanCode, int modifiers) { return super.keyPressed(keyCode, scanCode, modifiers); }
-    public boolean onCharTyped(char chr, int modifiers) { return super.charTyped(chr, modifiers); }
+    public boolean onKeyPressed(int keyCode, int scanCode, int modifiers) { return super.keyPressed(new KeyEvent(keyCode, scanCode, modifiers)); }
+    public boolean onCharTyped(int chr) { return super.charTyped(new CharacterEvent(chr)); }
 
     @Override
     public boolean isPauseScreen() {

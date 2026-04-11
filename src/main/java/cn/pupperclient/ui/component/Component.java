@@ -25,7 +25,7 @@ public class Component {
 	public void mouseReleased(double mouseX, double mouseY, int button) {
 	}
 
-	public void charTyped(char chr, int modifiers) {
+	public void charTyped(int chr) {
 	}
 
 	public void keyPressed(int keyCode, int scanCode, int modifiers) {

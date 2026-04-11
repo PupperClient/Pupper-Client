@@ -201,10 +201,10 @@ public class SettingBar extends Component {
 	}
 
 	@Override
-	public void charTyped(char chr, int modifiers) {
+	public void charTyped(int chr) {
 
 		if (component != null) {
-			component.charTyped(chr, modifiers);
+			component.charTyped(chr);
 		}
 	}
 

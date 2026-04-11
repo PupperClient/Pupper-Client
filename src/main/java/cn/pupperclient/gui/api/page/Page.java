@@ -55,8 +55,8 @@ public class Page extends SimplePage {
 	}
 
 	@Override
-	public void charTyped(char chr, int modifiers) {
-		searchBar.charTyped(chr, modifiers);
+	public void charTyped(int chr) {
+		searchBar.charTyped(chr);
 	}
 
 	@Override

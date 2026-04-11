@@ -62,7 +62,7 @@ public class ProfileAddPage extends SimplePage {
 			@Override
 			public void onAction() {
 				if (!nameField.getText().isEmpty()) {
-					PupperClient.getInstance().getProfileManager().save(nameField.getText(), client.getGameProfile().getName(),
+					PupperClient.getInstance().getProfileManager().save(nameField.getText(), client.getGameProfile().name(),
 							addressField.getText(), currentIcon, ConfigType.MOD);
 					PupperClient.getInstance().getProfileManager().readProfiles();
 					parent.setClosable(true);
@@ -176,11 +176,11 @@ public class ProfileAddPage extends SimplePage {
 	}
 
 	@Override
-	public void charTyped(char chr, int modifiers) {
-		super.charTyped(chr, modifiers);
+	public void charTyped(int chr) {
+		super.charTyped(chr);
 
 		for (Component component : components) {
-			component.charTyped(chr, modifiers);
+			component.charTyped(chr);
 		}
 	}
 
