@@ -17,13 +17,11 @@ public class ChatUtils {
 
     public static void component(Component component) {
         Minecraft client = Minecraft.getInstance();
-        if (client == null || client.level == null) return;
+        if (client.level == null) return;
 
         client.execute(() -> {
             ChatComponent chat = client.gui.getChat();
-            if (chat != null) {
-                chat.addMessage(component);
-            }
+            chat.addClientSystemMessage(component);
         });
     }
 
