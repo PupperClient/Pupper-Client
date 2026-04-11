@@ -1,34 +1,15 @@
 classTweaker v1 official
-transitive-accessible class net/minecraft/network/protocol/game/ServerboundInteractPacket$ActionType
-transitive-accessible class net/minecraft/network/protocol/game/ServerboundInteractPacket$Action
-transitive-accessible class net/minecraft/client/gui/Gui$HeartType
-transitive-accessible field net/minecraft/client/gui/screens/multiplayer/JoinMultiplayerScreen serverSelectionList Lnet/minecraft/client/gui/screens/multiplayer/ServerSelectionList;
-transitive-accessible field net/minecraft/network/protocol/game/ServerboundPlayerCommandPacket action Lnet/minecraft/network/protocol/game/ServerboundPlayerCommandPacket$Action;
-transitive-accessible method net/minecraft/client/player/LocalPlayer sendIsSprintingIfNeeded ()V
-transitive-accessible field net/minecraft/client/player/LocalPlayer wasShiftKeyDown Z
-transitive-accessible method net/minecraft/client/multiplayer/ClientCommonPacketListenerImpl sendWhen (Lnet/minecraft/network/protocol/Packet;Ljava/util/function/BooleanSupplier;Ljava/time/Duration;)V
-transitive-accessible field net/minecraft/world/entity/player/Input jump Z
-transitive-accessible field net/minecraft/world/entity/player/Input shift Z
-transitive-mutable field net/minecraft/world/entity/player/Input jump Z
-transitive-mutable field net/minecraft/world/entity/player/Input shift Z
-transitive-accessible field net/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket xa I
-transitive-accessible field net/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket ya I
-transitive-accessible field net/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket za I
-transitive-mutable field net/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket xa I
-transitive-mutable field net/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket ya I
-transitive-mutable field net/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket za I
-transitive-accessible field net/minecraft/client/Minecraft rightClickDelay I
-transitive-accessible method net/minecraft/client/Minecraft startUseItem ()V
-transitive-accessible method net/minecraft/client/Minecraft startAttack ()Z
-transitive-accessible method net/minecraft/world/entity/LivingEntity updateFallFlyingMovement (Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;
-transitive-accessible field net/minecraft/client/gui/Gui HOTBAR_SELECTION_SPRITE Lnet/minecraft/resources/ResourceLocation;
-transitive-accessible field net/minecraft/client/gui/Gui HOTBAR_ATTACK_INDICATOR_BACKGROUND_SPRITE Lnet/minecraft/resources/ResourceLocation;
-transitive-accessible field net/minecraft/client/gui/Gui HOTBAR_ATTACK_INDICATOR_PROGRESS_SPRITE Lnet/minecraft/resources/ResourceLocation;
-transitive-accessible method net/minecraft/client/renderer/entity/LivingEntityRenderer addLayer (Lnet/minecraft/client/renderer/entity/layers/RenderLayer;)Z
-transitive-accessible field net/minecraft/client/renderer/entity/EntityRenderDispatcher renderers Ljava/util/Map;
-transitive-accessible field net/minecraft/client/renderer/entity/LivingEntityRenderer layers Ljava/util/List;
-transitive-accessible field net/minecraft/client/renderer/entity/EntityRenderDispatcher playerRenderers Ljava/util/Map;
+
+# OldAnimationsMod
+accessible class net/minecraft/client/gui/Gui$HeartType
+accessible method net/minecraft/client/Minecraft startUseItem ()V
+
+# onHitDelayFix
+accessible method net/minecraft/client/Minecraft startAttack ()Z
 
 # ExtendedRenderPipelineBuilder
-accessible   method  com/mojang/blaze3d/pipeline/RenderPipeline$Builder <init> ()V
-accessible   method  com/mojang/blaze3d/pipeline/RenderPipeline$Builder withSnippet (Lcom/mojang/blaze3d/pipeline/RenderPipeline$Snippet;)V
+accessible method com/mojang/blaze3d/pipeline/RenderPipeline$Builder <init> ()V
+accessible method com/mojang/blaze3d/pipeline/RenderPipeline$Builder withSnippet (Lcom/mojang/blaze3d/pipeline/RenderPipeline$Snippet;)V
+
+# MixinMultiplayerScreen onRemoved
+accessible field net/minecraft/client/gui/screens/multiplayer/JoinMultiplayerScreen serverSelectionList Lnet/minecraft/client/gui/screens/multiplayer/ServerSelectionList;
