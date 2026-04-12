@@ -2,7 +2,7 @@ package cn.pupperclient.management.mod.impl.render;
 
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.client.MouseClickEvent;
-import cn.pupperclient.event.client.RenderSkiaEvent;
+import cn.pupperclient.event.skia.RenderSkiaEvent;
 import cn.pupperclient.management.mod.Mod;
 import cn.pupperclient.management.mod.ModCategory;
 import cn.pupperclient.management.mod.settings.impl.BooleanSetting;

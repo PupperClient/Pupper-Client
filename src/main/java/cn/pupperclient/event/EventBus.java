@@ -1,5 +1,7 @@
 package cn.pupperclient.event;
 
+import org.apache.logging.log4j.util.InternalApi;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -58,9 +60,9 @@ public class EventBus {
         }
     }
 
+    @Deprecated
     private void registerFieldListeners(final Object object, List<EventListener<?>> handlers) {
         for (final Field field : getCachedDeclaredFields(object.getClass())) {
-            // 修改这里：使用 EventListener 而不是 EventListener
             if (field.getType() == EventListener.class) {
                 final EventListener<?> eventListener = getEventHandler(object, field);
                 if (eventListener != null) {
@@ -96,9 +98,6 @@ public class EventBus {
         }
     }
 
-    /**
-     * 注册单个监听器到映射中
-     */
     private void registerListener(Type eventType, EventListener<?> listener) {
         listenerMap.computeIfAbsent(eventType, k -> new CopyOnWriteArrayList<>()).add(listener);
         sortCallback.accept(listenerMap.get(eventType), priorityOrder);

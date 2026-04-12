@@ -1,7 +1,7 @@
 package cn.pupperclient.management.mod.impl.hud;
 
 import cn.pupperclient.event.EventListener;
-import cn.pupperclient.event.client.RenderSkiaEvent;
+import cn.pupperclient.event.skia.RenderSkiaEvent;
 import cn.pupperclient.management.mod.api.hud.SimpleHUDMod;
 
 public class CooldownHudMod extends SimpleHUDMod {

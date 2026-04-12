@@ -62,7 +62,7 @@ public class TotemTracker extends Mod {
         }
     }
 
-    @EventListener(priority = 1001)
+    @EventListener(priority = EventListener.Priority.HIGHEST)
     public void onPacketReceive(ReceivePacketEvent event) {
         if (event.getPacket() instanceof ClientboundEntityEventPacket packet) {
             if (packet.getEventId() == EntityEvent.PROTECTED_FROM_DEATH) {

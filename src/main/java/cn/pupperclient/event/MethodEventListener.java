@@ -15,7 +15,7 @@ public class MethodEventListener<T extends Event> implements EventBus.EventListe
         this.eventType = (Class<T>) method.getParameterTypes()[0];
 
         EventListener annotation = method.getAnnotation(EventListener.class);
-        this.priority = annotation != null ? annotation.priority() : 0;
+        this.priority = annotation != null ? annotation.priority().getValue() : 0;
 
         if (!method.canAccess(target)) {
             method.setAccessible(true);

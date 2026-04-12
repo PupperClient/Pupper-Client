@@ -16,20 +16,9 @@ import org.lwjgl.opengl.GL30;
  * Handles Skia DirectContext, Surface, and BackendRenderTarget creation and drawing.
  */
 public class SkiaContext {
-
-    // Skia rendering objects
     private static DirectContext context = null; // Skia GPU context
     private static Surface surface; // Skia drawing surface
-    private static BackendRenderTarget renderTarget; // Backend render target for GL
-
-    // GL states to reset before Skia drawing
-    private static final BackendState[] states = {
-        BackendState.GL_BLEND,
-        BackendState.GL_VERTEX,
-        BackendState.GL_PIXEL_STORE,
-        BackendState.GL_TEXTURE_BINDING
-        // Removed GL_MISC as it might not be supported in Minecraft 26.1
-    };
+    private static WrappedBackendRenderTarget renderTarget; // Backend render target for GL
 
     /**
      * Gets the current Skia canvas for drawing.
@@ -44,8 +33,9 @@ public class SkiaContext {
      * This should be called when the window size changes.
      * @param width The width of the surface in pixels.
      * @param height The height of the surface in pixels.
+     * @param fboid framebuffer object id, if 0 or null, will use currently bound framebuffer
      */
-    public static void createSurface(int width, int height) {
+    public static void createSurface(int width, int height, Integer fboid) {
         // Initialize Skia DirectContext if not already done
         if (context == null) {
             context = DirectContext.makeGL();
@@ -57,7 +47,7 @@ public class SkiaContext {
 
         try {
             // Get current framebuffer binding
-            int currentFbo = GL11.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING);
+            int currentFbo = fboid == null || fboid == 0 ? GL11.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING) : fboid;
 
             // Create GL backend render target using current framebuffer
             renderTarget = WrappedBackendRenderTarget.makeGL(
@@ -90,7 +80,6 @@ public class SkiaContext {
      * @param drawingLogic A consumer that takes a Canvas and performs drawing operations.
      */
     public static void draw(Consumer<Canvas> drawingLogic) {
-        // Check if Skia context and surface are initialized
         if (context == null || surface == null) {
             PupperLogger.warn("Skia", "Context or surface is null, skipping draw");
             return;
@@ -101,23 +90,16 @@ public class SkiaContext {
             return;
         }
 
-        // Push current GL states
         States.push();
-        // Disable culling for 2D drawing
         GL11.glDisable(GL11.GL_CULL_FACE);
-        // Clear color buffer (though Skia will overwrite)
         GL11.glClearColor(0f, 0f, 0f, 0f);
-        // Reset Skia GL states
-        context.reset(states);
+        context.resetGLAll();
 
-        // Get canvas and execute drawing logic
         Canvas canvas = getCanvas();
         drawingLogic.accept(canvas);
 
-        // Flush and submit Skia commands to GL
         context.flushAndSubmit(surface);
 
-        // Restore GL states
         States.pop();
     }
 

@@ -8,7 +8,7 @@ import cn.pupperclient.animation.Duration;
 import cn.pupperclient.animation.cubicbezier.impl.EaseStandard;
 import cn.pupperclient.animation.other.DummyAnimation;
 import cn.pupperclient.event.EventBus;
-import cn.pupperclient.event.client.RenderSkiaEvent;
+import cn.pupperclient.event.skia.RenderSkiaEvent;
 import cn.pupperclient.management.mod.api.hud.HUDMod;
 import cn.pupperclient.management.mod.impl.settings.HUDModSettings;
 import cn.pupperclient.management.mod.settings.impl.BooleanSetting;

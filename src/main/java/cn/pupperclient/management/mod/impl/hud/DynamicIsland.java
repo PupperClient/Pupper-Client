@@ -2,7 +2,7 @@ package cn.pupperclient.management.mod.impl.hud;
 
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.EventListener;
-import cn.pupperclient.event.client.RenderSkiaEvent;
+import cn.pupperclient.event.skia.RenderSkiaEvent;
 import cn.pupperclient.event.mod.AutoAgainEvent;
 import cn.pupperclient.management.mod.api.hud.HUDMod;
 import cn.pupperclient.event.mod.ModStateChangeEvent;

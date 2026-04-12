@@ -2,7 +2,7 @@ package cn.pupperclient.management.mod.impl.hud;
 
 import cn.pupperclient.PupperClient;
 import cn.pupperclient.event.EventBus;
-import cn.pupperclient.event.client.RenderSkiaEvent;
+import cn.pupperclient.event.skia.RenderSkiaEvent;
 import cn.pupperclient.management.mod.api.hud.HUDMod;
 import cn.pupperclient.management.mod.settings.impl.BooleanSetting;
 import cn.pupperclient.management.mod.settings.impl.ComboSetting;

@@ -22,8 +22,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.HitResult.Type;
-import cn.pupperclient.event.client.RenderSkiaEvent;
-import cn.pupperclient.gui.api.SimpleSoarGui;
+import cn.pupperclient.event.skia.RenderSkiaEvent;
 import com.mojang.blaze3d.platform.Window;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -161,7 +160,7 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
         int[] height = new int[1];
 
         GLFW.glfwGetFramebufferSize(Minecraft.getInstance().getWindow().handle(), width, height);
-        SkiaContext.createSurface(width[0] > 0 ? width[0] : 1, height[0] > 0 ? height[0] : 1);
+        SkiaContext.createSurface(width[0] > 0 ? width[0] : 1, height[0] > 0 ? height[0] : 1, null);
     }
 
     @Inject(method = "destroy", at = @At("HEAD"))
@@ -180,24 +179,20 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 	}
 
     @Inject(
-        method = { "renderFrame", "runTick" },
+        method = {"renderFrame"},
         at = @At(
             value = "INVOKE",
             target = "Lcom/mojang/blaze3d/systems/RenderSystem;flipFrame(Lcom/mojang/blaze3d/TracyFrameCapture;)V"
-        ),
-        require = 0
+        )
     )
     private void onBeforeFlipFrame(CallbackInfo ci) {
         if (level == null) {
             return;
         }
-        if (screen instanceof SimpleSoarGui) {
-            return;
-        }
-        SkiaContext.draw((context) -> {
+        SkiaContext.draw((canvas) -> {
             Skia.save();
             Skia.scale((float) Minecraft.getInstance().getWindow().getGuiScale());
-            EventBus.getInstance().post(new RenderSkiaEvent(context));
+            EventBus.getInstance().post(new RenderSkiaEvent(canvas));
             Skia.restore();
         });
     }

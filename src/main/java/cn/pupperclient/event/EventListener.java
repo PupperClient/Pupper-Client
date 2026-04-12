@@ -8,5 +8,23 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface EventListener {
-    int priority() default 0;
+    Priority priority() default Priority.NORMAL;
+
+    enum Priority {
+        LOWEST(-100),
+        LOW(-50),
+        NORMAL(0),
+        HIGH(50),
+        HIGHEST(1001);
+
+        private final int value;
+
+        Priority(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
 }

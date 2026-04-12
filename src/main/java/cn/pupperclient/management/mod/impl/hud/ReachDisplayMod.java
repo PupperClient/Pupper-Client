@@ -5,7 +5,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import cn.pupperclient.event.EventBus;
-import cn.pupperclient.event.client.RenderSkiaEvent;
+import cn.pupperclient.event.skia.RenderSkiaEvent;
 import cn.pupperclient.event.server.impl.AttackEntityEvent;
 import cn.pupperclient.event.server.impl.DamageEntityEvent;
 import cn.pupperclient.management.mod.api.hud.SimpleHUDMod;

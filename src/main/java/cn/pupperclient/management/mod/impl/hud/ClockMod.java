@@ -6,7 +6,7 @@ import java.util.Calendar;
 import java.util.Locale;
 
 import cn.pupperclient.event.EventBus;
-import cn.pupperclient.event.client.RenderSkiaEvent;
+import cn.pupperclient.event.skia.RenderSkiaEvent;
 import cn.pupperclient.management.mod.api.hud.SimpleHUDMod;
 import cn.pupperclient.skia.font.Icon;
 

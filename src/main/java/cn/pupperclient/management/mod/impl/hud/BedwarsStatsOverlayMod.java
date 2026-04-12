@@ -6,7 +6,7 @@ import java.util.Objects;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import cn.pupperclient.PupperClient;
 import cn.pupperclient.event.EventBus;
-import cn.pupperclient.event.client.RenderSkiaEvent;
+import cn.pupperclient.event.skia.RenderSkiaEvent;
 import cn.pupperclient.management.hypixel.api.HypixelUser;
 import cn.pupperclient.management.mod.api.hud.HUDMod;
 import cn.pupperclient.management.mod.settings.impl.NumberSetting;

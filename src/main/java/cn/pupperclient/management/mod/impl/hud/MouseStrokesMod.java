@@ -4,7 +4,7 @@ import cn.pupperclient.animation.SimpleAnimation;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.client.ClientTickEvent;
 import cn.pupperclient.event.client.PlayerDirectionChangeEvent;
-import cn.pupperclient.event.client.RenderSkiaEvent;
+import cn.pupperclient.event.skia.RenderSkiaEvent;
 import cn.pupperclient.management.mod.api.hud.HUDMod;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.font.Icon;
