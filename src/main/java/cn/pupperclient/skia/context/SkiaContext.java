@@ -6,11 +6,8 @@ import java.util.function.Consumer;
 import cn.pupperclient.PupperLogger;
 import cn.pupperclient.skia.api.WrappedBackendRenderTarget;
 import cn.pupperclient.skia.gl.States;
-import com.mojang.blaze3d.opengl.GlTexture;
-import com.mojang.blaze3d.pipeline.RenderTarget;
 import io.github.humbleui.skija.*;
 
-import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
@@ -104,8 +101,6 @@ public class SkiaContext {
             return;
         }
 
-        PupperLogger.info("Skia", "Starting draw");
-
         // Push current GL states
         States.push();
         // Disable culling for 2D drawing
@@ -115,23 +110,15 @@ public class SkiaContext {
         // Reset Skia GL states
         context.reset(states);
 
-        PupperLogger.info("Skia", "Before drawing logic");
-
         // Get canvas and execute drawing logic
         Canvas canvas = getCanvas();
         drawingLogic.accept(canvas);
 
-        PupperLogger.info("Skia", "After drawing logic");
-
         // Flush and submit Skia commands to GL
         context.flushAndSubmit(surface);
 
-        PupperLogger.info("Skia", "After flushAndSubmit");
-
         // Restore GL states
         States.pop();
-
-        PupperLogger.info("Skia", "Draw completed");
     }
 
     /**
