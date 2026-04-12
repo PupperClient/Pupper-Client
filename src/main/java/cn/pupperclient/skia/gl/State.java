@@ -54,6 +54,7 @@ public class State {
      */
     public State push() {
         glGetIntegerv(GL_ACTIVE_TEXTURE, props.lastActiveTexture);
+        glGetIntegerv(GL_FRAMEBUFFER_BINDING, props.lastFramebuffer);
         glActiveTexture(GL_TEXTURE0);
         glGetIntegerv(GL_CURRENT_PROGRAM, props.lastProgram);
         glGetIntegerv(GL_TEXTURE_BINDING_2D, props.lastTexture);
@@ -136,6 +137,7 @@ public class State {
         }
 
         glActiveTexture(props.lastActiveTexture[0]);
+        glBindFramebuffer(GL_FRAMEBUFFER, props.lastFramebuffer[0]);
         glBindVertexArray(props.lastVertexArrayObject[0]);
         glBindBuffer(GL_ARRAY_BUFFER, props.lastArrayBuffer[0]);
 

@@ -26,6 +26,7 @@ import cn.pupperclient.event.client.RenderSkiaEvent;
 import cn.pupperclient.gui.api.SimpleSoarGui;
 import com.mojang.blaze3d.platform.Window;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -151,9 +152,17 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 
 	@Inject(method = "<init>", at = @At("TAIL"))
 	public void init(CallbackInfo ci) throws IOException {
-		SkiaContext.createSurface(window.getScreenWidth(), window.getScreenHeight());
 		PupperClient.getInstance().start();
 	}
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    public void skia(CallbackInfo ci) throws IOException {
+        int[] width = new int[1];
+        int[] height = new int[1];
+
+        GLFW.glfwGetFramebufferSize(Minecraft.getInstance().getWindow().handle(), width, height);
+        SkiaContext.createSurface(width[0] > 0 ? width[0] : 1, height[0] > 0 ? height[0] : 1);
+    }
 
     @Inject(method = "destroy", at = @At("HEAD"))
     public void onShutdown(CallbackInfo ci) {

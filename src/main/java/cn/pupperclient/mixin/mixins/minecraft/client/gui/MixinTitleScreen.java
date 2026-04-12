@@ -19,12 +19,12 @@ public abstract class MixinTitleScreen extends Screen {
 
     @Inject(method = "init()V", at = @At("HEAD"), cancellable = true)
     public void onInit(CallbackInfo ci) {
-        Minecraft.getInstance().setScreen(new MainMenuGui());
-        ci.cancel();
+//        Minecraft.getInstance().setScreen(new MainMenuGui());
+//        ci.cancel();
     }
 
     @Inject(method = "extractRenderState", at = @At("HEAD"), cancellable = true)
     public void onRender(CallbackInfo ci) {
-        ci.cancel();
+//        ci.cancel();
     }
 }

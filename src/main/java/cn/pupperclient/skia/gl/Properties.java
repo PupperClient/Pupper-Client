@@ -19,6 +19,7 @@ import java.util.BitSet;
 public class Properties {
 
     public final int[] lastActiveTexture = new int[1];
+    public final int[] lastFramebuffer = new int[1];
     public final int[] lastProgram = new int[1];
     public final int[] lastTexture = new int[1];
     public final int[] lastSampler = new int[1];

@@ -9,11 +9,12 @@ import io.github.humbleui.skija.Canvas;
 import io.github.humbleui.skija.Font;
 import io.github.humbleui.types.Rect;
 import java.awt.Color;
-
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -59,6 +60,15 @@ public abstract class MixinSplashScreen {
     @Unique private long welcomeStartTime = -1L;
     @Unique private long tapPromptStartTime = -1L;
     @Unique private long tapClickTime = -1L;
+    @Unique private long lastDebugLogTime = 0L;
+    @Unique private long lastGlErrorLogTime = 0L;
+    @Unique private boolean loggedInit = false;
+    @Unique private boolean loggedLogoType = false;
+    @Unique private int lastLoggedFbo = Integer.MIN_VALUE;
+    @Unique private int lastLoggedGlError = Integer.MIN_VALUE;
+    @Unique private int lastLoggedBoundFbo = Integer.MIN_VALUE;
+    @Unique private int lastLoggedDrawFbo = Integer.MIN_VALUE;
+    @Unique private int lastLoggedReadFbo = Integer.MIN_VALUE;
 
     @Unique
     private void ensureLogoTexture() {
@@ -66,30 +76,110 @@ public abstract class MixinSplashScreen {
         tm.getTexture(CUSTOM_LOGO);
     }
 
+    @Unique
+    private void debug(String message) {
+        long now = Util.getMillis();
+        if (now - lastDebugLogTime > 1000L) {
+            lastDebugLogTime = now;
+            PupperLogger.info("Splash", message);
+        }
+    }
+
+    @Unique
+    private void debugOnce(String message) {
+        if (!loggedInit) {
+            loggedInit = true;
+            PupperLogger.info("Splash", message);
+        }
+    }
+
+    @Unique
+    private void logGlErrors(String stage) {
+        int err;
+        int count = 0;
+        while ((err = GL11.glGetError()) != GL11.GL_NO_ERROR && count < 16) {
+            count++;
+            long now = Util.getMillis();
+            boolean shouldLog = err != lastLoggedGlError || (now - lastGlErrorLogTime) > 1000L;
+            if (shouldLog) {
+                lastGlErrorLogTime = now;
+                lastLoggedGlError = err;
+                PupperLogger.error("Splash", "GL error @" + stage + ": " + err);
+            }
+        }
+    }
+
+    @Unique
+    private void logFramebufferBindings(String stage) {
+        int mainFbo = 0;
+
+        int boundFbo = glGetIntSafe(GL30.GL_FRAMEBUFFER_BINDING, -1);
+        int drawFbo = glGetIntSafe(GL30.GL_DRAW_FRAMEBUFFER_BINDING, -1);
+        int readFbo = glGetIntSafe(GL30.GL_READ_FRAMEBUFFER_BINDING, -1);
+
+        boolean shouldLog = false;
+        if (mainFbo != lastLoggedFbo || boundFbo != lastLoggedBoundFbo || drawFbo != lastLoggedDrawFbo || readFbo != lastLoggedReadFbo) {
+            shouldLog = true;
+        } else {
+            long now = Util.getMillis();
+            if (now - lastDebugLogTime > 1000L) {
+                shouldLog = true;
+            }
+        }
+
+        if (shouldLog) {
+            lastLoggedFbo = mainFbo;
+            lastLoggedBoundFbo = boundFbo;
+            lastLoggedDrawFbo = drawFbo;
+            lastLoggedReadFbo = readFbo;
+            PupperLogger.info("Splash", stage + " fbo(main=" + mainFbo + ", bound=" + boundFbo + ", draw=" + drawFbo + ", read=" + readFbo + ")");
+        }
+    }
+
+    @Unique
+    private int glGetIntSafe(int pname, int fallback) {
+        try {
+            int[] value = new int[1];
+            GL11.glGetIntegerv(pname, value);
+            return value[0];
+        } catch (Throwable t) {
+            return fallback;
+        }
+    }
+
     @Inject(method = "extractRenderState", at = @At("HEAD"), cancellable = true)
-    private void pupper_takeOverAndRender(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
-        int width = Minecraft.getInstance().getWindow().getScreenWidth();
-        int height = Minecraft.getInstance().getWindow().getScreenHeight();
-
-        // Recreate surface if window size changed
-        if (lastWindowWidth != width || lastWindowHeight != height) {
-            SkiaContext.createSurface(width, height);
-            lastWindowWidth = width;
-            lastWindowHeight = height;
-        }
-
-        if (width <= 0 || height <= 0) {
-            return;
-        }
-
-        ci.cancel();
-
-        SkiaContext.draw(canvas -> renderWithSkia(canvas, width, height, mouseX, mouseY));
+    private void pupper_takeOverAndRender(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+//        int width = Minecraft.getInstance().getWindow().getScreenWidth();
+//        int height = Minecraft.getInstance().getWindow().getScreenHeight();
+//
+//        if (lastWindowWidth != width || lastWindowHeight != height) {
+//            PupperLogger.info("Splash", "Framebuffer size changed: " + lastWindowWidth + "x" + lastWindowHeight + " -> " + width + "x" + height);
+//            // SkiaContext.createSurface already called in Window/Minecraft mixins
+//            lastWindowWidth = width;
+//            lastWindowHeight = height;
+//        }
+//
+//        ci.cancel();
+//
+//        debugOnce("Splash takeover enabled. fadeIn=" + fadeIn + ", logo=" + CUSTOM_LOGO);
+//        debug("tick: fadeIn=" + fadeIn + ", w=" + width + ", h=" + height + ", mouse=" + mouseX + "," + mouseY);
+//
+//        logFramebufferBindings("pre-draw");
+//        logGlErrors("pre-draw");
+//        try {
+//            SkiaContext.draw(canvas -> renderWithSkia(canvas, width, height, mouseX, mouseY));
+//        } catch (Exception e) {
+//            PupperLogger.error("Splash", "Error during Skia draw: ", e);
+//        }
+//        logGlErrors("post-draw");
+//        logFramebufferBindings("post-draw");
     }
 
     @Unique
     private void renderWithSkia(Canvas canvas, int width, int height, int mouseX, int mouseY) {
         ensureLogoTexture();
+        logGlErrors("ensureLogoTexture");
+        logFramebufferBindings("after-ensureLogoTexture");
 
         // Handle reloading state
         if (this.fadeIn) {
@@ -224,6 +314,7 @@ public abstract class MixinSplashScreen {
     private void renderLoadingScreen(int width, int height, long timePassed, float alpha, boolean showProgress) {
         // Background
         Skia.drawRect(0, 0, width, height, new Color(0, 0, 0, (int)(255 * alpha)));
+        logGlErrors("drawRect(background)");
 
         // Calculate scaled logo size and position
         int scaledSize = (int)(LOGO_ACTUAL_SIZE * LOGO_SCALE);
@@ -232,26 +323,42 @@ public abstract class MixinSplashScreen {
 
         // Draw logo
         drawLogo(logoX, logoY, scaledSize, alpha);
+        logGlErrors("drawLogo");
 
         if (showProgress) {
             // Progress bar
             float progress = Math.min(1f, (float) timePassed / ANIMATION_TOTAL_TIME);
             drawProgressBar(width, height, progress, alpha);
+            logGlErrors("drawProgressBar");
         } else {
             // Reloading progress bar
             drawReloadingProgressBar(width, height, timePassed, alpha);
+            logGlErrors("drawReloadingProgressBar");
         }
     }
 
     @Unique
     private void drawLogo(int x, int y, int size, float alpha) {
-        // Draw logo using Skia
-        var textureId = Minecraft.getInstance().getTextureManager().getTexture(CUSTOM_LOGO).getTexture();
-
-        if (textureId instanceof GlTexture glTexture) {
+        var tex = Minecraft.getInstance().getTextureManager().getTexture(CUSTOM_LOGO);
+        var textureId = tex.getTexture();
+        if (!loggedLogoType) {
+            loggedLogoType = true;
+            PupperLogger.info("Splash", "Logo texture impl=" + textureId.getClass().getName());
+        }
+        if (textureId instanceof GlTexture glTexture && glTexture.glId() != -1) {
+            debug("Logo glId=" + glTexture.glId() + ", draw=" + x + "," + y + " size=" + size + " alpha=" + alpha);
+            logFramebufferBindings("before-drawLogoImage");
+            logGlErrors("before-drawLogoImage");
             Skia.drawImage(glTexture.glId(), x, y, size, size, alpha);
+            logGlErrors("after-drawLogoImage");
+            logFramebufferBindings("after-drawLogoImage");
         } else {
-            PupperLogger.warn("Splash", "don't have logo GlTexture");
+            PupperLogger.warn("Splash", "Logo texture not ready or invalid");
+        }
+
+        int err = GL11.glGetError();
+        if (err != GL11.GL_NO_ERROR) {
+            PupperLogger.error("Splash", "GL error after drawLogo: " + err);
         }
     }
 

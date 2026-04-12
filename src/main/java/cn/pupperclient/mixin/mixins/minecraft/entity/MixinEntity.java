@@ -2,11 +2,9 @@ package cn.pupperclient.mixin.mixins.minecraft.entity;
 
 import cn.pupperclient.utils.misc.SoundEventHelper;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -21,9 +19,6 @@ import cn.pupperclient.mixin.interfaces.IMixinCameraEntity;
 
 @Mixin(Entity.class)
 public abstract class MixinEntity implements IMixinCameraEntity {
-    @Unique
-    protected Vec3 stuckSpeedMultiplier;
-
 	@Unique
 	private float cameraPitch;
 
@@ -35,24 +30,6 @@ public abstract class MixinEntity implements IMixinCameraEntity {
 
 	@Shadow
 	public abstract float getYRot();
-
-    @Shadow
-    public abstract boolean equals(Object o);
-
-    @Shadow
-    public abstract float getViewXRot(float tickDelta);
-
-    @Shadow
-    public abstract float getViewYRot(float tickDelta);
-
-    @Shadow
-    public abstract Vec3 calculateViewVector(float pitch, float yaw);
-
-    @Shadow
-    public abstract boolean save(CompoundTag nbt);
-
-    @Shadow
-    public abstract int getId();
 
     @Inject(method = "turn", at = @At("HEAD"))
 	private void onPlayerDirectionChange(double cursorDeltaX, double cursorDeltaY, CallbackInfo ci) {
@@ -68,17 +45,17 @@ public abstract class MixinEntity implements IMixinCameraEntity {
 
 	@Inject(method = "turn", at = @At("HEAD"), cancellable = true)
 	public void changeCameraLookDirection(double xDelta, double yDelta, CallbackInfo ci) {
-		if (FreelookMod.getInstance().isEnabled() && FreelookMod.getInstance().isActive()
-				&& (Entity) (Object) this instanceof LocalPlayer) {
-			double pitchDelta = (yDelta * 0.15);
-			double yawDelta = (xDelta * 0.15);
+		if (FreelookMod.getInstance().isEnabled() && FreelookMod.getInstance().isActive()) {
+            if ((Entity) (Object) this instanceof LocalPlayer) {
+                double pitchDelta = (yDelta * 0.15);
+                double yawDelta = (xDelta * 0.15);
 
-			this.cameraPitch = Mth.clamp(this.cameraPitch + (float) pitchDelta, -90.0f, 90.0f);
-			this.cameraYaw += (float) yawDelta;
+                this.cameraPitch = Mth.clamp(this.cameraPitch + (float) pitchDelta, -90.0f, 90.0f);
+                this.cameraYaw += (float) yawDelta;
 
-			ci.cancel();
-
-		}
+                ci.cancel();
+            }
+        }
 	}
 
 	@Override

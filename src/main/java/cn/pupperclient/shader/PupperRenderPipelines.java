@@ -67,50 +67,51 @@ public abstract class PupperRenderPipelines {
         .build()
     );
 
-    // UI
-    public static final RenderPipeline UI_COLORED = add(new ExtendedRenderPipelineBuilder(MESH_UNIFORMS)
-        .withLocation(getLocation("pipeline/ui_colored"))
-        .withVertexFormat(PupperVertexFormats.POS2_COLOR, VertexFormat.Mode.TRIANGLES)
-        .withVertexShader(getLocation("ui_colored"))
-        .withFragmentShader(getLocation("ui_colored"))
-        .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
-        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
-        .withCull(true)
-        .build()
-    );
-
-    public static final RenderPipeline UI_COLORED_LINES = add(new ExtendedRenderPipelineBuilder(MESH_UNIFORMS)
-        .withLineSmooth()
-        .withLocation(getLocation("pipeline/ui_colored_lines"))
-        .withVertexFormat(PupperVertexFormats.POS2_COLOR, VertexFormat.Mode.LINES)
-        .withVertexShader(getLocation("ui_colored"))
-        .withFragmentShader(getLocation("ui_colored"))
-        .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
-        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
-        .withCull(true)
-        .build()
-    );
-    
-    public static final RenderPipeline UI_TEXTURED = add(new ExtendedRenderPipelineBuilder(MESH_UNIFORMS)
-        .withLocation(getLocation("pipeline/ui_textured"))
-        .withVertexFormat(PupperVertexFormats.POS2_COLOR_TEX, VertexFormat.Mode.TRIANGLES)
-        .withVertexShader(getLocation("ui_textured"))
-        .withFragmentShader(getLocation("ui_textured"))
-        .withSampler("u_Texture")
-        .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
-        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
-        .withCull(true)
-        .build()
-    );
-
-    public static final RenderPipeline UI_ROUNDED_TEXTURED = add(new ExtendedRenderPipelineBuilder(MESH_UNIFORMS)
-        .withLocation(getLocation("pipeline/ui_rounded_textured"))
-        .withVertexFormat(PupperVertexFormats.POS2_COLOR_TEX, VertexFormat.Mode.TRIANGLES)
-        .withVertexShader(getLocation("ui_textured"))
-        .withFragmentShader(getLocation("ui_rounded_textured"))
-        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
-        .build()
-    );
+//
+//    // UI
+//    public static final RenderPipeline UI_COLORED = add(new ExtendedRenderPipelineBuilder(MESH_UNIFORMS)
+//        .withLocation(getLocation("pipeline/ui_colored"))
+//        .withVertexFormat(PupperVertexFormats.POS2_COLOR, VertexFormat.Mode.TRIANGLES)
+//        .withVertexShader(getLocation("ui_colored"))
+//        .withFragmentShader(getLocation("ui_colored"))
+//        .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
+//        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+//        .withCull(true)
+//        .build()
+//    );
+//
+//    public static final RenderPipeline UI_COLORED_LINES = add(new ExtendedRenderPipelineBuilder(MESH_UNIFORMS)
+//        .withLineSmooth()
+//        .withLocation(getLocation("pipeline/ui_colored_lines"))
+//        .withVertexFormat(PupperVertexFormats.POS2_COLOR, VertexFormat.Mode.LINES)
+//        .withVertexShader(getLocation("ui_colored"))
+//        .withFragmentShader(getLocation("ui_colored"))
+//        .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
+//        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+//        .withCull(true)
+//        .build()
+//    );
+//
+//    public static final RenderPipeline UI_TEXTURED = add(new ExtendedRenderPipelineBuilder(MESH_UNIFORMS)
+//        .withLocation(getLocation("pipeline/ui_textured"))
+//        .withVertexFormat(PupperVertexFormats.POS2_COLOR_TEX, VertexFormat.Mode.TRIANGLES)
+//        .withVertexShader(getLocation("ui_textured"))
+//        .withFragmentShader(getLocation("ui_textured"))
+//        .withSampler("u_Texture")
+//        .withDepthStencilState(new DepthStencilState(CompareOp.ALWAYS_PASS, false))
+//        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+//        .withCull(true)
+//        .build()
+//    );
+//
+//    public static final RenderPipeline UI_ROUNDED_TEXTURED = add(new ExtendedRenderPipelineBuilder(MESH_UNIFORMS)
+//        .withLocation(getLocation("pipeline/ui_rounded_textured"))
+//        .withVertexFormat(PupperVertexFormats.POS2_COLOR_TEX, VertexFormat.Mode.TRIANGLES)
+//        .withVertexShader(getLocation("ui_textured"))
+//        .withFragmentShader(getLocation("ui_rounded_textured"))
+//        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+//        .build()
+//    );
 
     private static RenderPipeline add(RenderPipeline pipeline) {
         PIPELINES.add(pipeline);

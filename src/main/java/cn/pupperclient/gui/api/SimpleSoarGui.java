@@ -36,7 +36,7 @@ public abstract class SimpleSoarGui extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-        SkiaContext.draw((skiaContext) -> {
+        SkiaContext.draw((_) -> {
             Skia.save();
             
             if (mcScale) {
