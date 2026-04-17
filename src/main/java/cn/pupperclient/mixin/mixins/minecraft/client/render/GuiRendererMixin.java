@@ -12,6 +12,7 @@ import cn.pupperclient.utils.render.RenderUtils;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.render.GuiRenderer;
+import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
@@ -39,7 +40,7 @@ public abstract class GuiRendererMixin implements IMinecraft {
     private GuiRenderState renderState;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void pupper$init(GuiRenderState renderState, MultiBufferSource.BufferSource bufferSource, SubmitNodeCollector submitNodeCollector, FeatureRenderDispatcher featureRenderDispatcher, List pictureInPictureRenderers, CallbackInfo ci) {
+    private void pupper$init(GuiRenderState renderState, MultiBufferSource.BufferSource bufferSource, SubmitNodeCollector submitNodeCollector, FeatureRenderDispatcher featureRenderDispatcher, List<PictureInPictureRenderer<?>> pictureInPictureRenderers, CallbackInfo ci) {
         if ((GuiRenderer) (Object) this instanceof PupperGuiRenderer) return;
         this.renderState = new GuiRenderState();
 

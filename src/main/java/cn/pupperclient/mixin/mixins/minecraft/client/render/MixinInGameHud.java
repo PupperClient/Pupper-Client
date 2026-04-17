@@ -18,15 +18,15 @@ import net.minecraft.client.gui.Gui;
 
 @Mixin(Gui.class)
 public class MixinInGameHud {
-    /**
-	 * @author EldoDebug
-	 * @reason drawHeart
-	 */
-	@Overwrite
-    private void extractHeart(final GuiGraphicsExtractor graphics, final Gui.HeartType type, final int xo, final int yo, final boolean isHardcore, final boolean blinks, final boolean half) {
-    	OldAnimationsMod mod = OldAnimationsMod.getInstance();
-		graphics.blitSprite(RenderPipelines.GUI, type.getSprite(isHardcore, half, (!mod.isEnabled() || !mod.isDisableHeartFlash()) && blinks), xo, yo, 9, 9);
-	}
+//    /**
+//	 * @author EldoDebug
+//	 * @reason drawHeart
+//	 */
+//	@Overwrite
+//    private void extractHeart(final GuiGraphicsExtractor graphics, final Gui.HeartType type, final int xo, final int yo, final boolean isHardcore, final boolean blinks, final boolean half) {
+//    	// OldAnimationsMod mod = OldAnimationsMod.getInstance();
+//		// graphics.blitSprite(RenderPipelines.GUI, type.getSprite(isHardcore, half, (!mod.isEnabled() || !mod.isDisableHeartFlash()) && blinks), xo, yo, 9, 9);
+//	}
     
 	@Inject(method = "extractHotbarAndDecorations", at = @At("TAIL"))
 	private void renderMainHud(GuiGraphicsExtractor context, DeltaTracker tickCounter, CallbackInfo ci) {

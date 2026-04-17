@@ -31,20 +31,20 @@ public class ModMenuSettings extends Mod {
 	private String previousLanguageOption = "language.english";
 	private boolean languageInitialized = false;
 
-	private KeybindSetting keybindSetting = new KeybindSetting("setting.keybind", "setting.keybind.description",
+	private final KeybindSetting keybindSetting = new KeybindSetting("setting.keybind", "setting.keybind.description",
 			Icon.KEYBOARD, this, InputConstants.getKey(new KeyEvent(GLFW.GLFW_KEY_RIGHT_SHIFT, 0, 0)));
-    private KeybindSetting keybindSetting_music = new KeybindSetting("setting.keybind_music", "setting.keybind_music.description",
+    private final KeybindSetting keybindSetting_music = new KeybindSetting("setting.keybind_music", "setting.keybind_music.description",
         Icon.KEYBOARD, this, InputConstants.getKey(new KeyEvent(GLFW.GLFW_KEY_M, 0, 0)));
-	private BooleanSetting darkModeSetting = new BooleanSetting("setting.darkmode", "setting.darkmode.description",
+	private final BooleanSetting darkModeSetting = new BooleanSetting("setting.darkmode", "setting.darkmode.description",
 			Icon.DARK_MODE, this, false);
-	private HctColorSetting hctColorSetting = new HctColorSetting("setting.color", "setting.color.description",
+	private final HctColorSetting hctColorSetting = new HctColorSetting("setting.color", "setting.color.description",
 			Icon.PALETTE, this, Hct.from(220, 26, 6));
-	private BooleanSetting blurSetting = new BooleanSetting("setting.blur", "setting.blur.description", Icon.LENS_BLUR,
+	private final BooleanSetting blurSetting = new BooleanSetting("setting.blur", "setting.blur.description", Icon.LENS_BLUR,
 			this, true);
-	private NumberSetting blurIntensitySetting = new NumberSetting("setting.blurintensity",
+	private final NumberSetting blurIntensitySetting = new NumberSetting("setting.blurintensity",
 			"setting.blurintensity.description", Icon.BLUR_LINEAR, this, 5, 1, 20, 1);
 
-	private ComboSetting languageSetting = new ComboSetting("setting.language", "setting.language.description",
+	private final ComboSetting languageSetting = new ComboSetting("setting.language", "setting.language.description",
 			Icon.LANGUAGE, this, Arrays.asList("language.english", "language.chinese"), "language.english");
 
 	private Screen modMenu;
@@ -156,19 +156,7 @@ public class ModMenuSettings extends Mod {
 		return blurIntensitySetting;
 	}
 
-	public ComboSetting getLanguageSetting() {
-		return languageSetting;
-	}
-
 	public Screen getModMenu() {
 		return modMenu;
 	}
-
-    public KeybindSetting getKeybindSetting_music() {
-        return keybindSetting_music;
-    }
-
-    public void setKeybindSetting_music(KeybindSetting keybindSetting_music) {
-        this.keybindSetting_music = keybindSetting_music;
-    }
 }
