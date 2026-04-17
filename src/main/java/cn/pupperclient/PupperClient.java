@@ -3,7 +3,6 @@ package cn.pupperclient;
 import cn.pupperclient.animation.Delta;
 import cn.pupperclient.event.EventBus;
 import cn.pupperclient.event.server.PacketHandler;
-import cn.pupperclient.gui.welcomegui.TermsScreen;
 import cn.pupperclient.management.cape.CapeManager;
 import cn.pupperclient.management.color.ColorManager;
 import cn.pupperclient.management.command.PupperCommand;
@@ -19,10 +18,6 @@ import cn.pupperclient.utils.minecraft.interfaces.IMinecraft;
 import cn.pupperclient.utils.thread.Multithreading;
 import cn.pupperclient.utils.file.FileLocation;
 import cn.pupperclient.utils.language.*;
-import com.viaversion.viafabricplus.ViaFabricPlus;
-import com.viaversion.viafabricplus.api.ViaFabricPlusBase;
-import com.viaversion.viaversion.api.protocol.version.ProtocolVersion;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
@@ -43,7 +38,6 @@ public class PupperClient implements IMinecraft {
     public static boolean firstLaunch = false;
     public static final Logger LOGGER = PupperLogger.getLogger();
 
-    private final ViaFabricPlusBase viaPlatform = ViaFabricPlus.getImpl();
     private long launchTime;
 
     private ModManager modManager;
@@ -112,7 +106,6 @@ public class PupperClient implements IMinecraft {
             firstLaunch = true;
             createConfigFile(configFile);
         }
-        registerTermsScreenCheck();
     }
 
     private void createConfigFile(Path configFile) throws IOException {
@@ -127,15 +120,6 @@ public class PupperClient implements IMinecraft {
             LOGGER.error("Failed to create first launch detection file: {}", e.getMessage());
             throw e;
         }
-    }
-
-    private void registerTermsScreenCheck() {
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (firstLaunch && client.level != null && !hasAcceptedTerms) {
-                TermsScreen termsScreen = new TermsScreen();
-                client.setScreen(termsScreen);
-            }
-        });
     }
 
     private void checkResources() {
@@ -192,14 +176,6 @@ public class PupperClient implements IMinecraft {
 
     public HypixelManager getHypixelManager() {
         return hypixelManager;
-    }
-
-    public ProtocolVersion getProtocolVersion() {
-        return viaPlatform.getTargetVersion();
-    }
-
-    public void setProtocolVersion(ProtocolVersion version) {
-        viaPlatform.setTargetVersion(version);
     }
 
     public CapeManager getCapeManager() {
