@@ -1,7 +1,5 @@
 package cn.pupperclient.mixin.mixins.minecraft.client.gui;
 
-import cn.pupperclient.gui.MainMenuGui;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
@@ -17,14 +15,13 @@ public abstract class MixinTitleScreen extends Screen {
         super(title);
     }
 
-    @Inject(method = "init()V", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "init()V", at = @At("HEAD"))
     public void onInit(CallbackInfo ci) {
-//        Minecraft.getInstance().setScreen(new MainMenuGui());
-//        ci.cancel();
+
     }
 
-    @Inject(method = "extractRenderState", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "extractRenderState", at = @At("HEAD"))
     public void onRender(CallbackInfo ci) {
-//        ci.cancel();
+
     }
 }
