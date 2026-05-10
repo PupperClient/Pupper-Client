@@ -24,7 +24,7 @@ import org.jspecify.annotations.NonNull;
 import java.nio.ByteBuffer;
 
 public class Kawaseblur {
-    // public static final Kawaseblur INGAME_BLUR = new Kawaseblur();
+    public static final Kawaseblur instance = new Kawaseblur();
     private final Minecraft mc = Minecraft.getInstance();
 
     private final IntFloatImmutablePair[] strengths = new IntFloatImmutablePair[]{

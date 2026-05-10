@@ -1,31 +1,42 @@
 package cn.pupperclient.gui;
 
-import cn.pupperclient.gui.api.SimpleSoarGui;
+import cn.pupperclient.event.EventListener;
+import cn.pupperclient.event.skia.DrawSkiaEvent;
+import cn.pupperclient.event.skia.RenderSkiaEvent;
+import cn.pupperclient.gui.api.PupperGuiUtil;
 import cn.pupperclient.skia.Skia;
 import cn.pupperclient.skia.font.Fonts;
 import cn.pupperclient.skia.font.Icon;
+import cn.pupperclient.utils.minecraft.interfaces.IMinecraft;
 import cn.pupperclient.utils.mouse.MouseUtils;
 import io.github.humbleui.types.Rect;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
+import org.jspecify.annotations.NonNull;
 
 import java.awt.*;
 
-public class MusicPlayGui extends SimpleSoarGui {
+public class MusicPlayGui extends PupperGuiUtil implements IMinecraft {
     private boolean isfullscreen = false;
 
     public MusicPlayGui() {
-        super(false);
+        super(Component.literal("MusicPlay"));
     }
 
     @Override
-    public void draw(double mouseX, double mouseY) {
-        int windowWidth = client.getWindow().getWidth();
-        int windowHeight = client.getWindow().getHeight();
+    public void extractRenderState(final @NonNull GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float a) {
+        checkWindow();
+        eventRegister();
+    }
 
-        float uiWidth = 1350;
-        float uiHeight = 900;
+    @EventListener
+    public void draw(DrawSkiaEvent event) {
+        int uiWidth = 1350;
+        int uiHeight = 900;
 
-        float offsetX = (windowWidth - uiWidth) / 2;
-        float offsetY = (windowHeight - uiHeight) / 2;
+        int offsetX = (windowWidth - uiWidth) / 2;
+        int offsetY = (windowHeight - uiHeight) / 2;
 
         Skia.translate(offsetX, offsetY);
         Skia.drawRect(0, 0, 340, uiHeight, new Color(20, 20, 20, 240));
@@ -43,9 +54,9 @@ public class MusicPlayGui extends SimpleSoarGui {
     }
 
     @Override
-    public boolean onMousePressed(double mouseX, double mouseY, int button, boolean doubled) {
-        int windowWidth = client.getWindow().getWidth();
-        int windowHeight = client.getWindow().getHeight();
+    public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
+        var mouseX = click.x();
+        var mouseY = click.y();
 
         float uiWidth = 1350;
         float uiHeight = 900;

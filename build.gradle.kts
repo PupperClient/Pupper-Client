@@ -15,6 +15,17 @@ base {
 
 loom {
     accessWidenerPath = file("src/main/resources/pupper.classtweaker")
+    runs {
+        named("client") {
+            vmArgs.addAll(
+                listOf(
+                    "-Xms512M",
+                    "-Xmx4G",
+                    "-XX:HeapBaseMinAddress=34g"
+                )
+            )
+        }
+    }
 }
 
 repositories {

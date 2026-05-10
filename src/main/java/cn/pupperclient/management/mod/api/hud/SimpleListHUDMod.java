@@ -13,13 +13,11 @@ public abstract class SimpleListHUDMod extends HUDMod{
     }
 
     protected void draw() {
-
         float fontSize = 9;
         float padding = 5;
         float maxWidth = 0;
         float height = 0;
-        float lineHeight = 5; // 空行的间隔
-                              // EN: Line height spacing
+        float lineHeight = 5;
 
         for (int i = 0; i < getText().size(); i++) {
             Rect textBounds = Skia.getTextBounds(getText().get(i), Fonts.getRegular(fontSize));

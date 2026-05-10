@@ -2,13 +2,11 @@ package cn.pupperclient.skia;
 
 import java.awt.Color;
 import java.io.File;
-import net.minecraft.client.Minecraft;
+
 import net.minecraft.resources.Identifier;
 import cn.pupperclient.management.mod.impl.settings.HUDModSettings;
-import cn.pupperclient.shader.impl.Kawaseblur;
 import cn.pupperclient.skia.context.SkiaContext;
 import cn.pupperclient.skia.image.ImageHelper;
-import com.mojang.blaze3d.platform.Window;
 import io.github.humbleui.skija.Canvas;
 import io.github.humbleui.skija.ClipMode;
 import io.github.humbleui.skija.FilterTileMode;

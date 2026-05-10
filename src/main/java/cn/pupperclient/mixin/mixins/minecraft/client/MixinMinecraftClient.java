@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import cn.pupperclient.event.client.ResolutionChangedEvent;
+import cn.pupperclient.event.skia.DrawSkiaEvent;
 import cn.pupperclient.skia.Skia;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
@@ -193,6 +194,12 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
             Skia.save();
             Skia.scale((float) Minecraft.getInstance().getWindow().getGuiScale());
             EventBus.getInstance().post(new RenderSkiaEvent(canvas));
+            Skia.restore();
+        });
+
+        SkiaContext.draw((canvas) -> {
+            Skia.save();
+            EventBus.getInstance().post(new DrawSkiaEvent(canvas));
             Skia.restore();
         });
     }

@@ -13,7 +13,7 @@ public class GuiModMenu extends SoarGui {
 	private NavigationRail navigationRail;
 
 	public GuiModMenu() {
-		super(false);
+		super(true);
 	}
 
 	@Override
@@ -49,12 +49,12 @@ public class GuiModMenu extends SoarGui {
 
 	@Override
 	public float getX() {
-		return ((float) client.getWindow().getWidth() / 2) - (getWidth() / 2);
+		return ((float) client.getWindow().getGuiScaledWidth() / 2) - (getWidth() / 2);
 	}
 
 	@Override
 	public float getY() {
-		return ((float) client.getWindow().getHeight() / 2) - (getHeight() / 2);
+		return ((float) client.getWindow().getGuiScaledHeight() / 2) - (getHeight() / 2);
 	}
 
 	@Override

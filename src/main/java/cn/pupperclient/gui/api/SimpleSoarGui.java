@@ -1,7 +1,9 @@
 package cn.pupperclient.gui.api;
 
+import cn.pupperclient.event.EventBus;
+import cn.pupperclient.event.EventListener;
+import cn.pupperclient.event.skia.RenderSkiaEvent;
 import cn.pupperclient.skia.Skia;
-import cn.pupperclient.skia.context.SkiaContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
@@ -18,15 +20,19 @@ public abstract class SimpleSoarGui extends Screen {
     
     protected final Minecraft client = Minecraft.getInstance();
     protected final boolean mcScale;
+    private boolean registered;
 
     protected SimpleSoarGui(boolean mcScale) {
         super(Component.empty());
-        this.mcScale = mcScale;
+        this.mcScale = true;
     }
 
     @Override
     protected void init() {
-        // Base init logic if any
+        if (client.level != null && !registered) {
+            EventBus.getInstance().register(this);
+            registered = true;
+        }
     }
 
     /**
@@ -36,47 +42,28 @@ public abstract class SimpleSoarGui extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-        SkiaContext.draw((_) -> {
-            Skia.save();
-            
-            if (mcScale) {
-                Skia.scale((float) client.getWindow().getGuiScale());
-            }
-            
-            double finalMouseX = mcScale ? mouseX : client.mouseHandler.xpos();
-            double finalMouseY = mcScale ? mouseY : client.mouseHandler.ypos();
-            
-            draw(finalMouseX, finalMouseY);
-            
-            Skia.restore();
-        });
+        if (client.level != null && !registered) {
+            EventBus.getInstance().register(this);
+            registered = true;
+        }
     }
 
     @Override
     public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
-        double mouseX = click.x();
-        double mouseY = click.y();
-
-        double finalMouseX = mcScale ? mouseX : client.mouseHandler.xpos();
-        double finalMouseY = mcScale ? mouseY : client.mouseHandler.ypos();
-        return onMousePressed(finalMouseX, finalMouseY, click.button(), doubled);
+        double guiScale = client.getWindow().getGuiScale();
+        return onMousePressed(client.mouseHandler.xpos() / guiScale, client.mouseHandler.ypos() / guiScale, click.button(), doubled);
     }
 
     @Override
     public boolean mouseReleased(MouseButtonEvent click) {
-        double mouseX = click.x();
-        double mouseY = click.y();
-
-        double finalMouseX = mcScale ? mouseX : client.mouseHandler.xpos();
-        double finalMouseY = mcScale ? mouseY : client.mouseHandler.ypos();
-        return onMouseReleased(finalMouseX, finalMouseY, click.button());
+        double guiScale = client.getWindow().getGuiScale();
+        return onMouseReleased(client.mouseHandler.xpos() / guiScale, client.mouseHandler.ypos() / guiScale, click.button());
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-        double finalMouseX = mcScale ? mouseX : client.mouseHandler.xpos();
-        double finalMouseY = mcScale ? mouseY : client.mouseHandler.ypos();
-        return onMouseScrolled(finalMouseX, finalMouseY, horizontalAmount, verticalAmount);
+        double guiScale = client.getWindow().getGuiScale();
+        return onMouseScrolled(client.mouseHandler.xpos() / guiScale, client.mouseHandler.ypos() / guiScale, horizontalAmount, verticalAmount);
     }
 
     @Override
@@ -98,7 +85,29 @@ public abstract class SimpleSoarGui extends Screen {
     public boolean onCharTyped(int chr) { return super.charTyped(new CharacterEvent(chr)); }
 
     @Override
+    public void removed() {
+        if (registered) {
+            EventBus.getInstance().unregister(this);
+            registered = false;
+        }
+        super.removed();
+    }
+
+    @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    @EventListener
+    public void onRenderSkia(RenderSkiaEvent event) {
+        if (client.level == null) {
+            return;
+        }
+        if (client.screen == this) {
+            double guiScale = client.getWindow().getGuiScale();
+            Skia.save();
+            draw(client.mouseHandler.xpos() / guiScale, client.mouseHandler.ypos() / guiScale);
+            Skia.restore();
+        }
     }
 }
