@@ -62,6 +62,7 @@ dependencies {
     runtimeOnly(libs.lithium)
     runtimeOnly(libs.immediatelyfast)
     runtimeOnly(libs.entityculling)
+    runtimeOnly(libs.ias)
     implementation(libs.modmenu)
     implementation(libs.viafabricplus)
 

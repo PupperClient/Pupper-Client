@@ -16,6 +16,7 @@ modmenu = "18.0.0-alpha.8"
 viafabricplus = "4.5.2"
 immediatelyfast = "1.15.2+26.1.2-fabric"
 entityculling = "NaRJu6ah"
+ias = "2ea1OpDg"
 
 # lib
 lwjgl = "3.4.1"
@@ -49,6 +50,7 @@ viafabricplus = { module = "com.viaversion:viafabricplus", version.ref = "viafab
 viafabricplus-api = { module = "com.viaversion:viafabricplus-api", version.ref = "viafabricplus" }
 immediatelyfast = { module = "maven.modrinth:immediatelyfast", version.ref = "immediatelyfast" }
 entityculling = { module = "maven.modrinth:entityculling", version.ref = "entityculling" }
+ias = { module = "maven.modrinth:in-game-account-switcher", version.ref = "ias" }
 
 # lib
 smartboot-aio = { module = "io.github.smartboot.socket:aio-core", version.ref = "smartboot-aio" }
