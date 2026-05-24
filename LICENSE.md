@@ -1,18 +1,10 @@
-# Pupper Client LICENSE
-Version November 29, 2025
-
-This License is GPL 3.0
-
-The new license shall prevail.
-
-The original license is retained because Eldodebug opted for the MIT license, but it will have no effect.
-
-
 ## GPL 3.0 LICENSE
 Version 3, 29 June 2025
 
 Copyright (C) 2007 Free Software Foundation, Inc.
 <https://fsf.org/>
+
+Copyright (C) 2026 Pupper Client
 
 Everyone is permitted to copy and distribute verbatim copies of this
 license document, but changing it is not allowed.
