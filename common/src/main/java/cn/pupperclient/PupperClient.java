@@ -81,6 +81,8 @@ public class PupperClient implements IMinecraft {
 
     public void onShutdown() {
         if (webSocketManager != null) webSocketManager.close();
+        if (capeManager != null) capeManager.close();
+        if (skinManager != null) skinManager.close();
         if (musicManager != null) musicManager.shutdown();
         if (keybindManager != null) {
             keybindManager.cleanup();
