@@ -18,19 +18,31 @@
 package cn.pupperclient.management.color.api;
 
 import java.awt.Color;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
 import cn.pupperclient.libraries.material3.Material3;
+import cn.pupperclient.libraries.material3.dynamiccolor.DynamicColor;
 import cn.pupperclient.libraries.material3.dynamiccolor.DynamicScheme;
 import cn.pupperclient.libraries.material3.dynamiccolor.MaterialDynamicColors;
 import cn.pupperclient.libraries.material3.hct.Hct;
 import cn.pupperclient.libraries.material3.utils.ColorUtils;
 
+/**
+ * The resolved Material 3 roles for one scheme.
+ *
+ * <p>A scheme is immutable, so every role is computed once and kept. Resolving a
+ * role allocates a {@link DynamicColor} and walks the HCT palette; a GUI frame asks
+ * for the same roles hundreds of times.
+ */
 public class ColorPalette {
 
 	private final DynamicScheme scheme;
 	private final MaterialDynamicColors colors;
 	private final boolean dark;
 	private final Hct hct;
+	private final Map<String, Color> roles = new HashMap<>();
 
 	public ColorPalette(Hct hct, boolean dark, float contrast) {
 		this.hct = Hct.fromInt(hct.toInt());
@@ -44,144 +56,143 @@ public class ColorPalette {
 	}
 
 	public Color getPrimary() {
-		return argbToColor(colors.primary().getArgb(scheme));
+		return role("primary", MaterialDynamicColors::primary);
 	}
 
 	public Color getSecondary() {
-		return argbToColor(colors.secondary().getArgb(scheme));
+		return role("secondary", MaterialDynamicColors::secondary);
 	}
 
 	public Color getTertiary() {
-		return argbToColor(colors.tertiary().getArgb(scheme));
+		return role("tertiary", MaterialDynamicColors::tertiary);
 	}
 
 	public Color getPrimaryContainer() {
-		return argbToColor(colors.primaryContainer().getArgb(scheme));
+		return role("primary_container", MaterialDynamicColors::primaryContainer);
 	}
 
 	public Color getSecondaryContainer() {
-		return argbToColor(colors.secondaryContainer().getArgb(scheme));
+		return role("secondary_container", MaterialDynamicColors::secondaryContainer);
 	}
 
 	public Color getTertiaryContainer() {
-		return argbToColor(colors.tertiaryContainer().getArgb(scheme));
+		return role("tertiary_container", MaterialDynamicColors::tertiaryContainer);
 	}
 
 	public Color getOnPrimary() {
-		return argbToColor(colors.onPrimary().getArgb(scheme));
+		return role("on_primary", MaterialDynamicColors::onPrimary);
 	}
 
 	public Color getOnSecondary() {
-		return argbToColor(colors.onSecondary().getArgb(scheme));
+		return role("on_secondary", MaterialDynamicColors::onSecondary);
 	}
 
 	public Color getOnTertiary() {
-		return argbToColor(colors.onTertiary().getArgb(scheme));
+		return role("on_tertiary", MaterialDynamicColors::onTertiary);
 	}
 
 	public Color getOnPrimaryContainer() {
-		return argbToColor(colors.onPrimaryContainer().getArgb(scheme));
+		return role("on_primary_container", MaterialDynamicColors::onPrimaryContainer);
 	}
 
 	public Color getOnSecondaryContainer() {
-		return argbToColor(colors.onSecondaryContainer().getArgb(scheme));
+		return role("on_secondary_container", MaterialDynamicColors::onSecondaryContainer);
 	}
 
 	public Color getOnTertiaryContainer() {
-		return argbToColor(colors.onTertiaryContainer().getArgb(scheme));
+		return role("on_tertiary_container", MaterialDynamicColors::onTertiaryContainer);
 	}
 
-    public Color getWarning() {
-		return argbToColor(colors.warning().getArgb(scheme));
+	public Color getWarning() {
+		return role("warning", MaterialDynamicColors::warning);
 	}
 
 	public Color getError() {
-		return argbToColor(colors.error().getArgb(scheme));
+		return role("error", MaterialDynamicColors::error);
 	}
 
 	public Color getErrorContainer() {
-		return argbToColor(colors.errorContainer().getArgb(scheme));
+		return role("error_container", MaterialDynamicColors::errorContainer);
 	}
 
 	public Color getOnError() {
-		return argbToColor(colors.onError().getArgb(scheme));
+		return role("on_error", MaterialDynamicColors::onError);
 	}
 
 	public Color getOnErrorContainer() {
-		return argbToColor(colors.onErrorContainer().getArgb(scheme));
+		return role("on_error_container", MaterialDynamicColors::onErrorContainer);
 	}
 
 	public Color getBackground() {
-		return argbToColor(colors.background().getArgb(scheme));
+		return role("background", MaterialDynamicColors::background);
 	}
 
 	public Color getOnBackground() {
-		return argbToColor(colors.onBackground().getArgb(scheme));
+		return role("on_background", MaterialDynamicColors::onBackground);
 	}
 
 	public Color getSurface() {
-		return argbToColor(colors.surface().getArgb(scheme));
+		return role("surface", MaterialDynamicColors::surface);
 	}
 
 	public Color getOnSurface() {
-		return argbToColor(colors.onSurface().getArgb(scheme));
+		return role("on_surface", MaterialDynamicColors::onSurface);
 	}
 
 	public Color getInverseSurface() {
-		return argbToColor(colors.inverseSurface().getArgb(scheme));
+		return role("inverse_surface", MaterialDynamicColors::inverseSurface);
 	}
 
 	public Color getInverseOnSurface() {
-		return argbToColor(colors.inverseOnSurface().getArgb(scheme));
+		return role("inverse_on_surface", MaterialDynamicColors::inverseOnSurface);
 	}
 
 	public Color getSurfaceContainer() {
-		return argbToColor(colors.surfaceContainer().getArgb(scheme));
+		return role("surface_container", MaterialDynamicColors::surfaceContainer);
 	}
 
 	public Color getSurfaceVariant() {
-		return argbToColor(colors.surfaceVariant().getArgb(scheme));
+		return role("surface_variant", MaterialDynamicColors::surfaceVariant);
 	}
 
 	public Color getOnSurfaceVariant() {
-		return argbToColor(colors.onSurfaceVariant().getArgb(scheme));
+		return role("on_surface_variant", MaterialDynamicColors::onSurfaceVariant);
 	}
 
 	public Color getSurfaceContainerHigh() {
-		return argbToColor(colors.surfaceContainerHigh().getArgb(scheme));
+		return role("surface_container_high", MaterialDynamicColors::surfaceContainerHigh);
 	}
 
 	public Color getSurfaceContainerHighest() {
-		return argbToColor(colors.surfaceContainerHighest().getArgb(scheme));
+		return role("surface_container_highest", MaterialDynamicColors::surfaceContainerHighest);
 	}
 
 	public Color getSurfaceContainerLow() {
-		return argbToColor(colors.surfaceContainerLow().getArgb(scheme));
+		return role("surface_container_low", MaterialDynamicColors::surfaceContainerLow);
 	}
 
 	public Color getSurfaceContainerLowest() {
-		return argbToColor(colors.surfaceContainerLowest().getArgb(scheme));
+		return role("surface_container_lowest", MaterialDynamicColors::surfaceContainerLowest);
 	}
 
 	public Color getSurfaceTint() {
-		return argbToColor(colors.surfaceTint().getArgb(scheme));
+		return role("surface_tint", MaterialDynamicColors::surfaceTint);
 	}
 
 	public Color getOutline() {
-		return argbToColor(colors.outline().getArgb(scheme));
+		return role("outline", MaterialDynamicColors::outline);
 	}
 
 	public Color getOutlineVariant() {
-		return argbToColor(colors.outlineVariant().getArgb(scheme));
+		return role("outline_variant", MaterialDynamicColors::outlineVariant);
+	}
+
+	private Color role(String name, Function<MaterialDynamicColors, DynamicColor> lookup) {
+		return roles.computeIfAbsent(name, key -> argbToColor(lookup.apply(colors).getArgb(scheme)));
 	}
 
 	private Color argbToColor(int argb) {
-
-		int red = ColorUtils.redFromArgb(argb);
-		int green = ColorUtils.greenFromArgb(argb);
-		int blue = ColorUtils.blueFromArgb(argb);
-
-		return new Color(red, green, blue);
+		return new Color(ColorUtils.redFromArgb(argb), ColorUtils.greenFromArgb(argb), ColorUtils.blueFromArgb(argb));
 	}
 
 	public boolean isDarkMode() {
