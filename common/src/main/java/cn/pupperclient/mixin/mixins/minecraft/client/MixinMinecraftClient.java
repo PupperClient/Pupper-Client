@@ -50,11 +50,11 @@ import com.mojang.blaze3d.platform.Window;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -107,11 +107,18 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 	@Inject(method = "<init>(Lnet/minecraft/client/main/GameConfig;)V", at = @At("TAIL"))
 	public void onInit(GameConfig args, CallbackInfo ci) {
 		assetDir = args.location.assetDirectory;
+		try {
+			PupperClient.getInstance().start();
+		} catch (IOException failure) {
+			throw new IllegalStateException("Pupper Client failed to start", failure);
+		}
 	}
 
+	/** One shutdown hook: configs are written before the managers are torn down. */
 	@Inject(method = "close", at = @At("HEAD"))
 	public void onStop(CallbackInfo ci) {
 		PupperClient.getInstance().getConfigManager().save(ConfigType.MOD);
+		PupperClient.getInstance().onShutdown();
 	}
 
 	@Inject(method = "continueAttack", at = @At("HEAD"))
@@ -154,24 +161,15 @@ public abstract class MixinMinecraftClient implements IMixinMinecraftClient {
 	}
 
 	/**
-	 * @author Pupper Client
-	 * @reason Append client name and version to the window title
+	 * Replaces only the title text, so a Minecraft update to {@code updateTitle} keeps
+	 * whatever else that method does.
 	 */
-	@Overwrite
-	public void updateTitle() {
-		this.window.setTitle(PupperClient.getInstance().getName() + " "
-				+ PupperClient.getInstance().getClientVersion() + " | " + createTitle());
+	@Redirect(method = "updateTitle", at = @At(value = "INVOKE",
+		target = "Lcom/mojang/blaze3d/platform/Window;setTitle(Ljava/lang/String;)V"))
+	private void onUpdateTitle(Window window, String title) {
+		window.setTitle(PupperClient.getInstance().getName() + " "
+				+ PupperClient.getInstance().getClientVersion() + " | " + title);
 	}
-
-	@Inject(method = "<init>", at = @At("TAIL"))
-	public void init(CallbackInfo ci) throws IOException {
-		PupperClient.getInstance().start();
-	}
-
-    @Inject(method = "close", at = @At("HEAD"))
-    public void onShutdown(CallbackInfo ci) {
-        PupperClient.getInstance().onShutdown();
-    }
 
 	@Inject(method = "tick", at = @At("HEAD"))
 	public void onClientTick(CallbackInfo ci) {

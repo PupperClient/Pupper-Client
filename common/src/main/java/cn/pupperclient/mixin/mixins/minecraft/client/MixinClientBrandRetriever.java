@@ -20,16 +20,18 @@ package cn.pupperclient.mixin.mixins.minecraft.client;
 import cn.pupperclient.PupperClient;
 import net.minecraft.client.ClientBrandRetriever;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ClientBrandRetriever.class)
 public class MixinClientBrandRetriever {
     /**
-     * @author Pupper Client
-     * @reason Report the client brand instead of vanilla "vanilla"
+     * Replaces the returned brand instead of the whole method, so the vanilla body still
+     * runs if Minecraft changes it.
      */
-    @Overwrite
-    public static String getClientModName() {
-        return PupperClient.getInstance().getName() + " (" + PupperClient.getInstance().getVersion() + ") ";
+    @Inject(method = "getClientModName", at = @At("RETURN"), cancellable = true)
+    private static void onGetClientModName(CallbackInfoReturnable<String> cir) {
+        cir.setReturnValue(PupperClient.getInstance().getName() + " (" + PupperClient.getInstance().getVersion() + ") ");
     }
 }
