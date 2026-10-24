@@ -22,43 +22,48 @@ import java.nio.ByteBuffer;
 
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.nfd.NFDFilterItem;
 import org.lwjgl.util.nfd.NativeFileDialog;
 
+import cn.pupperclient.PupperLogger;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 
 public class FileDialog {
 
-	public static ObjectObjectImmutablePair<Boolean, File> chooseFile(String name, String... extensions) {
+    /**
+     * Opens the native file picker.
+     *
+     * @return the selected file, or {@code (false, null)} when the user cancels or the
+     *         dialog fails; the path is only read when the dialog reported a selection
+     */
+    public static ObjectObjectImmutablePair<Boolean, File> chooseFile(String name, String... extensions) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            NFDFilterItem.Buffer filters = NFDFilterItem.malloc(1);
+            filters.get(0).name(stack.UTF8(name)).spec(stack.UTF8(String.join(",", extensions)));
 
-		try (MemoryStack stack = MemoryStack.stackPush()) {
+            PointerBuffer path = stack.mallocPointer(1);
+            return result(NativeFileDialog.NFD_OpenDialog(path, filters, (ByteBuffer) null), path);
+        }
+    }
 
-			NFDFilterItem.Buffer filters = NFDFilterItem.malloc(1);
+    /** @see #chooseFile(String, String...) */
+    public static ObjectObjectImmutablePair<Boolean, File> chooseFolder() {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            PointerBuffer path = stack.mallocPointer(1);
+            return result(NativeFileDialog.NFD_PickFolder(path, (ByteBuffer) null), path);
+        }
+    }
 
-			filters.get(0).name(stack.UTF8(name)).spec(stack.UTF8(String.join(",", extensions)));
-
-			PointerBuffer path = stack.mallocPointer(1);
-
-			return ObjectObjectImmutablePair.of(
-					isSuccess(NativeFileDialog.NFD_OpenDialog(path, filters, (ByteBuffer) null)),
-					new File(path.getStringUTF8(0)));
-		}
-	}
-
-	public static ObjectObjectImmutablePair<Boolean, File> chooseFolder() {
-
-		PointerBuffer path = MemoryUtil.memAllocPointer(1);
-
-		try {
-			return ObjectObjectImmutablePair.of(isSuccess(NativeFileDialog.NFD_PickFolder(path, (ByteBuffer) null)),
-					new File(path.getStringUTF8(0)));
-		} finally {
-			MemoryUtil.memFree(path);
-		}
-	}
-
-	private static boolean isSuccess(int result) {
-		return result == NativeFileDialog.NFD_OKAY;
-	}
+    private static ObjectObjectImmutablePair<Boolean, File> result(int outcome, PointerBuffer path) {
+        if (outcome != NativeFileDialog.NFD_OKAY) {
+            if (outcome != NativeFileDialog.NFD_CANCEL) {
+                PupperLogger.error("FileDialog", "Native file dialog failed with code " + outcome);
+            }
+            return ObjectObjectImmutablePair.of(false, null);
+        }
+        // NFD owns the string until it is freed; the slot is only valid after NFD_OKAY.
+        String selected = path.getStringUTF8(0);
+        NativeFileDialog.NFD_FreePath(path.get(0));
+        return ObjectObjectImmutablePair.of(true, new File(selected));
+    }
 }

@@ -67,7 +67,6 @@ public class ConfigManager {
             config.onSave();
             GSON.toJson(config.getJsonObject(), writer);
             writer.flush();
-            writer.close(); // Close before moving
 
             // Atomic move/replace
             if (targetFile.exists()) {
@@ -85,6 +84,9 @@ public class ConfigManager {
 
     public void load(ConfigType type) {
         Config config = getConfig(type);
+        if (config == null) {
+            return;
+        }
 
         if (config.getFile() == null) {
             config.setJsonObject(new JsonObject());
@@ -131,7 +133,13 @@ public class ConfigManager {
         }
     }
 
+	/** @return the config for {@code type}, or {@code null} when that type is not registered */
 	public Config getConfig(ConfigType type) {
-		return configs.stream().filter(config -> config.getType().equals(type)).findFirst().get();
+		for (Config config : configs) {
+			if (config.getType() == type) {
+				return config;
+			}
+		}
+		return null;
 	}
 }
