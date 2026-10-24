@@ -83,11 +83,15 @@ public class MusicManager {
         }
         service = new MusicService(this, library);
 
-        try {
-            load();
-        } catch (Exception e) {
-            cn.pupperclient.PupperLogger.error("MusicManager", "Failed to load music", e);
-        }
+        // Reading tags, cover art and checksums for a whole library takes long enough to
+        // stall client startup, so the first scan runs off-thread and publishes when done.
+        Multithreading.runAsync(() -> {
+            try {
+                load();
+            } catch (Exception e) {
+                cn.pupperclient.PupperLogger.error("MusicManager", "Failed to load music", e);
+            }
+        });
 
         this.musicPlayer = new MusicPlayer(() -> {
             long completedSession = musicPlayer.getGeneration();
