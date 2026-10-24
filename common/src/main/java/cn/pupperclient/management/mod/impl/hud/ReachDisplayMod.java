@@ -27,6 +27,7 @@ import cn.pupperclient.event.server.impl.AttackEntityEvent;
 import cn.pupperclient.event.server.impl.DamageEntityEvent;
 import cn.pupperclient.management.mod.api.hud.SimpleHUDMod;
 import cn.pupperclient.skia.font.Icon;
+import cn.pupperclient.utils.thread.Multithreading;
 
 public class ReachDisplayMod extends SimpleHUDMod {
 
@@ -45,20 +46,23 @@ public class ReachDisplayMod extends SimpleHUDMod {
 	};
 
 	public final EventBus.EventListener<DamageEntityEvent> onDamageEntity = event -> {
-
-		if (event.getEntityId() == possibleTarget) {
-
-            assert client.level != null;
-            Entity entity = client.level.getEntity(event.getEntityId());
-
-			possibleTarget = -1;
-            assert client.player != null;
-            assert entity != null;
-            distance = client.player.getEyePosition()
-					.distanceTo(closestPointToBox(client.player.getEyePosition(), entity.getBoundingBox()));
-			hitTime = System.currentTimeMillis();
-		}
+		// Damage packets arrive on the network thread; world and player state is
+		// only valid on the client thread.
+		Multithreading.runMainThread(() -> measureReach(event.getEntityId()));
 	};
+
+	private void measureReach(int entityId) {
+		if (entityId != possibleTarget) return;
+		possibleTarget = -1;
+
+		if (client.level == null || client.player == null) return;
+		Entity entity = client.level.getEntity(entityId);
+		if (entity == null) return;
+
+		Vec3 eye = client.player.getEyePosition();
+		distance = eye.distanceTo(closestPointToBox(eye, entity.getBoundingBox()));
+		hitTime = System.currentTimeMillis();
+	}
 
 	public final EventBus.EventListener<AttackEntityEvent> onAttackEntity = event -> {
 		possibleTarget = event.getEntityId();

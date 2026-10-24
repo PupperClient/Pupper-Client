@@ -59,14 +59,15 @@ public class AutoGGMod extends Mod {
 	public final EventBus.EventListener<ReceiveChatEvent> onReceiveChat = event -> {
 
 		String message = event.getMessage();
+		if (message == null) return;
 
-		if (message != null) {
-			if (ServerUtils.isMultiplayer()) {
-				if (ServerUtils.isJoin(Server.HYPIXEL) && hypixelSetting.isEnabled()) {
-					processChat(strings.get(Server.HYPIXEL), message);
-				}
-			}
-		}
+		// Chat arrives on the network thread, but the current server and the
+		// setting are client state.
+		Multithreading.runMainThread(() -> {
+			if (!ServerUtils.isMultiplayer()) return;
+			if (!ServerUtils.isJoin(Server.HYPIXEL) || !hypixelSetting.isEnabled()) return;
+			processChat(strings.get(Server.HYPIXEL), message);
+		});
 	};
 
 	private void processChat(List<String> options, String message) {
@@ -79,17 +80,17 @@ public class AutoGGMod extends Mod {
 	}
 
 	private void sendMessage(boolean hypixel) {
-		Multithreading.schedule(() -> {
+		String message = messageSetting.getValue();
+		long delay = (long) delaySetting.getValue();
+		// The delayed task runs on the scheduler thread; the connection is client state.
+		Multithreading.schedule(() -> Multithreading.runMainThread(() -> {
+			if (client.player == null) return;
 			if (hypixel) {
-                if (client.player != null) {
-                    client.player.connection.sendCommand("achat " + messageSetting.getValue());
-                }
-            } else {
-                if (client.player != null) {
-                    client.player.connection.sendChat(messageSetting.getValue());
-                }
-            }
-		}, (long) delaySetting.getValue(), TimeUnit.SECONDS);
+				client.player.connection.sendCommand("achat " + message);
+			} else {
+				client.player.connection.sendChat(message);
+			}
+		}), delay, TimeUnit.SECONDS);
 	}
 
 	private List<String> addToList(String... strings) {
