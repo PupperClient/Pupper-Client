@@ -21,19 +21,21 @@ import java.util.concurrent.*;
 import net.minecraft.client.Minecraft;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
+/**
+ * Shared executors for work that must not run on the client thread.
+ *
+ * <p>Ordinary background work uses a virtual thread per task. Delays are owned by a
+ * single platform scheduler thread: virtual threads are cheap to create but are the
+ * wrong unit to pool or to pin a delayed queue to.
+ */
 public class Multithreading {
     private static final ExecutorService virtualThreadExecutor = Executors.newVirtualThreadPerTaskExecutor();
 
-    private static final ExecutorService cachedThreadPool = Executors.newCachedThreadPool(
+    private static final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor(
         new ThreadFactoryBuilder()
-            .setNameFormat("Pupper Client-%d")
-            .setThreadFactory(Thread.ofVirtual().factory())
+            .setNameFormat("Pupper Client scheduler-%d")
+            .setDaemon(true)
             .build()
-    );
-
-    private static final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(
-        Runtime.getRuntime().availableProcessors(),
-        Thread.ofVirtual().factory()
     );
 
     public static void runAsync(Runnable runnable) {
@@ -62,15 +64,11 @@ public class Multithreading {
 
     public static void shutdown() {
         virtualThreadExecutor.shutdown();
-        cachedThreadPool.shutdown();
         scheduledExecutor.shutdown();
 
         try {
             if (!virtualThreadExecutor.awaitTermination(1, TimeUnit.SECONDS)) {
                 virtualThreadExecutor.shutdownNow();
-            }
-            if (!cachedThreadPool.awaitTermination(1, TimeUnit.SECONDS)) {
-                cachedThreadPool.shutdownNow();
             }
             if (!scheduledExecutor.awaitTermination(1, TimeUnit.SECONDS)) {
                 scheduledExecutor.shutdownNow();
