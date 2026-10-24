@@ -53,6 +53,7 @@ public final class BlazeUiRenderer implements AutoCloseable {
     private int width, height;
     private boolean sceneReady;
     private record Prepared(BlazeUiCanvas.Draw draw, GpuBufferSlice vertices, GpuBufferSlice uniforms) {}
+    private ByteBuffer vertexScratch, uniformScratch;
 
     public void draw(GpuTextureView destination, Consumer<BlazeUiCanvas> callback, boolean glass) {
         width = destination.getWidth(0); height = destination.getHeight(0);
@@ -88,7 +89,7 @@ public final class BlazeUiRenderer implements AutoCloseable {
         var encoder = RenderSystem.getDevice().createCommandEncoder();
         Rect viewport = group.bounds;
         int left = Math.max(0, (int) Math.floor(viewport.getLeft())), top = Math.max(0, (int) Math.floor(viewport.getTop()));
-        var prepared = new ArrayList<Prepared>();
+        var draws = new ArrayList<BlazeUiCanvas.Draw>();
         for (Object command : group.commands) {
             BlazeUiCanvas.Draw draw;
             if (command instanceof BlazeUiCanvas.Group child) {
@@ -106,17 +107,39 @@ public final class BlazeUiRenderer implements AutoCloseable {
                 for (int c : corners) draw.vertex(identity, c == 0 || c == 3 ? x : x + w, c < 2 ? y : y + h,
                         c == 0 || c == 3 ? 0 : u, c < 2 ? 1 : v, color, uv);
             } else draw = (BlazeUiCanvas.Draw) command;
-            if (draw.size == 0) continue;
-            ByteBuffer vertices = MemoryUtil.memAlloc(draw.size * Float.BYTES).order(ByteOrder.nativeOrder());
-            ByteBuffer uniforms = MemoryUtil.memAlloc((9 + BlazeUiCanvas.MAX_CLIPS * 4) * 16).order(ByteOrder.nativeOrder());
-            try {
-                for (int i = 0; i < draw.size; i++) vertices.putFloat(draw.vertices[i]); vertices.flip();
-                uniforms(uniforms, draw, target, left, top); uniforms.flip();
-                var memory = encoder.transientMemory();
-                var vertexSlice = memory.uploadGpu(vertices, 4, GpuBuffer.USAGE_VERTEX);
-                var uniformSlice = memory.uploadGpu(uniforms, RenderSystem.getDevice().getDeviceInfo().limits().minUniformOffsetAlignment(), GpuBuffer.USAGE_UNIFORM);
-                prepared.add(new Prepared(draw, vertexSlice, uniformSlice));
-            } finally { MemoryUtil.memFree(vertices); MemoryUtil.memFree(uniforms); }
+            if (draw.size != 0) draws.add(draw);
+        }
+        if (draws.isEmpty()) return;
+
+        // All commands share one vertex and one uniform upload per pass. The two scratch
+        // buffers are reused across frames, and each command addresses its own slice.
+        int uniformSize = (9 + BlazeUiCanvas.MAX_CLIPS * 4) * 16;
+        long uniformAlignment = RenderSystem.getDevice().getDeviceInfo().limits().minUniformOffsetAlignment();
+        // Each command's uniform slice must start on the alignment the binding requires.
+        int uniformStride = (int) (((uniformSize + uniformAlignment - 1) / uniformAlignment) * uniformAlignment);
+        int vertexFloats = 0;
+        for (var draw : draws) vertexFloats += draw.size;
+
+        ByteBuffer vertices = scratch(false, vertexFloats * Float.BYTES);
+        ByteBuffer uniforms = scratch(true, uniformStride * draws.size());
+        for (var draw : draws) {
+            for (int i = 0; i < draw.size; i++) vertices.putFloat(draw.vertices[i]);
+            uniforms(uniforms, draw, target, left, top);
+            // Pad to the alignment the uniform binding requires.
+            for (int pad = uniformSize; pad < uniformStride; pad++) uniforms.put((byte) 0);
+        }
+        vertices.flip(); uniforms.flip();
+        var memory = encoder.transientMemory();
+        var vertexBlock = memory.uploadGpu(vertices, 4, GpuBuffer.USAGE_VERTEX);
+        var uniformBlock = memory.uploadGpu(uniforms, uniformAlignment, GpuBuffer.USAGE_UNIFORM);
+        var prepared = new ArrayList<Prepared>(draws.size());
+        int vertexOffset = 0;
+        for (int i = 0; i < draws.size(); i++) {
+            var draw = draws.get(i);
+            prepared.add(new Prepared(draw,
+                vertexBlock.slice((long) vertexOffset * Float.BYTES, (long) draw.size * Float.BYTES),
+                uniformBlock.slice((long) i * uniformStride, uniformSize)));
+            vertexOffset += draw.size;
         }
         try (var pass = encoder.createRenderPass(() -> "Pupper Client UI geometry", target.view, Optional.of(color(clearColor)))) {
             pass.setPipeline(PIPELINE);
@@ -148,6 +171,17 @@ public final class BlazeUiRenderer implements AutoCloseable {
             } else for (int k = 0; k < 4; k++) vec(buffer, 0, 0, 0, 0);
         }
     }
+    /** Returns a native-order scratch buffer of at least {@code bytes}, growing on demand. */
+    private ByteBuffer scratch(boolean uniform, int bytes) {
+        ByteBuffer buffer = uniform ? uniformScratch : vertexScratch;
+        if (buffer == null || buffer.capacity() < bytes) {
+            if (buffer != null) MemoryUtil.memFree(buffer);
+            buffer = MemoryUtil.memAlloc(Math.max(bytes, uniform ? 4096 : 16384)).order(ByteOrder.nativeOrder());
+            if (uniform) uniformScratch = buffer; else vertexScratch = buffer;
+        }
+        buffer.clear();
+        return buffer;
+    }
     private UiTexture acquireLayer(int w, int h) {
         // Animation changes device bounds every frame. Buckets reuse textures while the
         // composite samples only the original bounds, preserving group clipping/origin.
@@ -176,5 +210,7 @@ public final class BlazeUiRenderer implements AutoCloseable {
     @Override public void close() {
         assets.close(); layerPool.forEach(UiTexture::close); layerPool.clear(); usedLayers.clear();
         if (ui != null) { ui.close(); ui = null; } if (scene != null) { scene.close(); scene = null; } if (white != null) { white.close(); white = null; }
+        if (vertexScratch != null) { MemoryUtil.memFree(vertexScratch); vertexScratch = null; }
+        if (uniformScratch != null) { MemoryUtil.memFree(uniformScratch); uniformScratch = null; }
     }
 }
