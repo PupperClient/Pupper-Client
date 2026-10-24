@@ -10,13 +10,20 @@ attributed in [NOTICE](NOTICE).
 
 | Component | Location | Copyright | License | Modified |
 | --- | --- | --- | --- | --- |
-| libFLAC (Java port) | `common/src/main/java/cn/pupperclient/libraries/flac/` | Copyright (C) 2000-2003 Josh Coalson; Java port by kc7bfi | LGPL-2.0-or-later | No — original GNU header kept in every file |
-| DiscordIPC | `common/src/main/java/cn/pupperclient/libraries/discordipc/` | Copyright 2017 John Grosh (john.a.grosh@gmail.com) | Apache-2.0 | No |
+| libFLAC (Java port) | `common/src/main/java/cn/pupperclient/libraries/flac/` | Copyright (C) 2000-2003 Josh Coalson; Java port by kc7bfi | LGPL-2.0-or-later | No — upstream notices retained where the upstream file has one |
+| DiscordIPC | `common/src/main/java/cn/pupperclient/libraries/discordipc/` | Copyright 2017 John Grosh (john.a.grosh@gmail.com) | Apache-2.0 | No — upstream notices retained where the upstream file has one |
 | Material Color Utilities | `common/src/main/java/cn/pupperclient/libraries/material3/` (except `Material3.java`) | Copyright 2021-2024 Google LLC | Apache-2.0 | No |
 
 These directories are excluded from the project license header check
 (`spotlessCheck`) on purpose: their files carry the upstream notices, and those
-notices must not be replaced. The one exception is
+notices must not be replaced. Not every file in a vendored directory has one —
+the Java port of libFLAC and DiscordIPC each contain a few files whose upstream
+version has no header at all. Those files are left exactly as upstream shipped
+them rather than being given a notice their authors never wrote; the license for
+the directory as a whole is the one in this table, and the full license texts are
+listed under "License texts" below.
+
+The one exception is
 `libraries/material3/Material3.java`: it is a first-party adapter written against
 the library's public API (it calls the project's own `ImageUtils` and adds
 helpers that upstream does not have), so it carries the project license header
