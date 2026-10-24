@@ -191,11 +191,9 @@ public class Skia {
      * @param height The height to draw the image
      */
     public static void drawImage(String path, float x, float y, float width, float height) {
-
-        path = "/assets/pupper/" + path;
-
-        if (imageHelper.load(path)) {
-            getCanvas().drawImageRect(imageHelper.get(path), Rect.makeXYWH(x, y, width, height));
+        Image image = imageHelper.getOrLoad("/assets/pupper/" + path);
+        if (image != null) {
+            getCanvas().drawImageRect(image, Rect.makeXYWH(x, y, width, height));
         }
     }
 
@@ -239,8 +237,9 @@ public class Skia {
      * @param height The height to draw the image
      */
     public static void drawImage(File file, float x, float y, float width, float height) {
-        if (imageHelper.load(file)) {
-            getCanvas().drawImageRect(imageHelper.get(file.getName()), Rect.makeXYWH(x, y, width, height));
+        Image image = imageHelper.getOrLoad(file);
+        if (image != null) {
+            getCanvas().drawImageRect(image, Rect.makeXYWH(x, y, width, height));
         }
     }
 
@@ -372,19 +371,19 @@ public class Skia {
      * @param radius The corner radius for clipping
      */
     public static void drawPlayerHead(File file, float x, float y, float width, float height, float radius) {
-        if (imageHelper.load(file)) {
+        Image image = imageHelper.getOrLoad(file);
+        if (image == null) return;
 
-            try (Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, radius))) {
-                Rect srcRect = Rect.makeXYWH(8, 8, 8, 8);
-                Rect srcRect1 = Rect.makeXYWH(40, 8, 8, 8);
-                Rect dstRect = Rect.makeXYWH(x, y, width, height);
+        try (Path path = Path.makeRRect(RRect.makeXYWH(x, y, width, height, radius))) {
+            Rect srcRect = Rect.makeXYWH(8, 8, 8, 8);
+            Rect srcRect1 = Rect.makeXYWH(40, 8, 8, 8);
+            Rect dstRect = Rect.makeXYWH(x, y, width, height);
 
-                save();
-                getCanvas().clipPath(path, ClipMode.INTERSECT, true);
-                getCanvas().drawImageRect(imageHelper.get(file.getName()), srcRect, dstRect, null, false, UiCanvas.ImageSampling.PIXEL);
-                getCanvas().drawImageRect(imageHelper.get(file.getName()), srcRect1, dstRect, null, false, UiCanvas.ImageSampling.PIXEL);
-                restore();
-            }
+            save();
+            getCanvas().clipPath(path, ClipMode.INTERSECT, true);
+            getCanvas().drawImageRect(image, srcRect, dstRect, null, false, UiCanvas.ImageSampling.PIXEL);
+            getCanvas().drawImageRect(image, srcRect1, dstRect, null, false, UiCanvas.ImageSampling.PIXEL);
+            restore();
         }
     }
 
@@ -396,8 +395,7 @@ public class Skia {
      * @param scale The scale factor for the skin
      */
     public static void drawSkin(File file, float x, float y, float scale) {
-        if (!imageHelper.load(file)) return;
-        Image image = imageHelper.get(file.getName());
+        Image image = imageHelper.getOrLoad(file);
         if (image == null) return;
 
         save();
@@ -447,9 +445,9 @@ public class Skia {
      */
     public static void drawMinecraftImage(String path, float x, float y, float width, float height) {
         Identifier identifier = Identifier.fromNamespaceAndPath("minecraft", path);
-
-        if (imageHelper.load(identifier)) {
-            getCanvas().drawImageRect(imageHelper.get(identifier.toString()), Rect.makeXYWH(x, y, width, height));
+        Image image = imageHelper.getOrLoad(identifier);
+        if (image != null) {
+            getCanvas().drawImageRect(image, Rect.makeXYWH(x, y, width, height));
         }
     }
 

@@ -18,91 +18,130 @@
 package cn.pupperclient.skia.image;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
+import java.nio.file.Files;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 
+import cn.pupperclient.PupperLogger;
 import cn.pupperclient.skia.utils.SkiaUtils;
 
 import io.github.humbleui.skija.Image;
 
+/**
+ * Decoded-image cache shared by the {@link cn.pupperclient.skia.Skia} draw helpers.
+ *
+ * <p>Cache keys are stable identities - resource paths, absolute file paths and
+ * identifiers - so two files that merely share a name never alias each other.
+ * Every load reports whether it produced an image; callers must not draw without one.
+ */
 public class ImageHelper {
 
-	private Map<String, Image> images = new HashMap<>();
-	public boolean load(Identifier identifier) {
-		
+    /**
+     * Bounded so a long session cannot retain every skin and cape it has ever drawn.
+     * Eviction closes the decoded image; the UI texture cache drops the matching
+     * sprite on its next frame.
+     */
+    private static final int MAX_CACHED_IMAGES = 256;
+
+    private final Map<String, Image> images = new LinkedHashMap<>(64, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, Image> eldest) {
+            if (size() <= MAX_CACHED_IMAGES) {
+                return false;
+            }
+            eldest.getValue().close();
+            return true;
+        }
+    };
+
+    public boolean load(Identifier identifier) {
         String key = identifier.toString();
-		if (!images.containsKey(key)) {
-			ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
-			Resource resource;
-			try {
-				resource = resourceManager.getResourceOrThrow(identifier);
-				try (InputStream inputStream = resource.open()) {
+        if (images.containsKey(key)) {
+            return true;
+        }
 
-					byte[] imageData = inputStream.readAllBytes();
-					Image image = Image.makeDeferredFromEncodedBytes(imageData);
-                    images.put(key, image);
-					return true;
-				} catch (IOException e) {
-					cn.pupperclient.PupperLogger.error("ImageHelper", "Failed to read identifier bytes", e);
-				}
-			} catch (FileNotFoundException e) {
-				cn.pupperclient.PupperLogger.error("ImageHelper", "Identifier resource not found", e);
-			}
-		}
-		return true;
-	}
+        ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
+        try {
+            Resource resource = resourceManager.getResourceOrThrow(identifier);
+            try (InputStream inputStream = resource.open()) {
+                return decode(key, inputStream.readAllBytes());
+            }
+        } catch (IOException e) {
+            PupperLogger.error("ImageHelper", "Failed to read identifier bytes: " + identifier, e);
+            return false;
+        }
+    }
 
-	public boolean load(String filePath) {
-		if (!images.containsKey(filePath)) {
-			Optional<byte[]> encodedBytes = SkiaUtils.convertToBytes(filePath);
-			if (encodedBytes.isPresent()) {
-				images.put(filePath, Image.makeDeferredFromEncodedBytes(encodedBytes.get()));
-				return true;
-			} else {
-				return false;
-			}
-		}
-		return true;
-	}
+    public boolean load(String resourcePath) {
+        if (images.containsKey(resourcePath)) {
+            return true;
+        }
+        return SkiaUtils.convertToBytes(resourcePath).map(bytes -> decode(resourcePath, bytes)).orElse(false);
+    }
 
-	public boolean load(File file) {
+    public boolean load(File file) {
+        String key = file.getAbsolutePath();
+        if (images.containsKey(key)) {
+            return true;
+        }
 
-		if (!images.containsKey(file.getName())) {
+        try {
+            return decode(key, Files.readAllBytes(file.toPath()));
+        } catch (IOException e) {
+            PupperLogger.error("ImageHelper", "Failed to load image from file: " + file, e);
+            return false;
+        }
+    }
 
-			try {
-				byte[] encoded = org.apache.commons.io.IOUtils.toByteArray(new FileInputStream(file));
-				images.put(file.getName(), Image.makeDeferredFromEncodedBytes(encoded));
-				return true;
-			} catch (IOException e) {
-				cn.pupperclient.PupperLogger.error("ImageHelper", "Failed to load image from file: " + file.getName(), e);
-				return false;
-			}
-		}
+    /**
+     * Returns the decoded image, loading it on first use.
+     *
+     * @return the image, or {@code null} when it is missing or cannot be decoded
+     */
+    public Image getOrLoad(Identifier identifier) {
+        return load(identifier) ? get(identifier) : null;
+    }
 
-		return true;
-	}
+    /** @see #getOrLoad(Identifier) */
+    public Image getOrLoad(String resourcePath) {
+        return load(resourcePath) ? get(resourcePath) : null;
+    }
 
-	public Image get(String path) {
+    /** @see #getOrLoad(Identifier) */
+    public Image getOrLoad(File file) {
+        return load(file) ? get(file) : null;
+    }
 
-		if (images.containsKey(path)) {
-			return images.get(path);
-		}
+    public Image get(String key) {
+        return images.get(key);
+    }
 
-		return null;
-	}
+    public Image get(File file) {
+        return images.get(file.getAbsolutePath());
+    }
 
-	public void clear() {
-		images.values().forEach(Image::close);
-		images.clear();
-	}
+    public Image get(Identifier identifier) {
+        return images.get(identifier.toString());
+    }
 
+    public void clear() {
+        images.values().forEach(Image::close);
+        images.clear();
+    }
+
+    private boolean decode(String key, byte[] encoded) {
+        try {
+            images.put(key, Image.makeDeferredFromEncodedBytes(encoded));
+            return true;
+        } catch (RuntimeException e) {
+            PupperLogger.error("ImageHelper", "Failed to decode image: " + key, e);
+            return false;
+        }
+    }
 }
