@@ -27,6 +27,7 @@ import cn.pupperclient.management.mod.ModCategory;
 import cn.pupperclient.management.mod.api.hud.AnimatedListHUDMod;
 import cn.pupperclient.management.mod.settings.impl.BooleanSetting;
 import cn.pupperclient.skia.font.Icon;
+import cn.pupperclient.utils.language.I18n;
 
 public class ArrayListMod extends AnimatedListHUDMod {
     private static ArrayListMod instance;
@@ -39,6 +40,10 @@ public class ArrayListMod extends AnimatedListHUDMod {
     private final BooleanSetting otherSetting = new BooleanSetting("setting.other",
         "setting.other.description", Icon.MORE_HORIZ, this, false);
 
+    /** Rebuilt only when a flag or the language changes, not on every frame. */
+    private List<Row> cachedRows = List.of();
+    private long cachedState;
+
     public ArrayListMod() {
         super("mod.arraylist.name", "mod.arraylist.description", Icon.LIST);
         instance = this;
@@ -50,10 +55,36 @@ public class ArrayListMod extends AnimatedListHUDMod {
     @Override protected float listRowHeight() { return 20; }
 
     @Override protected List<Row> rows() {
+        long state = stateSignature();
+        if (state != cachedState) {
+            cachedRows = buildRows();
+            cachedState = state;
+        }
+        return cachedRows;
+    }
+
+    private List<Row> buildRows() {
         return PupperClient.getInstance().getModManager().getMods().stream()
             .filter(mod -> mod != this && mod.isEnabled() && !mod.isHidden() && included(mod.getCategory()))
             .sorted(Comparator.comparing(Mod::getRawName))
             .map(mod -> new Row(mod.getRawName(), displayName(mod), "", "", false)).toList();
+    }
+
+    /**
+     * Cheap fingerprint of everything the row list depends on: the per-mod flags,
+     * the category filters and the active language (which drives the labels).
+     */
+    private long stateSignature() {
+        long state = I18n.getCurrentLanguage() == null ? 0 : I18n.getCurrentLanguage().ordinal() + 1;
+        state = state * 31 + (hudSetting.isEnabled() ? 1 : 0);
+        state = state * 31 + (renderSetting.isEnabled() ? 1 : 0);
+        state = state * 31 + (playerSetting.isEnabled() ? 1 : 0);
+        state = state * 31 + (otherSetting.isEnabled() ? 1 : 0);
+        for (Mod mod : PupperClient.getInstance().getModManager().getMods()) {
+            state = state * 31 + (mod.isEnabled() ? 1 : 0);
+            state = state * 31 + (mod.isHidden() ? 1 : 0);
+        }
+        return state;
     }
 
     private String displayName(Mod mod) {
