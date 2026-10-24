@@ -142,6 +142,21 @@ public class MusicPlayer implements Runnable {
         preparation.purge(); closeQuietly(head);
     }
 
+    /**
+     * Blocks until the player has work, instead of making the owning thread poll.
+     *
+     * <p>The wait is bounded so a missed notification costs at most one second rather
+     * than stalling playback.
+     *
+     * @return {@code false} once the player is shut down and the loop should exit
+     */
+    public synchronized boolean awaitWork() throws InterruptedException {
+        while (!closed && (running || (!playing && !seeking) || currentMusic == null)) {
+            wait(1000);
+        }
+        return !closed;
+    }
+
     @Override public void run() {
         Music track; long session; double start;
         synchronized (this) {
@@ -268,7 +283,7 @@ public class MusicPlayer implements Runnable {
             if (failure instanceof InterruptedException) Thread.currentThread().interrupt();
         } finally {
             closeQuietly(spare); closeQuietly(stream); releaseLine(line);
-            synchronized (this) { running = false; }
+            synchronized (this) { running = false; notifyAll(); }
         }
     }
     protected PcmDecoder openDecoder(Music track) throws Exception { return PcmDecoders.open(track.getAudio()); }

@@ -111,15 +111,16 @@ public class MusicManager {
         musicPlayer.setVolume(experience.resume().volume());
         musicPlayer.setRepeat(repeatMode == MusicRepeatMode.ONE);
         playerThread = Thread.ofPlatform().daemon().name("Pupper Client music").start(() -> {
-                while (!Thread.currentThread().isInterrupted()) {
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        break;
-                    }
-                    musicPlayer.run();
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    // The player signals every state change; polling at 100 Hz only burned CPU.
+                    if (!musicPlayer.awaitWork()) break;
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
                 }
+                musicPlayer.run();
+            }
         });
         long window = MediaSession.supported() ? org.lwjgl.glfw.GLFWNativeWin32.glfwGetWin32Window(
             net.minecraft.client.Minecraft.getInstance().getWindow().handle()) : 0;
@@ -140,8 +141,11 @@ public class MusicManager {
     private void scheduleRecovery() {
         Multithreading.schedule(() -> {
             if (shuttingDown) return;
-            Multithreading.runMainThread(() -> {
-                if (!shuttingDown) { savePlayback(); scheduleRecovery(); }
+            // Writing the resume point rewrites a JSON file; keep it off the client thread.
+            Multithreading.runAsync(() -> {
+                if (shuttingDown) return;
+                savePlayback();
+                scheduleRecovery();
             });
         }, 10, java.util.concurrent.TimeUnit.SECONDS);
     }
