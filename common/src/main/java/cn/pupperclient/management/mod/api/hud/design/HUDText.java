@@ -20,6 +20,7 @@ package cn.pupperclient.management.mod.api.hud.design;
 import java.awt.Color;
 import cn.pupperclient.management.mod.impl.settings.HUDModSettings;
 import cn.pupperclient.skia.Skia;
+import cn.pupperclient.skia.font.TextMetrics;
 import io.github.humbleui.skija.Canvas;
 import cn.pupperclient.ui.render.UiCanvas;
 import cn.pupperclient.ui.render.RasterUiCanvas;
@@ -33,13 +34,13 @@ public final class HUDText {
     private HUDText() {}
 
     public static void drawText(String text, float x, float y, Color color, Font font) {
-        var bounds = font.measureText(text);
+        var bounds = TextMetrics.bounds(font, text);
         draw(text, x - bounds.getLeft(), y - bounds.getTop(), color, font);
     }
 
     public static void drawHeightCenteredText(String text, float x, float y, Color color, Font font) {
-        var bounds = font.measureText(text);
-        var metrics = font.getMetrics();
+        var bounds = TextMetrics.bounds(font, text);
+        var metrics = TextMetrics.metrics(font);
         draw(text, x - bounds.getLeft(), y - (metrics.getAscent() + metrics.getDescent()) / 2, color, font);
     }
 
@@ -48,8 +49,8 @@ public final class HUDText {
     }
 
     public static void drawFullCenteredText(String text, float x, float y, Color color, Font font, float opacity) {
-        var bounds = font.measureText(text);
-        var metrics = font.getMetrics();
+        var bounds = TextMetrics.bounds(font, text);
+        var metrics = TextMetrics.metrics(font);
         draw(text, x - bounds.getLeft() - bounds.getWidth() / 2,
             y - (metrics.getAscent() + metrics.getDescent()) / 2, color, font, opacity);
     }

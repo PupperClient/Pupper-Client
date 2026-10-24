@@ -35,15 +35,15 @@ public final class ContextInfoHudUi {
             String current = "";
             for (String token : detail.split(" · ")) {
                 String candidate = current.isEmpty() ? token : current + " · " + token;
-                if (!current.isEmpty() && HUDTokens.body().measureText(candidate).getWidth() > textLimit) {
+                if (!current.isEmpty() && Skia.getTextBounds(candidate, HUDTokens.body()).getWidth() > textLimit) {
                     lines.add(Skia.getLimitText(current, HUDTokens.body(), textLimit)); current = token;
                 } else current = candidate;
             }
             if (!current.isEmpty()) lines.add(Skia.getLimitText(current, HUDTokens.body(), textLimit));
         }
         String heading = Skia.getLimitText(title, HUDTokens.title(), textLimit);
-        float textWidth = HUDTokens.title().measureText(heading).getWidth();
-        for (var line : lines) textWidth = Math.max(textWidth, HUDTokens.body().measureText(line).getWidth());
+        float textWidth = Skia.getTextBounds(heading, HUDTokens.title()).getWidth();
+        for (var line : lines) textWidth = Math.max(textWidth, Skia.getTextBounds(line, HUDTokens.body()).getWidth());
         return new Layout(Math.min(available, Math.max(120, textWidth + TEXT_X + 10)),
             Math.max(40, 26 + lines.size() * 14), heading, List.copyOf(lines));
     }

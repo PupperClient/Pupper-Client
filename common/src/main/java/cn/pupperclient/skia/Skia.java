@@ -22,6 +22,7 @@ import java.io.File;
 
 import net.minecraft.resources.Identifier;
 import cn.pupperclient.skia.context.SkiaContext;
+import cn.pupperclient.skia.font.TextMetrics;
 import cn.pupperclient.skia.image.ImageHelper;
 import cn.pupperclient.ui.render.UiCanvas;
 import com.mojang.blaze3d.textures.GpuTextureView;
@@ -607,7 +608,7 @@ public class Skia {
      * @param font The font to use
      */
     public static void drawText(String text, float x, float y, Color color, Font font) {
-        Rect bounds = font.measureText(text);
+        Rect bounds = TextMetrics.bounds(font, text);
         getCanvas().drawString(text, x - bounds.getLeft(), y - bounds.getTop(), font, setupPaint(color));
     }
 
@@ -620,7 +621,7 @@ public class Skia {
      * @param font The font to use
      */
     public static void drawCenteredText(String text, float x, float y, Color color, Font font) {
-        Rect bounds = font.measureText(text);
+        Rect bounds = TextMetrics.bounds(font, text);
         getCanvas().drawString(text, x - bounds.getLeft() - (bounds.getWidth() / 2), y - bounds.getTop(), font,
             setupPaint(color));
     }
@@ -635,8 +636,8 @@ public class Skia {
      */
     public static void drawHeightCenteredText(String text, float x, float y, Color color, Font font) {
 
-        FontMetrics metrics = font.getMetrics();
-        Rect bounds = font.measureText(text);
+        FontMetrics metrics = TextMetrics.metrics(font);
+        Rect bounds = TextMetrics.bounds(font, text);
 
         float textCenterY = y + (metrics.getAscent() - metrics.getDescent()) / 2 - metrics.getAscent();
 
@@ -653,9 +654,9 @@ public class Skia {
      */
     public static void drawFullCenteredText(String text, float x, float y, Color color, Font font) {
 
-        Rect bounds = font.measureText(text);
+        Rect bounds = TextMetrics.bounds(font, text);
 
-        FontMetrics metrics = font.getMetrics();
+        FontMetrics metrics = TextMetrics.metrics(font);
 
         float textCenterX = x - bounds.getLeft() - (bounds.getWidth() / 2);
         float textCenterY = y + (metrics.getAscent() - metrics.getDescent()) / 2 - metrics.getAscent();
@@ -670,7 +671,7 @@ public class Skia {
      * @return The bounding rectangle of the text
      */
     public static Rect getTextBounds(String text, Font font) {
-        return font.measureText(text);
+        return TextMetrics.bounds(font, text);
     }
 
     /**
@@ -827,6 +828,7 @@ public class Skia {
 
     public static void releaseResources() {
         cn.pupperclient.management.mod.api.hud.design.HUDText.releaseResources();
+        TextMetrics.clear();
         imageHelper.clear();
         GlassRenderer.releaseResources();
         SHARED_PAINT.close();
