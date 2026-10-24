@@ -23,11 +23,12 @@ them rather than being given a notice their authors never wrote; the license for
 the directory as a whole is the one in this table, and the full license texts are
 listed under "License texts" below.
 
-The one exception is
-`libraries/material3/Material3.java`: it is a first-party adapter written against
-the library's public API (it calls the project's own `ImageUtils` and adds
-helpers that upstream does not have), so it carries the project license header
-rather than Google's.
+The one exception is `libraries/material3/Material3.java`. It is not part of
+Material Color Utilities: it is a thin facade whose methods only delegate to the
+library's public API and to this project's own `ImageUtils.imageToPixels`, and it
+sits in that package to keep the library's imports together. It therefore carries
+the project license header like the rest of the client, and it is the only file in
+that directory that does.
 
 ## Bundled fonts
 
