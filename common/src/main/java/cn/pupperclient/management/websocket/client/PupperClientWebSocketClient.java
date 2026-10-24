@@ -18,7 +18,6 @@
 package cn.pupperclient.management.websocket.client;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,8 +37,8 @@ public class PupperClientWebSocketClient extends WebSocketClient {
 	private final Gson gson = new Gson();
 	private final Runnable closeTask;
 
-	public PupperClientWebSocketClient(Map<String, String> headers, Runnable closeTask) throws URISyntaxException {
-		super(new URI("ws://localhost:8080/websocket"), headers);
+	public PupperClientWebSocketClient(URI endpoint, Map<String, String> headers, Runnable closeTask) {
+		super(endpoint, headers);
 		this.closeTask = closeTask;
 		initializeHandlers();
 	}

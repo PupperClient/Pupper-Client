@@ -17,6 +17,7 @@
 
 package cn.pupperclient.management.websocket;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,38 +25,79 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.User;
 import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import cn.pupperclient.management.websocket.client.PupperClientWebSocketClient;
 import cn.pupperclient.management.websocket.packet.PupperClientPacket;
-import cn.pupperclient.utils.http.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WebSocketManager {
+/**
+ * Keeps one websocket connection to the configured Pupper service alive.
+ *
+ * <p>The endpoint has no built-in default: real-time features stay off unless
+ * {@code pupper.websocket.uri} (or {@code PUPPER_WEBSOCKET_URI}) names a
+ * {@code ws://} or {@code wss://} service. Nothing is sent to Mojang.
+ */
+public class WebSocketManager implements AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketManager.class);
 
+    private static final String ENDPOINT_PROPERTY = "pupper.websocket.uri";
+    private static final String ENDPOINT_ENV = "PUPPER_WEBSOCKET_URI";
     private static final int MAX_RETRY_ATTEMPTS = 3;
     private static final int CONNECTION_CHECK_INTERVAL_SECONDS = 10;
 
     private final Minecraft minecraftClient;
     private final ScheduledExecutorService scheduler;
+    private final URI endpoint;
 
     private GameProfile currentGameProfile;
     private PupperClientWebSocketClient webSocketClient;
     private int retryCount = 0;
-    private final boolean isShuttingDown = false;
+    private volatile boolean isShuttingDown;
 
     public WebSocketManager() {
         this.minecraftClient = Minecraft.getInstance();
+        this.endpoint = resolveEndpoint();
         this.scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
             Thread thread = new Thread(r, "WebSocket-Manager");
             thread.setDaemon(true);
             return thread;
         });
 
+        if (endpoint == null) {
+            LOGGER.info("No websocket endpoint configured; real-time features are disabled");
+            return;
+        }
         startConnectionMonitor();
+    }
+
+    /**
+     * Reads the service address from the JVM property, then the environment.
+     *
+     * @return the endpoint, or {@code null} when none is configured or it is not a websocket URI
+     */
+    private static URI resolveEndpoint() {
+        String configured = System.getProperty(ENDPOINT_PROPERTY);
+        if (configured == null || configured.isBlank()) {
+            configured = System.getenv(ENDPOINT_ENV);
+        }
+        if (configured == null || configured.isBlank()) {
+            return null;
+        }
+
+        try {
+            URI uri = new URI(configured.strip());
+            String scheme = uri.getScheme();
+            if (!"ws".equals(scheme) && !"wss".equals(scheme)) {
+                LOGGER.error("Ignoring websocket endpoint with unsupported scheme: {}", configured);
+                return null;
+            }
+            return uri;
+        } catch (URISyntaxException e) {
+            LOGGER.error("Ignoring malformed websocket endpoint: {}", configured, e);
+            return null;
+        }
     }
 
     private void startConnectionMonitor() {
@@ -89,7 +131,6 @@ public class WebSocketManager {
         }
     }
 
-
     private boolean shouldReconnect(GameProfile newProfile) {
         if (currentGameProfile == null) {
             return true;
@@ -102,87 +143,48 @@ public class WebSocketManager {
             return true;
         }
 
-        if (webSocketClient == null || webSocketClient.isClosed()) {
-            LOGGER.debug("WebSocket is closed, reconnecting");
-            return true;
-        }
-
-        return false;
+        return webSocketClient == null || webSocketClient.isClosed();
     }
-
 
     private void attemptConnection(GameProfile profile) {
         closeExistingConnection();
         currentGameProfile = profile;
 
-        if (!authenticateWithMojang()) {
-            LOGGER.error("Mojang authentication failed");
-            retryCount++;
-            return;
-        }
-
         try {
             webSocketClient = createWebSocketClient();
             webSocketClient.connect();
-            retryCount = 0; // 连接成功，重置重试计数
-            //LOGGER.info("WebSocket connection established for user: {}", profile.getName());
+            retryCount = 0;
         } catch (URISyntaxException e) {
-            //LOGGER.error("Invalid WebSocket URI", e);
+            LOGGER.error("Invalid WebSocket URI", e);
             retryCount++;
         } catch (Exception e) {
-            //LOGGER.error("Failed to establish WebSocket connection", e);
+            LOGGER.error("Failed to establish WebSocket connection", e);
             retryCount++;
         }
     }
-
 
     private void closeExistingConnection() {
-        if (webSocketClient != null) {
-            try {
-                webSocketClient.close();
-                //LOGGER.debug("Existing WebSocket connection closed");
-            } catch (Exception e) {
-                //LOGGER.warn("Error closing WebSocket connection", e);
-            }
-            webSocketClient = null;
+        if (webSocketClient == null) {
+            return;
         }
-    }
-
-
-    private boolean authenticateWithMojang() {
-        User session = minecraftClient.getUser();
-        if (session == null || session.getAccessToken() == null || session.getProfileId() == null) {
-            LOGGER.error("Invalid Minecraft session");
-            return false;
-        }
-
-        JsonObject authRequest = new JsonObject();
-        authRequest.addProperty("accessToken", session.getAccessToken());
-        authRequest.addProperty("selectedProfile", session.getProfileId().toString().replace("-", ""));
-        authRequest.addProperty("serverId", "cbd2c3f65d7ba5cceba0cc9647ff9a85c371f4");
-
         try {
-            // 假设HttpUtils.postJson返回boolean或我们可以检查响应
-            HttpUtils.postJson("https://sessionserver.mojang.com/session/minecraft/join", authRequest);
-            return true;
+            webSocketClient.close();
         } catch (Exception e) {
-            LOGGER.error("Mojang authentication failed", e);
-            return false;
+            LOGGER.warn("Error closing WebSocket connection", e);
         }
+        webSocketClient = null;
     }
-
 
     private PupperClientWebSocketClient createWebSocketClient() throws URISyntaxException {
         Map<String, String> headers = new HashMap<>();
         headers.put("name", currentGameProfile.name());
         headers.put("uuid", currentGameProfile.id().toString().replace("-", ""));
 
-        return new PupperClientWebSocketClient(headers, this::onConnectionFailure);
+        return new PupperClientWebSocketClient(endpoint, headers, this::onConnectionFailure);
     }
 
     private void onConnectionFailure() {
         retryCount++;
-        //LOGGER.warn("WebSocket connection failure, retry count: {}", retryCount);
     }
 
     public void send(PupperClientPacket packet) {
@@ -192,16 +194,22 @@ public class WebSocketManager {
         }
 
         if (webSocketClient == null || !webSocketClient.isOpen()) {
-            LOGGER.warn("WebSocket is not connected, cannot send packet");
+            LOGGER.debug("WebSocket is not connected, cannot send packet");
             return;
         }
 
         try {
             String jsonData = packet.toJson().toString();
             webSocketClient.send(jsonData);
-            LOGGER.debug("Packet sent successfully");
         } catch (Exception e) {
             LOGGER.error("Failed to send packet via WebSocket", e);
         }
+    }
+
+    @Override
+    public void close() {
+        isShuttingDown = true;
+        scheduler.shutdownNow();
+        closeExistingConnection();
     }
 }
