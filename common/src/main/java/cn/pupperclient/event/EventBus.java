@@ -17,24 +17,28 @@
 
 package cn.pupperclient.event;
 
-import org.apache.logging.log4j.util.InternalApi;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
+import cn.pupperclient.PupperLogger;
+
+/**
+ * Reflection-driven event dispatch.
+ *
+ * <p>Mods register and unregister from the client thread while network and audio
+ * threads post events, so every structure here is safe for concurrent use.
+ */
 public class EventBus {
 
-    private static EventBus instance = new EventBus();
+    private static final EventBus instance = new EventBus();
 
     public interface EventListener<T extends Event> {
         void onEvent(T event);
@@ -43,15 +47,16 @@ public class EventBus {
         }
     }
 
+    /** One listener and the single event type it was registered under. */
+    private record Registration(Type eventType, EventListener<?> listener) {}
+
     private final ConcurrentHashMap<Type, CopyOnWriteArrayList<EventListener<?>>> listenerMap = new ConcurrentHashMap<>();
-    private final Map<Class<?>, Field[]> declaredFieldsCache = new HashMap<>();
-    private final Map<Class<?>, Method[]> declaredMethodsCache = new HashMap<>();
-    private final Map<Object, List<EventListener<?>>> registeredHandlers = new HashMap<>();
+    private final Map<Class<?>, Field[]> declaredFieldsCache = new ConcurrentHashMap<>();
+    private final Map<Class<?>, Method[]> declaredMethodsCache = new ConcurrentHashMap<>();
+    private final Map<Object, List<Registration>> registeredHandlers = new ConcurrentHashMap<>();
 
     private final Comparator<EventListener<?>> priorityOrder = Comparator
         .comparingInt((EventListener<?> listener) -> listener.getPriority()).reversed();
-    private final BiConsumer<List<EventListener<?>>, Comparator<EventListener<?>>> sortCallback = List::sort;
-    private final Consumer<Throwable> errorHandler = Throwable::printStackTrace;
 
     private Field[] getCachedDeclaredFields(final Class<?> clazz) {
         return declaredFieldsCache.computeIfAbsent(clazz, Class::getDeclaredFields);
@@ -62,80 +67,88 @@ public class EventBus {
     }
 
     public void register(final Object object) {
-        if (registeredHandlers.containsKey(object)) {
+        if (object == null || registeredHandlers.containsKey(object)) {
             return;
         }
 
-        List<EventListener<?>> handlers = new CopyOnWriteArrayList<>();
+        List<Registration> handlers = new ArrayList<>();
+        collectFieldListeners(object, handlers);
+        collectMethodListeners(object, handlers);
+        if (handlers.isEmpty()) {
+            return;
+        }
 
-        registerFieldListeners(object, handlers);
-
-        registerMethodListeners(object, handlers);
-
-        if (!handlers.isEmpty()) {
-            registeredHandlers.put(object, handlers);
+        // A repeated registration for the same object is a no-op, including a race
+        // where two threads register it at once.
+        if (registeredHandlers.putIfAbsent(object, List.copyOf(handlers)) != null) {
+            return;
+        }
+        for (Registration handler : handlers) {
+            addListener(handler.eventType(), handler.listener());
         }
     }
 
     @Deprecated
-    private void registerFieldListeners(final Object object, List<EventListener<?>> handlers) {
+    private void collectFieldListeners(final Object object, List<Registration> handlers) {
         for (final Field field : getCachedDeclaredFields(object.getClass())) {
-            if (field.getType() == EventListener.class) {
-                final EventListener<?> eventListener = getEventHandler(object, field);
-                if (eventListener != null) {
-                    final Type eventType = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-                    registerListener(eventType, eventListener);
-                    handlers.add(eventListener);
-                }
+            if (field.getType() != EventListener.class) {
+                continue;
             }
+            final EventListener<?> eventListener = getEventHandler(object, field);
+            if (eventListener == null) {
+                continue;
+            }
+            final Type eventType = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+            handlers.add(new Registration(eventType, eventListener));
         }
     }
 
-    private void registerMethodListeners(final Object object, List<EventListener<?>> handlers) {
+    private void collectMethodListeners(final Object object, List<Registration> handlers) {
         for (final Method method : getCachedDeclaredMethods(object.getClass())) {
-            if (method.isAnnotationPresent(cn.pupperclient.event.EventListener.class)) {
-                if (method.getParameterCount() != 1) {
-                    throw new IllegalArgumentException(
-                        "EventListener method must have exactly one parameter: " + method);
-                }
-
-                Class<?> parameterType = method.getParameterTypes()[0];
-                if (!Event.class.isAssignableFrom(parameterType)) {
-                    throw new IllegalArgumentException(
-                        "EventListener method parameter must be a subclass of Event: " + method);
-                }
-
-                @SuppressWarnings("unchecked")
-                Class<? extends Event> eventType = (Class<? extends Event>) parameterType;
-
-                MethodEventListener<?> handler = new MethodEventListener<>(object, method);
-                registerListener(eventType, handler);
-                handlers.add(handler);
+            if (!method.isAnnotationPresent(cn.pupperclient.event.EventListener.class)) {
+                continue;
             }
+            if (method.getParameterCount() != 1) {
+                throw new IllegalArgumentException(
+                    "EventListener method must have exactly one parameter: " + method);
+            }
+
+            Class<?> parameterType = method.getParameterTypes()[0];
+            if (!Event.class.isAssignableFrom(parameterType)) {
+                throw new IllegalArgumentException(
+                    "EventListener method parameter must be a subclass of Event: " + method);
+            }
+
+            handlers.add(new Registration(parameterType, new MethodEventListener<>(object, method)));
         }
     }
 
-    private void registerListener(Type eventType, EventListener<?> listener) {
-        listenerMap.computeIfAbsent(eventType, k -> new CopyOnWriteArrayList<>()).add(listener);
-        sortCallback.accept(listenerMap.get(eventType), priorityOrder);
+    private void addListener(Type eventType, EventListener<?> listener) {
+        CopyOnWriteArrayList<EventListener<?>> listeners =
+            listenerMap.computeIfAbsent(eventType, key -> new CopyOnWriteArrayList<>());
+        listeners.add(listener);
+        // Re-sorting only this bucket keeps higher-priority listeners first after a late registration.
+        listeners.sort(priorityOrder);
     }
 
     public <T extends Event> void post(T event) {
-        Type eventType = event.getClass();
-        CopyOnWriteArrayList<EventListener<?>> listeners = listenerMap.get(eventType);
+        CopyOnWriteArrayList<EventListener<?>> listeners = listenerMap.get(event.getClass());
+        if (listeners == null) {
+            return;
+        }
 
-        if (listeners != null) {
-            for (EventListener<?> listener : listeners) {
-                if (event.isCancelled()) {
-                    break;
-                }
-                try {
-                    @SuppressWarnings("unchecked")
-                    EventListener<T> castedListener = (EventListener<T>) listener;
-                    castedListener.onEvent(event);
-                } catch (Throwable t) {
-                    errorHandler.accept(t);
-                }
+        for (EventListener<?> listener : listeners) {
+            if (event.isCancelled()) {
+                return;
+            }
+            try {
+                @SuppressWarnings("unchecked")
+                EventListener<T> castedListener = (EventListener<T>) listener;
+                castedListener.onEvent(event);
+            } catch (Throwable t) {
+                // One broken listener must not stop the rest of the dispatch, and the
+                // client keeps running, so record it with the game log instead of stderr.
+                PupperLogger.error("EventBus", "Listener failed for " + event.getClass().getSimpleName(), t);
             }
         }
     }
@@ -146,67 +159,38 @@ public class EventBus {
     }
 
     public void unregister(final Object object) {
-        List<EventListener<?>> handlers = registeredHandlers.remove(object);
-        if (handlers != null) {
-            for (EventListener<?> handler : handlers) {
-                // 从所有事件类型中移除这个处理器
-                for (CopyOnWriteArrayList<EventListener<?>> listeners : listenerMap.values()) {
-                    listeners.remove(handler);
-                }
-                // 清理空的事件类型
-                listenerMap.entrySet().removeIf(entry -> entry.getValue().isEmpty());
-            }
+        if (object == null) {
+            return;
         }
 
-        // 同时调用旧的取消注册逻辑以确保完全清理
-        unregisterOldStyle(object);
+        List<Registration> handlers = registeredHandlers.remove(object);
+        if (handlers == null) {
+            return;
+        }
+
+        for (Registration handler : handlers) {
+            removeListener(handler.eventType(), handler.listener());
+        }
     }
 
-    /**
-     * 旧的取消注册逻辑 (保持兼容)
-     */
-    private void unregisterOldStyle(final Object object) {
-        modifyEventListenerState(object, (type, listener) -> {
-            CopyOnWriteArrayList<EventListener<?>> listeners = listenerMap.get(type);
-            if (listeners != null) {
-                listeners.remove(listener);
-                if (listeners.isEmpty()) {
-                    listenerMap.remove(type);
-                }
-            }
+    private void removeListener(Type eventType, EventListener<?> listener) {
+        listenerMap.computeIfPresent(eventType, (type, listeners) -> {
+            listeners.remove(listener);
+            return listeners.isEmpty() ? null : listeners;
         });
-    }
-
-    /**
-     * 旧的修改事件监听器状态方法 (保持兼容)
-     */
-    private void modifyEventListenerState(final Object o,
-                                          final BiConsumer<Type, EventListener<?>> eventHandlerBiConsumer) {
-        final Class<?> type = o.getClass();
-        for (final Field field : getCachedDeclaredFields(type)) {
-            // 修改这里：使用 EventListener 而不是 EventListener
-            if (field.getType() == EventListener.class) {
-                final EventListener<?> eventListener = getEventHandler(o, field);
-                if (eventListener != null) {
-                    final Type eventType = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-                    eventHandlerBiConsumer.accept(eventType, eventListener);
-                }
-            }
-        }
     }
 
     private EventListener<?> getEventHandler(final Object o, final Field field) {
         final boolean accessible = field.canAccess(o);
         field.setAccessible(true);
-        EventListener<?> fieldSubscription = null;
         try {
-            fieldSubscription = (EventListener<?>) field.get(o);
+            return (EventListener<?>) field.get(o);
         } catch (IllegalAccessException e) {
-            cn.pupperclient.PupperLogger.error("EventBus", "Failed to get event handler", e);
+            PupperLogger.error("EventBus", "Failed to get event handler", e);
+            return null;
         } finally {
             field.setAccessible(accessible);
         }
-        return fieldSubscription;
     }
 
     public static EventBus getInstance() {

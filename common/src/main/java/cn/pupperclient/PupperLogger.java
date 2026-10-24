@@ -36,7 +36,7 @@ public class PupperLogger {
 		logger.error("[Pupper Client/ERROR] [" + prefix + "] " + message);
 	}
 
-	public static void error(String prefix, String message, Exception e) {
+	public static void error(String prefix, String message, Throwable e) {
 		logger.error("[Pupper Client/ERROR] [" + prefix + "] " + message, e);
 	}
 
