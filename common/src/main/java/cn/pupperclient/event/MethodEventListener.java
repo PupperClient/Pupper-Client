@@ -22,14 +22,11 @@ import java.lang.reflect.Method;
 public class MethodEventListener<T extends Event> implements EventBus.EventListener<T> {
     private final Object target;
     private final Method method;
-    private final Class<T> eventType;
     private final int priority;
 
-    @SuppressWarnings("unchecked")
     public MethodEventListener(Object target, Method method) {
         this.target = target;
         this.method = method;
-        this.eventType = (Class<T>) method.getParameterTypes()[0];
 
         EventListener annotation = method.getAnnotation(EventListener.class);
         this.priority = annotation != null ? annotation.priority().getValue() : 0;
@@ -51,10 +48,6 @@ public class MethodEventListener<T extends Event> implements EventBus.EventListe
     @Override
     public int getPriority() {
         return priority;
-    }
-
-    public Class<T> getEventType() {
-        return eventType;
     }
 
     @Override
