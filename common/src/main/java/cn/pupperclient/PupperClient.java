@@ -52,8 +52,6 @@ public class PupperClient implements IMinecraft {
 
     private static final PupperClient INSTANCE = new PupperClient();
 
-    public static boolean hasAcceptedTerms = false;
-    public static boolean firstLaunch = false;
     public static final Logger LOGGER = PupperLogger.getLogger();
 
     private long launchTime;
@@ -127,7 +125,6 @@ public class PupperClient implements IMinecraft {
         Path configFile = configDir.resolve(CONFIG_FILE_NAME);
 
         if (!Files.exists(configFile)) {
-            firstLaunch = true;
             createConfigFile(configFile);
         }
     }

@@ -19,16 +19,12 @@ package cn.pupperclient.skia.context;
 
 import cn.pupperclient.PupperLogger;
 import cn.pupperclient.ui.render.BlazeUiRenderer;
-import cn.pupperclient.ui.render.RasterUiCanvas;
 import cn.pupperclient.ui.render.UiCanvas;
 import com.mojang.blaze3d.textures.GpuTextureView;
-import io.github.humbleui.skija.Surface;
 import java.util.function.Consumer;
 
 /** Legacy drawing entry point backed exclusively by Blaze3D GPU resources. */
 public final class SkiaContext {
-    // CPU specimen rendering only; production frames never allocate a Skia surface.
-    private static Surface surface;
     private static BlazeUiRenderer renderer;
     private static UiCanvas canvas;
     private static boolean reportedFailure;
@@ -53,7 +49,6 @@ public final class SkiaContext {
     }
 
     public static UiCanvas getCanvas() {
-        if (surface != null) return new RasterUiCanvas(surface.getCanvas());
         if (canvas == null) throw new IllegalStateException("UI drawing requires an active frame");
         return canvas;
     }
