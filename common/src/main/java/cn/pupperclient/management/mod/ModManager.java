@@ -38,6 +38,8 @@ public class ModManager {
 	private final List<Setting> settings = new CopyOnWriteArrayList<>();
 	private final List<HUDDesign> designs = new CopyOnWriteArrayList<>();
 
+    private static final String DEFAULT_DESIGN = "design.simple";
+
     private HUDDesign currentDesign;
 
 	public void init() {
@@ -152,6 +154,9 @@ public class ModManager {
 		designs.add(new ClassicDesign());
 		designs.add(new MaterialYouDesign());
 		setCurrentDesign("design.materialyou");
+		if (currentDesign == null) {
+			currentDesign = designs.getFirst();
+		}
 	}
 
 	public List<Mod> getMods() {
@@ -187,9 +192,24 @@ public class ModManager {
 		this.currentDesign = getDesignByName(name);
 	}
 
+	/**
+	 * @return the design registered under {@code name}, or the simple design when the
+	 *         saved name no longer exists
+	 */
 	public HUDDesign getDesignByName(String name) {
-		return designs.stream().filter(design -> design.getName().equals(name)).findFirst()
-				.orElseGet(() -> getDesignByName("design.simple"));
+		for (HUDDesign design : designs) {
+			if (design.getName().equals(name)) {
+				return design;
+			}
+		}
+		// Fall back once: recursing on the same lookup would never terminate when the
+		// fallback name is missing too.
+		for (HUDDesign design : designs) {
+			if (DEFAULT_DESIGN.equals(design.getName())) {
+				return design;
+			}
+		}
+		return designs.isEmpty() ? null : designs.getFirst();
 	}
 
 	private void sortMods() {
